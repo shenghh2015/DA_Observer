@@ -5,11 +5,8 @@ import glob
 import os
 import scipy.io
 import math
-import multiprocessing as mp
 import time
 from sklearn.metrics import roc_auc_score
-
-pi = math.pi
 
 from load_data import *
 from model import *

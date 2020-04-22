@@ -8,8 +8,6 @@ from termcolor import colored
 import argparse
 from sklearn.metrics import roc_auc_score
 import scipy.io
-import math
-import multiprocessing as mp
 import time
 
 from load_data import *
