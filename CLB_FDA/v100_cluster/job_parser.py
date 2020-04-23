@@ -1,7 +1,14 @@
 import os
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("job_list_file", type=str)
+
+args = parser.parse_args()
+job_list_file = args.job_list_file
 
 job_folder = './job_folder'
-job_list_file = './GPU_jobs.txt'
+# job_list_file = './DA_jobs.txt'
 
 job_list = []
 with open(job_list_file, 'rb') as f:
