@@ -126,8 +126,8 @@ noise = 2.0
 sig_rate = 0.035
 source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-4.0k'
 # load source data
-source = 'data/CLB'
-target = 'data/FDA'
+source = '/data/results/CLB'
+target = '/data/results/FDA'
 source_model_file = os.path.join(source, source_model_name, 'source-best')
 
 # load source data

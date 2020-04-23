@@ -1,1 +1,2 @@
-python train_target.py --gpu_num 3 --nb_cnn 4 --bn True --lr 1e-8 --nb_train 85000 --bz 400 --optimizer 'Adam' --nb_steps 5000
+python train_DA1.py --gpu 3 --dis_cnn 0 --dis_fc 128 --dis_bn True --D_lr 1e-6 --G_lr 1e-6 --nD 1 --nG 1 --dAcc1 0.80 --dAcc2 0.90 --iters 100000 --bz 400 --lamda 1.0
+
