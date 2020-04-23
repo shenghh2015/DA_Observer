@@ -145,7 +145,7 @@ Xt_trn, Xt_val, Xt_tst = (Xt_trn-np.min(Xt_trn))/(np.max(Xt_trn)-np.min(Xt_trn))
 Xt_trn, Xt_val, Xt_tst = np.expand_dims(Xt_trn, axis = 3), np.expand_dims(Xt_val, axis = 3), np.expand_dims(Xt_tst, axis = 3)
 yt_tst = yt_tst.reshape(-1,1)
 
-DA = 'data/{}-{}'.format(os.path.basename(source), os.path.basename(target))
+DA = '/data/results/{}-{}'.format(os.path.basename(source), os.path.basename(target))
 generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)

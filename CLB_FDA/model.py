@@ -134,8 +134,8 @@ def dense_block(x, fc_layers = [128, 1], nb = True, scope_name = 'base'):
 	return h1, h2
 
 ### create network
-def conv_classifier(x, nb_cnn = 4, fc_layers = [128,1],  bn = True, scope_name = 'base'):
-	with tf.variable_scope(scope_name):
+def conv_classifier(x, nb_cnn = 4, fc_layers = [128,1],  bn = True, scope_name = 'base', reuse = False):
+	with tf.variable_scope(scope_name, reuse = reuse):
 		conv_net = conv_block(x, nb_cnn = nb_cnn, bn = bn, scope_name = 'conv')
 		h, pred_logit = dense_block(conv_net, fc_layers = fc_layers, nb = bn, scope_name = 'classifier')
 
