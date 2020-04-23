@@ -149,7 +149,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'wd-cnn-{0:}-fc-{1:}-bn-{2:}-bz-{3:}-D_lr-{4:}-G_lr-{5:}-nD-{6:}-nG-{7:}-iter-{8:}-ac1-{9:}-ac2-{10:}'.format(dis_cnn, dis_fc, dis_bn, batch_size, d_lr, g_lr, nd_steps, ng_steps, nb_steps, dAcc1, dAcc2)
+DA_model_name = 'wd-cnn-{0:}-fc-{1:}-bn-{2:}-bz-{3:}-D_lr-{4:}-G_lr-{5:}-nD-{6:}-nG-{7:}-iter-{8:}'.format(dis_cnn, dis_fc, dis_bn, batch_size, d_lr, g_lr, nd_steps, ng_steps, nb_steps)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
