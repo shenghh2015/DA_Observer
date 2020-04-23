@@ -11,7 +11,7 @@
 # parser.add_argument("--nb_steps", type = int, default = 100000)
 
 # python train_source.py --gpu_num 0 --nb_cnn 4 --bn True --lr 5e-5 --nb_train 100000 --noise 2.0 --sig_rate 0.035 --bz 400 --optimizer 'Adam' --nb_steps 4000
-JOB: python train_source.py --gpu_num 0 --nb_cnn 4 --bn True --lr 5e-5 --nb_train 100000 --noise 1.0 --sig_rate 0.035 --bz 400 --optimizer 'Adam' --nb_steps 1000
-JOB: python train_source.py --gpu_num 1 --nb_cnn 4 --bn True --lr 5e-5 --nb_train 100000 --noise 2.0 --sig_rate 0.035 --bz 400 --optimizer 'Adam' --nb_steps 1000
-JOB: python train_source.py --gpu_num 2 --nb_cnn 4 --bn True --lr 5e-5 --nb_train 100000 --noise 3.0 --sig_rate 0.035 --bz 400 --optimizer 'Adam' --nb_steps 1000
-JOB: python train_source.py --gpu_num 3 --nb_cnn 4 --bn True --lr 5e-5 --nb_train 100000 --noise 5.0 --sig_rate 0.035 --bz 400 --optimizer 'Adam' --nb_steps 1000
+JOB: python train_source.py --gpu_num 0 --nb_cnn 4 --bn True --lr 5e-5 --nb_train 100000 --noise 1.0 --sig_rate 0.035 --bz 400 --optimizer 'Adam' --nb_steps 100000
+JOB: python train_source.py --gpu_num 1 --nb_cnn 4 --bn True --lr 5e-5 --nb_train 100000 --noise 2.0 --sig_rate 0.035 --bz 400 --optimizer 'Adam' --nb_steps 100000
+JOB: python train_source.py --gpu_num 2 --nb_cnn 4 --bn True --lr 5e-5 --nb_train 100000 --noise 3.0 --sig_rate 0.035 --bz 400 --optimizer 'Adam' --nb_steps 100000
+JOB: python train_source.py --gpu_num 3 --nb_cnn 4 --bn True --lr 5e-5 --nb_train 100000 --noise 5.0 --sig_rate 0.035 --bz 400 --optimizer 'Adam' --nb_steps 100000
