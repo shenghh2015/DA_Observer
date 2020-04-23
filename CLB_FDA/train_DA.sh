@@ -51,5 +51,8 @@ python train_DA1.py --gpu 3 --dis_cnn 0 --dis_fc 128 --dis_bn True --D_lr 1e-5 -
 python train_DA1.py --gpu 4 --dis_cnn 0 --dis_fc 128 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 2 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --beta 0.01
 python train_DA1.py --gpu 6 --dis_cnn 0 --dis_fc 256 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 2 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --beta 0.05
 
+## Apr. 23, 2020, afternoon
+python wd_DA.py --gpu 3 --dis_cnn 0 --dis_fc 128 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 2 --nG 1 --iters 100 --bz 400 --gp_param 10
+
 
 
