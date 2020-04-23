@@ -86,7 +86,8 @@ parser.add_argument("--dAcc1", type = float)
 parser.add_argument("--dAcc2", type = float)
 parser.add_argument("--iters", type = int)
 parser.add_argument("--bz", type = int)
-parser.add_argument("--lamda", type = float)
+parser.add_argument("--beta", type = float, default = 1.0)
+parser.add_argument("--lamda", type = float, default = 1.0)
 
 
 args = parser.parse_args()
@@ -103,6 +104,7 @@ ng_steps = args.nG
 dAcc1 = args.dAcc1
 dAcc2 = args.dAcc2
 lmd = args.lamda
+beta = args.beta
 
 if False:
 	gpu_num = 6
@@ -119,6 +121,7 @@ if False:
 	dAcc1 = args.dAcc1
 	dAcc2 = args.dAcc2
 	lmd = 1.0
+	beta = 1.0
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
 # hyper-parameters
@@ -150,7 +153,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'shared-cnn-{0:}-fc-{1:}-bn-{2:}-bz-{3:}-D_lr-{4:}-G_lr-{5:}-nD-{6:}-nG-{7:}-iter-{8:}-ac1-{9:}-ac2-{10:}-lmd-{11:}'.format(dis_cnn, dis_fc, dis_bn, batch_size, d_lr, g_lr, nd_steps, ng_steps, nb_steps, dAcc1, dAcc2, lmd)
+DA_model_name = 'shared-cnn-{0:}-fc-{1:}-bn-{2:}-bz-{3:}-D_lr-{4:}-G_lr-{5:}-nD-{6:}-nG-{7:}-iter-{8:}-ac1-{9:}-ac2-{10:}-beta-{11:}'.format(dis_cnn, dis_fc, dis_bn, batch_size, d_lr, g_lr, nd_steps, ng_steps, nb_steps, dAcc1, dAcc2, beta)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -197,7 +200,7 @@ else:
 clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=source_logit, labels= ys))
 disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits, labels=tf.ones_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits= trg_logits, labels=tf.zeros_like(trg_logits)))
 gen_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits, labels=tf.zeros_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits,labels=tf.ones_like(trg_logits)))
-total_loss = clf_loss + lmd*gen_loss
+total_loss = beta*clf_loss + lmd*gen_loss
 discr_vars_list = tf.trainable_variables('discriminator')
 disc_step = tf.train.AdamOptimizer(d_lr).minimize(disc_loss, var_list= discr_vars_list)
 gen_step = tf.train.AdamOptimizer(g_lr).minimize(total_loss, var_list = source_vars_list)

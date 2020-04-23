@@ -1,6 +1,8 @@
 FROM tensorflow/tensorflow:1.13.0rc1-gpu-py3
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades --allow-change-held-packages --no-install-recommends python3-pip python3-tk
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades --allow-change-held-packages --no-install-recommends python3-pip python3-tk python2.7
+
+RUN ln -s /usr/bin/python2.7 /usr/bin/python2
 
 RUN pip install scipy sklearn matplotlib natsort ipython
 

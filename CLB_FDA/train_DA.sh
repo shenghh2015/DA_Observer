@@ -33,7 +33,7 @@ python train_DA.py --gpu 3 --dis_cnn 4 --dis_fc 256 --dis_bn True --D_lr 5e-4 --
 python train_DA.py --gpu 4 --dis_cnn 4 --dis_fc 256 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 1 --nG 1 --dAcc1 0.85 --dAcc2 0.95 --iters 200000 --bz 400
 python train_DA.py --gpu 5 --dis_cnn 4 --dis_fc 128 --dis_bn True --D_lr 1e-5 --G_lr 1e-6 --nD 1 --nG 1 --dAcc1 0.85 --dAcc2 0.95 --iters 200000 --bz 400
 
-### Apr. 23, 2020
+### Apr. 23, 2020, morning
 python train_DA1.py --gpu 0 --dis_cnn 2 --dis_fc 128 --dis_bn True --D_lr 1e-4 --G_lr 1e-4 --nD 1 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --lamda 1.0
 python train_DA1.py --gpu 1 --dis_cnn 2 --dis_fc 128 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 1 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --lamda 1.0
 python train_DA1.py --gpu 2 --dis_cnn 2 --dis_fc 128 --dis_bn True --D_lr 1e-6 --G_lr 1e-6 --nD 1 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --lamda 1.0
@@ -41,5 +41,15 @@ python train_DA1.py --gpu 3 --dis_cnn 2 --dis_fc 128 --dis_bn True --D_lr 1e-7 -
 python train_DA1.py --gpu 4 --dis_cnn 4 --dis_fc 128 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 1 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --lamda 1.0
 python train_DA1.py --gpu 5 --dis_cnn 4 --dis_fc 128 --dis_bn True --D_lr 1e-6 --G_lr 1e-6 --nD 1 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --lamda 1.0
 python train_DA1.py --gpu 6 --dis_cnn 4 --dis_fc 128 --dis_bn True --D_lr 1e-7 --G_lr 1e-7 --nD 1 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --lamda 1.0
+
+## Apr. 23, 2020, afternoon: use the dense layers features and improve the lamda that control the contribution from the generator loss
+python train_DA1.py --gpu 0 --dis_cnn 0 --dis_fc 256 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 2 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --beta 0.4
+python train_DA1.py --gpu 1 --dis_cnn 0 --dis_fc 512 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 2 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --beta 0.4
+python train_DA1.py --gpu 2 --dis_cnn 0 --dis_fc 1024 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 2 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --beta 0.4
+
+python train_DA1.py --gpu 3 --dis_cnn 0 --dis_fc 128 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 2 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --beta 0.1
+python train_DA1.py --gpu 4 --dis_cnn 0 --dis_fc 128 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 2 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --beta 0.01
+python train_DA1.py --gpu 6 --dis_cnn 0 --dis_fc 256 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 2 --nG 1 --dAcc1 0.80 --dAcc2 0.95 --iters 100000 --bz 400 --beta 0.05
+
 
 
