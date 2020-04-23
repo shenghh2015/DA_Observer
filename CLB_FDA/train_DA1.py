@@ -273,9 +273,9 @@ with tf.Session() as sess:
 		# print results
 		print_block(symbol = '-', nb_sybl = 60)
 		print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}; S-test: {2:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC))
-		print_yellow('Loss: D {0:.4f}, G :{1:.4f} C: {2:.4f}; Dom acc: {3:.4f} Iter:{4}'.format(D_loss/2, G_loss, C_loss, domain_acc, iteration))
+		print_yellow('Loss: D {0:.4f}, G :{1:.4f} C: {2:.4f}; Dom acc: {3:.4f} Iter:{4}'.format(D_loss, G_loss, C_loss, domain_acc, iteration))
 		# save results
-		D_loss_list.append(D_loss/2)
+		D_loss_list.append(D_loss)
 		G_loss_list.append(G_loss)
 		test_auc_list.append(test_target_AUC)
 		val_auc_list.append(val_target_AUC)
