@@ -101,9 +101,10 @@ def print_block(symbol = '*', nb_sybl = 70):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu", type=int)
+parser.add_argument("--lr", type = float)
 parser.add_argument("--iters", type = int)
 parser.add_argument("--bz", type = int)
-parser.add_argument("--mmd_param", type = int)
+parser.add_argument("--mmd_param", type = float)
 
 
 args = parser.parse_args()
@@ -113,10 +114,11 @@ nb_steps = args.iters
 mmd_param = args.mmd_param
 
 if False:
-	gpu_num = 6
-	batch_size = 400
-	nb_steps = 1000
-	mmd_param = 10
+    gpu_num = 6
+    lr = 1e-5
+    batch_size = 400
+    nb_steps = 1000
+    mmd_param = 10
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
 # hyper-parameters
@@ -147,7 +149,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'mmd-{0:}-bz-{1:}-iter-{2:}'.format(batch_size, nb_steps, mmd_param)
+DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}'.format(mmd_param, lr, batch_size, nb_steps)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -190,7 +192,7 @@ with tf.variable_scope('mmd'):
     loss_value = maximum_mean_discrepancy(h_src, h_trg, kernel=gaussian_kernel)
     mmd_loss = tf.maximum(1e-4, loss_value)
 
-gen_step = tf.train.AdamOptimizer(g_lr).minimize(mmd_loss, var_list=target_vars_list)
+gen_step = tf.train.AdamOptimizer(lr).minimize(mmd_loss, var_list=target_vars_list)
 
 D_loss_list = []
 test_auc_list = []
