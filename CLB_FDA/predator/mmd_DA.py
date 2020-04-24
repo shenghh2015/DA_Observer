@@ -112,6 +112,7 @@ gpu_num = args.gpu
 batch_size = args.bz
 nb_steps = args.iters
 mmd_param = args.mmd_param
+lr = args.lr
 
 if False:
     gpu_num = 6
