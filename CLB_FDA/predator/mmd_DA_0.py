@@ -1,5 +1,4 @@
 import tensorflow as tf
-import tensorflow.math as tm
 
 import numpy as np
 import os
@@ -31,6 +30,7 @@ def compute_pairwise_distances(x, y):
     norm = lambda x: tf.reduce_sum(tf.square(x), 1)
     return tf.transpose(norm(tf.expand_dims(x, 2) - tf.transpose(y)))
 
+
 def gaussian_kernel_matrix(x, y, sigmas):
     beta = 1. / (2. * (tf.expand_dims(sigmas, 1)))
     dist = compute_pairwise_distances(x, y)
@@ -44,10 +44,6 @@ def maximum_mean_discrepancy(x, y, kernel=gaussian_kernel_matrix):
     cost -= 2 * tf.reduce_mean(kernel(x, y))
     cost = tf.where(cost > 0, cost, 0, name='value')
     return cost
-
-def bias_variable(shape, name):
-    initial = tf.constant(0.1, shape=shape)
-    return tf.Variable(initial, name=name)
 
 # plot and save the file
 def plot_loss(model_name,loss,val_loss, file_name):
@@ -109,7 +105,7 @@ parser.add_argument("--lr", type = float)
 parser.add_argument("--iters", type = int)
 parser.add_argument("--bz", type = int)
 parser.add_argument("--mmd_param", type = float)
-parser.add_argument("--nb_trg_labels", type = int, default = 0)
+
 
 args = parser.parse_args()
 gpu_num = args.gpu
@@ -117,15 +113,13 @@ batch_size = args.bz
 nb_steps = args.iters
 mmd_param = args.mmd_param
 lr = args.lr
-nb_trg_labels = args.nb_trg_labels
 
 if False:
-	gpu_num = 0
-	lr = 1e-5
-	batch_size = 400
-	nb_steps = 1000
-	mmd_param = 1.0
-	nb_trg_labels = 0
+    gpu_num = 6
+    lr = 1e-5
+    batch_size = 400
+    nb_steps = 1000
+    mmd_param = 10
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
 # hyper-parameters
@@ -139,20 +133,18 @@ source_model_file = os.path.join(source, source_model_name, 'source-best')
 
 # load source data
 nb_source = 100000
-Xs_trn, Xs_val, Xs_tst, ys_trn, ys_val, ys_tst = load_source(train = nb_source, sig_rate = sig_rate)
+Xs_trn, Xs_val, Xs_tst, _, ys_val, ys_tst = load_source(train = nb_source, sig_rate = sig_rate)
 Xs_trn, Xs_val, Xs_tst = np.random.RandomState(2).normal(Xs_trn, noise), np.random.RandomState(0).normal(Xs_val, noise), np.random.RandomState(1).normal(Xs_tst, noise)
 Xs_trn, Xs_val, Xs_tst = (Xs_trn-np.min(Xs_trn))/(np.max(Xs_trn)-np.min(Xs_trn)), (Xs_val-np.min(Xs_val))/(np.max(Xs_val)-np.min(Xs_val)), (Xs_tst-np.min(Xs_tst))/(np.max(Xs_tst)-np.min(Xs_tst))
 Xs_trn, Xs_val, Xs_tst = np.expand_dims(Xs_trn, axis = 3), np.expand_dims(Xs_val, axis = 3), np.expand_dims(Xs_tst, axis = 3)
 ys_tst = ys_tst.reshape(-1,1)
-ys_trn = ys_trn.reshape(-1,1)
 # load target data
 nb_target = 85000
-Xt_trn, Xt_val, Xt_tst, yt_trn, yt_val, yt_tst = load_target(dataset = 'total', train = nb_target)
+Xt_trn, Xt_val, Xt_tst, _, yt_val, yt_tst = load_target(dataset = 'total', train = nb_target)
 Xt_trn, Xt_val, Xt_tst = (Xt_trn-np.min(Xt_trn))/(np.max(Xt_trn)-np.min(Xt_trn)), (Xt_val-np.min(Xt_val))/(np.max(Xt_val)-np.min(Xt_val)), (Xt_tst-np.min(Xt_tst))/(np.max(Xt_tst)-np.min(Xt_tst))
 Xt_trn, Xt_val, Xt_tst = np.expand_dims(Xt_trn, axis = 3), np.expand_dims(Xt_val, axis = 3), np.expand_dims(Xt_tst, axis = 3)
-yt_trn, yt_val, yt_tst = yt_trn.reshape(-1,1), yt_val.reshape(-1,1), yt_tst.reshape(-1,1)
-Xt_trn_l = np.concatenate([Xt_trn[0:nb_trg_labels,:],Xt_trn[nb_target:nb_target+nb_trg_labels,:]], axis = 0)
-yt_trn_l = np.concatenate([yt_trn[0:nb_trg_labels,:],yt_trn[nb_target:nb_target+nb_trg_labels,:]], axis = 0)
+yt_tst = yt_tst.reshape(-1,1)
+
 DA = '/data/results/{}-{}'.format(os.path.basename(source), os.path.basename(target))
 generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
@@ -177,12 +169,9 @@ xs = tf.placeholder("float", shape=[None, 109,109, 1])
 ys = tf.placeholder("float", shape=[None, 1])
 xt = tf.placeholder("float", shape=[None, 109,109, 1])
 yt = tf.placeholder("float", shape=[None, 1])
-xt1 = tf.placeholder("float", shape=[None, 109,109, 1])   # input target image with labels
-yt1 = tf.placeholder("float", shape=[None, 1])			  # input target image labels
 
 conv_net_src, h_src, source_logit = conv_classifier(xs, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = 'source')
 conv_net_trg, h_trg, target_logit = conv_classifier(xt, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = 'target')
-_, _, target_logit_l = conv_classifier(xt1, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = 'target', reuse = True)
 
 source_vars_list = tf.trainable_variables('source')
 source_key_list = [v.name[:-2].replace('source', 'base') for v in tf.trainable_variables('source')]
@@ -198,46 +187,13 @@ for key, var in zip(target_key_list, target_vars_list):
 	target_key_direct[key] = var
 target_saver = tf.train.Saver(target_key_direct, max_to_keep=nb_steps)
 
-# source loss
-src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = ys, logits = source_logit))
-
-# target loss
-trg_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = yt, logits = target_logit))
-
-# weight loss
-a_list = []
-b_list = []
-with tf.variable_scope('weight_regulizer'):
-	for i in range(nb_cnn+2):
-		a_list.append(tf.Variable(1.0, name='a_{}'.format(i)))
-		b_list.append(tf.Variable(0.0, name='b_{}'.format(i)))
-
-# source kernel and target kernel
-source_kernels = [v for v in tf.trainable_variables('source') if 'kernel' in v.name]
-target_kernels = [v for v in tf.trainable_variables('target') if 'kernel' in v.name]
-source_bias = [v for v in tf.trainable_variables('source') if 'bias' in v.name]
-target_bias = [v for v in tf.trainable_variables('target') if 'bias' in v.name]
-layer_loss_list = []
-for a, b, sk, tk, sb, tb in list(zip(a_list[:-1], b_list[:-1], source_kernels[:-1], target_kernels[:-1], source_bias[:-1], target_bias[:-1])):
-	layer_loss_list.append(tm.exp(tf.nn.l2_loss(tm.scalar_mul(a, sk) + b - tk)) -1)
-	layer_loss_list.append(tm.exp(tf.nn.l2_loss(tm.scalar_mul(a, sb) + b - tb)) -1)
-# 	layer_loss_list.append(tm.exp(tf.nn.l2_loss(tm.subtract(tm.add(tm.scalar_mul(a, sb), b), tb)))-1)
-# source bais and target bais
-w_loss = tf.add_n(layer_loss_list)
-
-# mmd loss
 with tf.variable_scope('mmd'):
     sigmas = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 5, 10, 15, 20, 25, 30, 35, 100, 1e3, 1e4, 1e5, 1e6]
     gaussian_kernel = partial(gaussian_kernel_matrix, sigmas=tf.constant(sigmas))
     loss_value = maximum_mean_discrepancy(h_src, h_trg, kernel=gaussian_kernel)
-    mmd_loss = mmd_param*tf.maximum(1e-4, loss_value)
+    mmd_loss = tf.maximum(1e-4, loss_value)
 
-if nb_trg_labels > 0:
-	total_loss = src_clf_loss + trg_clf_loss + w_loss + mmd_loss
-else:
-	total_loss = src_clf_loss + w_loss + mmd_loss
-
-gen_step = tf.train.AdamOptimizer(lr).minimize(total_loss, var_list = target_vars_list + source_vars_list + tf.trainable_variables('weight_regulizer'))
+gen_step = tf.train.AdamOptimizer(lr).minimize(mmd_loss, var_list=target_vars_list)
 
 D_loss_list = []
 test_auc_list = []
@@ -274,14 +230,9 @@ with tf.Session() as sess:
 	for iteration in range(nb_steps):
 		indices_s = np.random.randint(0, Xs_trn.shape[0], batch_size)
 		batch_s = Xs_trn[indices_s,:]
-		batch_ys = ys_trn[indices_s,:]
 		indices_t = np.random.randint(0, Xt_trn.shape[0], batch_size)
 		batch_t = Xt_trn[indices_t,:]
-		if nb_trg_labels == 0:
-			_, D_loss = sess.run([gen_step, mmd_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys})
-		else:
-			batch_xt_l, batch_yt_l = Xt_trn_l[:nb_trn_labels, :], yt_trn_l[:nb_trn_labels, :]
-			_, D_loss = sess.run([gen_step, mmd_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l})
+		_, D_loss = sess.run([gen_step, mmd_loss], feed_dict={xs: batch_s, xt: batch_t})	
 		#testing
 		test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst})
 		test_source_stat = np.exp(test_source_logit)
