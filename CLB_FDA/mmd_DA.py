@@ -119,10 +119,10 @@ mmd_param = args.mmd_param
 lr = args.lr
 
 if False:
-    gpu_num = 0
-    lr = 1e-5
-    batch_size = 400
-    nb_steps = 1000
+	gpu_num = 0
+	lr = 1e-5
+	batch_size = 400
+	nb_steps = 1000
 	mmd_param = 10
 	nb_trg_labels = 0
 
