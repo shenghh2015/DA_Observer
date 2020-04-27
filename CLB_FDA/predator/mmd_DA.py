@@ -105,16 +105,16 @@ def print_block(symbol = '*', nb_sybl = 70):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu", type=int)
-parser.add_argument("--docker", type=bool, default = True)
+parser.add_argument("--docker", type = bool)
 parser.add_argument("--shared", type = bool)
 parser.add_argument("--lr", type = float)
 parser.add_argument("--iters", type = int)
 parser.add_argument("--bz", type = int)
 parser.add_argument("--mmd_param", type = float)
-parser.add_argument("--source_scratch", type = bool, default = False)
+parser.add_argument("--source_scratch", type = bool)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
-parser.add_argument("--den_bn", type = bool, default = True)
+parser.add_argument("--den_bn", type = bool)
 
 args = parser.parse_args()
 gpu_num = args.gpu
@@ -126,12 +126,11 @@ mmd_param = args.mmd_param
 lr = args.lr
 nb_trg_labels = args.nb_trg_labels
 source_scratch = args.source_scratch
-compute_node = args.docker
 fc_layer = args.fc_layer
 den_bn = args.den_bn
 
 if False:
-	gpu_num = 0
+	gpu_num = 1
 	lr = 1e-5
 	batch_size = 400
 	nb_steps = 1000
@@ -141,7 +140,7 @@ if False:
 	docker = True
 	shared = True
 	fc_layer = 128
-	den_bn = True
+	den_bn = False
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
 
@@ -150,6 +149,7 @@ if docker:
 else:
 	output_folder = 'data'
 
+print(output_folder)
 # hyper-parameters
 noise = 2.0
 sig_rate = 0.035
@@ -183,7 +183,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}_v2'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn)
+DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -219,6 +219,8 @@ _, _, target_logit_l = conv_classifier(xt1, nb_cnn = nb_cnn, fc_layers = [fc_lay
 # flat2 = tf.layers.flatten(conv_net_trg)
 
 source_vars_list = tf.trainable_variables('source')
+# source_conv_list = tf.trainable_variables('source/conv')
+# source_clf_list = tf.trainable_variables('source/classifier')
 source_key_list = [v.name[:-2].replace('source', 'base') for v in tf.trainable_variables('source')]
 source_key_direct = {}
 for key, var in zip(source_key_list, source_vars_list):
@@ -238,6 +240,7 @@ target_saver = tf.train.Saver(target_key_direct, max_to_keep=nb_steps)
 
 # source loss
 src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = ys, logits = source_logit))
+
 # mmd loss
 with tf.variable_scope('mmd'):
 	sigmas = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 5, 10, 15, 20, 25, 30, 35, 100, 1e3, 1e4, 1e5, 1e6]
@@ -285,8 +288,8 @@ val_auc_list = []
 ## model loading verification
 with tf.Session() as sess:
 	tf.global_variables_initializer().run(session=sess)
-	pre_trained_saver.restore(sess, source_model_file)
-# 	source_saver.restore(sess, source_model_file)
+# 	pre_trained_saver.restore(sess, source_model_file)
+	source_saver.restore(sess, source_model_file)
 	if not shared:
 		target_saver.restore(sess, source_model_file)
 	# source to source (target loading)
