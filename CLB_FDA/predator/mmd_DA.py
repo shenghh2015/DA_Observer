@@ -105,18 +105,20 @@ def print_block(symbol = '*', nb_sybl = 70):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu", type=int)
-parser.add_argument("--docker", type = bool)
-parser.add_argument("--shared", type = bool)
+parser.add_argument("--docker", type = bool, default = True)
+parser.add_argument("--shared", type = bool, default = False)
 parser.add_argument("--lr", type = float)
 parser.add_argument("--iters", type = int)
 parser.add_argument("--bz", type = int)
 parser.add_argument("--mmd_param", type = float)
-parser.add_argument("--source_scratch", type = bool)
+parser.add_argument("--source_scratch", type = bool, default = False)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
-parser.add_argument("--den_bn", type = bool)
+parser.add_argument("--den_bn", type = bool, default = False)
 
 args = parser.parse_args()
+print(args)
+
 gpu_num = args.gpu
 docker = args.docker
 shared = args.shared
