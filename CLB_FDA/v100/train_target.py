@@ -7,6 +7,9 @@ import argparse
 from load_data import *
 from model import *
 
+def str2bool(value):
+    return value.lower() == 'true'
+
 # generate the folder
 def generate_folder(folder):
     import os
@@ -33,7 +36,7 @@ def print_block(symbol = '*', nb_sybl = 70):
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu_num", type=int)
 parser.add_argument("--nb_cnn", type = int)
-parser.add_argument("--bn", type = bool)
+parser.add_argument("--bn", type = str2bool, default = False)
 parser.add_argument("--lr", type = float)
 parser.add_argument("--nb_train", type = int)
 # parser.add_argument("--noise", type = float)
