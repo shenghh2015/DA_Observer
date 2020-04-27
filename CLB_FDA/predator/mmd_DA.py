@@ -16,6 +16,9 @@ from model import *
 
 from functools import partial
 
+def str2bool(value):
+    return value.lower() == 'true'
+
 # generate the folder
 def generate_folder(folder):
     import os
@@ -105,16 +108,18 @@ def print_block(symbol = '*', nb_sybl = 70):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu", type=int)
-parser.add_argument("--docker", type = bool, default = True)
-parser.add_argument("--shared", type = bool, default = False)
+parser.add_argument("--docker", type = str2bool, default = True)
+parser.add_argument("--shared", type = str2bool, default = True)
 parser.add_argument("--lr", type = float)
 parser.add_argument("--iters", type = int)
 parser.add_argument("--bz", type = int)
-parser.add_argument("--mmd_param", type = float)
-parser.add_argument("--source_scratch", type = bool, default = False)
+parser.add_argument("--mmd_param", type = float, default = 1.0)
+parser.add_argument("--trg_clf_param", type = float, default = 1.0)
+parser.add_argument("--src_clf_param", type = float, default = 1.0)
+parser.add_argument("--source_scratch", type = str2bool, default = True)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
-parser.add_argument("--den_bn", type = bool, default = False)
+parser.add_argument("--den_bn", type = str2bool, default = False)
 
 args = parser.parse_args()
 print(args)
@@ -130,6 +135,8 @@ nb_trg_labels = args.nb_trg_labels
 source_scratch = args.source_scratch
 fc_layer = args.fc_layer
 den_bn = args.den_bn
+trg_clf_param = args.trg_clf_param
+src_clf_param = args.src_clf_param
 
 if False:
 	gpu_num = 1
@@ -185,7 +192,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn)
+DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}-tclf-{8:}-sclf-{9:}'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn, trg_clf_param, src_clf_param)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -251,11 +258,11 @@ with tf.variable_scope('mmd'):
 	mmd_loss = mmd_param*loss_value
 #     mmd_loss = mmd_param*tf.maximum(1e-2, loss_value)
 
-total_loss = mmd_loss + src_clf_loss
+total_loss = mmd_loss + src_clf_param*src_clf_loss
 
 if nb_trg_labels > 0:
-	trg_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = yt, logits = target_logit))
-	total_loss = total_loss + trg_clf_loss
+	trg_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = yt1, logits = target_logit_l))
+	total_loss = total_loss + trg_clf_param*trg_clf_loss
 
 if not shared:
 	# weight loss
@@ -320,15 +327,16 @@ with tf.Session() as sess:
 		if not shared:
 			target_saver.restore(sess, source_model_file)
 	for iteration in range(nb_steps):
-		indices_s = np.random.randint(0, Xs_trn.shape[0], batch_size)
+		indices_s = np.random.randint(0, Xs_trn.shape[0]-1, batch_size)
 		batch_s = Xs_trn[indices_s,:]
 		batch_ys = ys_trn[indices_s,:]
-		indices_t = np.random.randint(0, Xt_trn.shape[0], batch_size)
+		indices_t = np.random.randint(0, Xt_trn.shape[0]-1, batch_size)
 		batch_t = Xt_trn[indices_t,:]
 		if nb_trg_labels == 0:
 			_, D_loss, C_loss = sess.run([gen_step, mmd_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys})
 		else:
-			batch_xt_l, batch_yt_l = Xt_trn_l[:nb_trn_labels, :], yt_trn_l[:nb_trn_labels, :]
+			indices_tl = np.random.randint(0, nb_trg_labels-1, 100)
+			batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
 			_, D_loss, C_loss = sess.run([gen_step, mmd_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l})
 		#testing
 		test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst})
