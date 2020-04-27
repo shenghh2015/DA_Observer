@@ -114,7 +114,7 @@ parser.add_argument("--mmd_param", type = float)
 parser.add_argument("--source_scratch", type = bool)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
-parser.add_argument("--den_bn", type = bool)
+parser.add_argument("--den_bn", type = bool, default = False)
 
 args = parser.parse_args()
 gpu_num = args.gpu
