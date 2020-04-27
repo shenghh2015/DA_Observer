@@ -1,4 +1,4 @@
-cd /home/shenghuahe/DA_Observer/CLB_FDA/v100_cluster
+cd /home/shenghuahe/DA_Observer/CLB_FDA/v100
 python2 job_parser.py 'target_jobs.txt'
 for i in $(seq 0 3)
 do
