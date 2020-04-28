@@ -34,10 +34,12 @@ def load_target(dataset = 'total', train = 80000, valid = 400, test = 400):
 # 	test = 400
 # 	X_SA = np.load('/shared/planck/Phantom/Breast_Xray/FDA_DM_ROIs/npy_dataset/{}_SA.npy'.format(dataset))
 # 	X_SP = np.load('/shared/planck/Phantom/Breast_Xray/FDA_DM_ROIs/npy_dataset/{}_SP.npy'.format(dataset))
+	offset_valid = 85000
+	offset_test = 400 + offset_valid
 	X_SA = np.load(os.path.join(dataset_folder, 'FDA_DM_ROIs/npy_dataset/{}_SA.npy'.format(dataset)))
 	X_SP = np.load(os.path.join(dataset_folder, 'FDA_DM_ROIs/npy_dataset/{}_SP.npy'.format(dataset)))
-	X_SA_trn, X_SA_val, X_SA_tst = X_SA[:train,:], X_SA[train:train+valid,:], X_SA[train+valid:train+valid+test,:]
-	X_SP_trn, X_SP_val, X_SP_tst = X_SP[:train,:], X_SP[train:train+valid,:], X_SP[train+valid:train+valid+test,:]
+	X_SA_trn, X_SA_val, X_SA_tst = X_SA[:train,:], X_SA[offset_valid:offset_valid+valid,:], X_SA[offset_test:offset_test+test,:]
+	X_SP_trn, X_SP_val, X_SP_tst = X_SP[:train,:], X_SP[offset_valid:offset_valid+valid,:], X_SP[offset_test:offset_test+test,:]
 	X_trn, X_val, X_tst = np.concatenate([X_SA_trn, X_SP_trn]), np.concatenate([X_SA_val, X_SP_val]), np.concatenate([X_SA_tst, X_SP_tst])
 	y_trn = np.concatenate([np.zeros((train,1)), np.ones((train,1))]).flatten()
 	y_val = np.concatenate([np.zeros((valid,1)), np.ones((valid,1))]).flatten()

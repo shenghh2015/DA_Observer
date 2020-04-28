@@ -79,7 +79,7 @@ y_val, y_tst = y_val.reshape(-1,1), y_tst.reshape(-1,1)
 model_root_folder = '/data/results/FDA' 	# dataset
 generate_folder(model_root_folder)
 
-direct = os.path.join(model_root_folder,'cnn-{}-bn-{}-trn-{}-bz-{}-lr-{}-{}-{}k'.format(nb_cnn, bn, nb_train, batch_size, lr, optimizer, num_steps/1000))
+direct = os.path.join(model_root_folder,'cnn-{}-bn-{}-trn-{}-bz-{}-lr-{}-{}-stp-{}k'.format(nb_cnn, bn, nb_train, batch_size, lr, optimizer, num_steps/1000))
 generate_folder(direct)
 direct_st = direct+'/statistics'
 generate_folder(direct_st)

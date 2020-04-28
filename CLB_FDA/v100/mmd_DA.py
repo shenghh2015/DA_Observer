@@ -367,4 +367,4 @@ with tf.Session() as sess:
 		np.savetxt(os.path.join(DA_model_folder,'clf_loss.txt'),C_loss_list)
 		plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
 		# save models
-		target_saver.save(sess, DA_model_folder +'/target')
+		target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
