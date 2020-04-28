@@ -54,6 +54,7 @@ def dense_block(x, fc_layers = [128, 1], nb = True, scope_name = 'base'):
 	with tf.variable_scope(scope_name):
 		flat = tf.layers.flatten(x)
 		h1 = tf.layers.dense(flat, fc_layers[0], kernel_regularizer=l2_regularizer)
+		print(nb)
 		if nb:
 			h1 = tf.layers.batch_normalization(h1, training = True)
 		h1 = tf.nn.leaky_relu(h1)

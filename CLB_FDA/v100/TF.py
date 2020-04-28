@@ -19,6 +19,26 @@ from functools import partial
 def str2bool(value):
     return value.lower() == 'true'
 
+def plot_AUCs(file_name, train_list, val_list, test_list):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	file_name = file_name
+	ax = fig.add_subplot(111)
+	ax.plot(train_list)
+	ax.plot(val_list)
+	ax.plot(test_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('AUC')
+	ax.legend(['Train','Valid','Test'])
+	ax.set_xlim([0,len(train_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
 # generate the folder
 def generate_folder(folder):
     import os
@@ -134,7 +154,10 @@ nb_steps = args.iters
 lr = args.lr
 nb_trg_labels = args.nb_trg_labels
 source_scratch = args.source_scratch
+<<<<<<< HEAD
+=======
 # source_scratch = False
+>>>>>>> 9d3c136b3cc40f1e25a4525ec6e50d55cf7e5217
 fc_layer = args.fc_layer
 den_bn = False
 # trg_clf_param = args.trg_clf_param
@@ -231,6 +254,7 @@ gen_step = tf.train.AdamOptimizer(lr).minimize(trg_clf_loss, var_list = target_v
 C_loss_list = []
 test_auc_list = []
 val_auc_list = []
+train_auc_list = []
 
 ## model loading verification
 with tf.Session() as sess:
@@ -259,8 +283,14 @@ with tf.Session() as sess:
 	for iteration in range(nb_steps):
 		indices_tl = np.random.randint(0, nb_trg_labels-1, batch_size)
 		batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
+<<<<<<< HEAD
+		_, C_loss, trg_digit = sess.run([gen_step, trg_clf_loss, target_logit], feed_dict={xt: batch_xt_l, yt: batch_yt_l})
+		train_target_stat = np.exp(test_target_logit)
+		train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
+=======
 		batch_xt_l = (batch_xt_l - np.min(batch_xt_l))/(np.max(batch_xt_l) - np.min(batch_xt_l))
 		_, C_loss = sess.run([gen_step, trg_clf_loss], feed_dict={xt: batch_xt_l, yt: batch_yt_l})
+>>>>>>> 9d3c136b3cc40f1e25a4525ec6e50d55cf7e5217
 		test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst})
 		test_target_stat = np.exp(test_target_logit)
 		test_target_AUC = roc_auc_score(yt_tst, test_target_stat)
@@ -269,17 +299,20 @@ with tf.Session() as sess:
 		val_target_AUC = roc_auc_score(yt_val, val_target_stat)
 		# print results
 		print_block(symbol = '-', nb_sybl = 60)
-		print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}; S-test: {2:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC))
+		print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, T-train-{}; S-test: {3:.4f}'.format(test_target_AUC, val_target_AUC, train_target_AUC, test_source_AUC))
 		print_yellow('C loss :{0:.4f}, Iter:{1:}'.format(C_loss, iteration))
 		# save results
 		C_loss_list.append(C_loss)
 		test_auc_list.append(test_target_AUC)
 		val_auc_list.append(val_target_AUC)
+		train_auc_list.append(train_target_AUC)
 		print_yellow(os.path.basename(DA_model_folder))
 		plot_loss(DA_model_folder, C_loss_list, C_loss_list, DA_model_folder+'/loss_{}.png'.format(DA_model_name))
+		np.savetxt(os.path.join(DA_model_folder,'clf_loss.txt'),C_loss_list)
 		np.savetxt(os.path.join(DA_model_folder,'test_auc.txt'), test_auc_list)
 		np.savetxt(os.path.join(DA_model_folder,'val_auc.txt'), val_auc_list)
 		np.savetxt(os.path.join(DA_model_folder,'clf_loss.txt'),C_loss_list)
-		plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
+# 		plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
+		plot_AUCs(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list)
 		# save models
 		target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)

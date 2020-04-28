@@ -66,6 +66,17 @@ bn_training = True
 num_steps = args.nb_steps
 # optimizer="Adam"
 
+if False:
+	gpu_num = 0
+	batch_size = 200
+	nb_cnn = 4
+	bn = False
+	lr = 1e-5
+	nb_train = 400
+	optimizer = 'Adam'
+	num_steps = 1000
+
+
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
 
 ## load data
