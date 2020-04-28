@@ -313,5 +313,5 @@ with tf.Session() as sess:
 			target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
 		if best_val_auc < val_target_AUC:
 			best_val_auc = val_target_AUC
-			target_saver.save(sess, model_folder+'/target_best')
-		print_red('Update best:'+model_folder)
+			target_saver.save(sess, DA_model_folder+'/target_best')
+		print_red('Update best:'+DA_model_folder)
