@@ -101,7 +101,7 @@
 # parser.add_argument("--source_scratch", type = str2bool, default = False)
 # parser.add_argument("--nb_trg_labels", type = int, default = 0)
 # parser.add_argument("--fc_layer", type = int, default = 128)
-JOB: python TF.py --gpu 0 --docker True --lr 1e-6 --iters 10000 --bz 100 --nb_trg_labels 100
-JOB: python TF.py --gpu 1 --docker True --lr 1e-6 --iters 10000 --bz 100 --nb_trg_labels 200
-JOB: python TF.py --gpu 2 --docker True --lr 1e-6 --iters 10000 --bz 100 --nb_trg_labels 300
-JOB: python TF.py --gpu 3 --docker True --lr 1e-6 --iters 10000 --bz 100 --nb_trg_labels 400
+JOB: python TF.py --gpu 0 --docker True --lr 1e-6 --iters 20000 --bz 100 --nb_trg_labels 100
+JOB: python TF.py --gpu 1 --docker True --lr 1e-6 --iters 20000 --bz 100 --nb_trg_labels 200
+JOB: python TF.py --gpu 2 --docker True --lr 1e-6 --iters 20000 --bz 100 --nb_trg_labels 300
+JOB: python TF.py --gpu 3 --docker True --lr 1e-6 --iters 20000 --bz 100 --nb_trg_labels 400

@@ -61,4 +61,5 @@ python wd_DA.py --gpu 4 --dis_cnn 2 --dis_fc 128 --dis_bn True --D_lr 1e-5 --G_l
 python wd_DA.py --gpu 5 --dis_cnn 2 --dis_fc 128 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 4 --nG 1 --iters 10000 --bz 400 --gp_param 10
 python wd_DA.py --gpu 6 --dis_cnn 2 --dis_fc 128 --dis_bn True --D_lr 1e-5 --G_lr 1e-5 --nD 4 --nG 1 --iters 10000 --bz 400 --gp_param 15
 
+## Apr. 28, 2020, evening
 

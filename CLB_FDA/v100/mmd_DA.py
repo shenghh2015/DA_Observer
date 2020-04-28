@@ -414,12 +414,12 @@ with tf.Session() as sess:
 		print_yellow(os.path.basename(DA_model_folder))
 		if nb_trg_labels > 0:
 			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, T-train {2:.4f}; S-test: {3:.4f}'.format(test_target_AUC, val_target_AUC, train_target_AUC, test_source_AUC))
-			print_yellow('Loss: MMD:{0:.4f}, S:{1:.4f}, t:{2:.4f}, Iter:{1:}'.format(D_loss, sC_loss, tC_loss, iteration))
+			print_yellow('Loss: MMD:{0:.4f}, S:{1:.4f}, t:{2:.4f}, Iter:{3:}'.format(D_loss, sC_loss, tC_loss, iteration))
 			plot_LOSS(DA_model_folder+'/loss_{}.png'.format(DA_model_name), D_loss_list, sC_loss_list, tC_loss_list)
 			plot_AUCs(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list)
 		else:
 			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}; S-test: {2:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC))
-			print_yellow('Loss: MMD:{0:.4f}, S:{1:.4f}, Iter:{1:}'.format(D_loss, sC_loss, iteration))
+			print_yellow('Loss: MMD:{0:.4f}, S:{1:.4f}, Iter:{2:}'.format(D_loss, sC_loss, iteration))
 			plot_loss(DA_model_folder, D_loss_list, sC_loss_list, DA_model_folder+'/loss_{}.png'.format(DA_model_name))
 			plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
 		# save models
