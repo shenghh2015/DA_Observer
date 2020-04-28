@@ -154,6 +154,10 @@ nb_steps = args.iters
 lr = args.lr
 nb_trg_labels = args.nb_trg_labels
 source_scratch = args.source_scratch
+<<<<<<< HEAD
+=======
+# source_scratch = False
+>>>>>>> 9d3c136b3cc40f1e25a4525ec6e50d55cf7e5217
 fc_layer = args.fc_layer
 den_bn = False
 # trg_clf_param = args.trg_clf_param
@@ -208,6 +212,7 @@ Xt_trn, Xt_val, Xt_tst = (Xt_trn-np.min(Xt_trn))/(np.max(Xt_trn)-np.min(Xt_trn))
 Xt_trn, Xt_val, Xt_tst = np.expand_dims(Xt_trn, axis = 3), np.expand_dims(Xt_val, axis = 3), np.expand_dims(Xt_tst, axis = 3)
 yt_trn, yt_val, yt_tst = yt_trn.reshape(-1,1), yt_val.reshape(-1,1), yt_tst.reshape(-1,1)
 Xt_trn_l = np.concatenate([Xt_trn[0:nb_trg_labels,:],Xt_trn[sp_offset:sp_offset+nb_trg_labels,:]], axis = 0)
+Xt_trn_l = (Xt_trn_l-np.min(Xt_trn_l))/(np.max(Xt_trn_l)-np.min(Xt_trn_l))
 yt_trn_l = np.concatenate([yt_trn[0:nb_trg_labels,:],yt_trn[sp_offset:sp_offset+nb_trg_labels,:]], axis = 0)
 # DA = '/data/results/{}-{}'.format(os.path.basename(source), os.path.basename(target))
 DA = os.path.join(output_folder, '{}-{}'.format(os.path.basename(source), os.path.basename(target)))
@@ -278,9 +283,14 @@ with tf.Session() as sess:
 	for iteration in range(nb_steps):
 		indices_tl = np.random.randint(0, nb_trg_labels-1, batch_size)
 		batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
+<<<<<<< HEAD
 		_, C_loss, trg_digit = sess.run([gen_step, trg_clf_loss, target_logit], feed_dict={xt: batch_xt_l, yt: batch_yt_l})
 		train_target_stat = np.exp(test_target_logit)
 		train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
+=======
+		batch_xt_l = (batch_xt_l - np.min(batch_xt_l))/(np.max(batch_xt_l) - np.min(batch_xt_l))
+		_, C_loss = sess.run([gen_step, trg_clf_loss], feed_dict={xt: batch_xt_l, yt: batch_yt_l})
+>>>>>>> 9d3c136b3cc40f1e25a4525ec6e50d55cf7e5217
 		test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst})
 		test_target_stat = np.exp(test_target_logit)
 		test_target_AUC = roc_auc_score(yt_tst, test_target_stat)

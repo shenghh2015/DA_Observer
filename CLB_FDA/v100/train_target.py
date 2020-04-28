@@ -99,7 +99,7 @@ generate_folder(direct_st)
 x = tf.placeholder("float", shape=[None, 109,109, 1])
 y_ = tf.placeholder("float", shape=[None, 1])
 
-scope_name = 'source'
+scope_name = 'base'
 conv_net, h, pred_logit = conv_classifier(x, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = scope_name)
 
 vars_list = tf.trainable_variables(scope_name)

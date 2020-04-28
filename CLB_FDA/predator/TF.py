@@ -116,7 +116,7 @@ parser.add_argument("--bz", type = int)
 # parser.add_argument("--mmd_param", type = float, default = 1.0)
 # parser.add_argument("--trg_clf_param", type = float, default = 1.0)
 # parser.add_argument("--src_clf_param", type = float, default = 1.0)
-# parser.add_argument("--source_scratch", type = str2bool, default = True)
+parser.add_argument("--source_scratch", type = str2bool, default = False)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
 # parser.add_argument("--den_bn", type = str2bool, default = False)
@@ -133,7 +133,8 @@ nb_steps = args.iters
 # mmd_param = args.mmd_param
 lr = args.lr
 nb_trg_labels = args.nb_trg_labels
-source_scratch = False
+source_scratch = args.source_scratch
+# source_scratch = False
 fc_layer = args.fc_layer
 den_bn = False
 # trg_clf_param = args.trg_clf_param
@@ -188,6 +189,7 @@ Xt_trn, Xt_val, Xt_tst = (Xt_trn-np.min(Xt_trn))/(np.max(Xt_trn)-np.min(Xt_trn))
 Xt_trn, Xt_val, Xt_tst = np.expand_dims(Xt_trn, axis = 3), np.expand_dims(Xt_val, axis = 3), np.expand_dims(Xt_tst, axis = 3)
 yt_trn, yt_val, yt_tst = yt_trn.reshape(-1,1), yt_val.reshape(-1,1), yt_tst.reshape(-1,1)
 Xt_trn_l = np.concatenate([Xt_trn[0:nb_trg_labels,:],Xt_trn[sp_offset:sp_offset+nb_trg_labels,:]], axis = 0)
+Xt_trn_l = (Xt_trn_l-np.min(Xt_trn_l))/(np.max(Xt_trn_l)-np.min(Xt_trn_l))
 yt_trn_l = np.concatenate([yt_trn[0:nb_trg_labels,:],yt_trn[sp_offset:sp_offset+nb_trg_labels,:]], axis = 0)
 # DA = '/data/results/{}-{}'.format(os.path.basename(source), os.path.basename(target))
 DA = os.path.join(output_folder, '{}-{}'.format(os.path.basename(source), os.path.basename(target)))
@@ -252,10 +254,12 @@ with tf.Session() as sess:
 # sess = tf.Session()
 with tf.Session() as sess:
 	tf.global_variables_initializer().run(session=sess)
-	target_saver.restore(sess, source_model_file)
+	if not source_scratch:
+		target_saver.restore(sess, source_model_file)
 	for iteration in range(nb_steps):
 		indices_tl = np.random.randint(0, nb_trg_labels-1, batch_size)
 		batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
+		batch_xt_l = (batch_xt_l - np.min(batch_xt_l))/(np.max(batch_xt_l) - np.min(batch_xt_l))
 		_, C_loss = sess.run([gen_step, trg_clf_loss], feed_dict={xt: batch_xt_l, yt: batch_yt_l})
 		test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst})
 		test_target_stat = np.exp(test_target_logit)
