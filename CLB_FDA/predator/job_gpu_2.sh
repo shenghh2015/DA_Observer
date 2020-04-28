@@ -9,4 +9,6 @@
 # parser.add_argument("--nb_trg_labels", type = int, default = 0)
 # parser.add_argument("--fc_layer", type = int, default = 128)
 
-python TF.py --gpu 2 --docker True --lr 1e-5 --iters 10000 --bz 100 --source_scratch True --nb_trg_labels 400 --fc_layer 128
+# python TF.py --gpu 2 --docker True --lr 1e-5 --iters 10000 --bz 100 --source_scratch True --nb_trg_labels 400 --fc_layer 128
+python TF.py --gpu 2 --docker True --lr 1e-5 --iters 10000 --bz 100 --source_scratch False --nb_trg_labels 500 --fc_layer 128
+# python train_source.py --gpu_num 2 --nb_cnn 4 --bn False --lr 1e-5 --nb_train 100000 --noise 2 --sig_rate 0.035 --bz 400 --optimizer Adam --nb_steps 100000

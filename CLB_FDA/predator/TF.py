@@ -227,6 +227,7 @@ target_saver = tf.train.Saver(target_key_direct, max_to_keep=nb_steps)
 
 trg_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = yt, logits = target_logit))
 gen_step = tf.train.AdamOptimizer(lr).minimize(trg_clf_loss, var_list = target_vars_list)
+tf.trainable_variables(target_scope)
 
 C_loss_list = []
 test_auc_list = []

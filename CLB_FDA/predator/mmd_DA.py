@@ -247,6 +247,7 @@ target_key_direct = {}
 for key, var in zip(target_key_list, target_vars_list):
 	target_key_direct[key] = var
 target_saver = tf.train.Saver(target_key_direct, max_to_keep=nb_steps)
+print(target_vars_list)
 
 # source loss
 src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = ys, logits = source_logit))

@@ -61,7 +61,7 @@ num_steps = args.nb_steps
 # sig_rate = 0.035
 # noise = 2
 # nb_cnn = 4
-# bn = True
+# bn = False
 # batch_size = 200
 # lr = 5e-5
 # num_steps = 1000
@@ -100,6 +100,7 @@ key_var_direct = {}
 for key, var in zip(key_list, vars_list):
 	key_var_direct[key] = var
 saver = tf.train.Saver(key_var_direct, max_to_keep=num_steps)
+tf.global_variables()
 
 cross_entropy = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y_, logits = pred_logit))
 

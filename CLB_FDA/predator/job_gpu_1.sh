@@ -18,4 +18,4 @@
 # parser.add_argument("--fc_layer", type = int, default = 128)
 # # parser.add_argument("--den_bn", type = str2bool, default = False)
 
-python TF.py --gpu 1 --docker True --lr 1e-6 --iters 100000 --bz 100 --nb_trg_labels 100 
+python TF.py --gpu 1 --docker True --source_scratch True --lr 1e-6 --iters 100000 --bz 100 --nb_trg_labels 500 

@@ -35,7 +35,7 @@ def _conv_bn_lrelu_pool(x, pool = False, bn = True):
 		_out = _lrelu
 	return _out
 
-def conv_block(x, nb_cnn = 4, bn = True, scope_name = 'base'):
+def conv_block(x, nb_cnn = 4, bn = False, scope_name = 'base'):
 	with tf.variable_scope(scope_name):
 		h = _conv_bn_lrelu_pool(x, pool = False, bn = bn)
 		for i in range(1, nb_cnn):
@@ -49,22 +49,22 @@ def conv_block(x, nb_cnn = 4, bn = True, scope_name = 'base'):
 # x = tf.placeholder("float", shape=[None, 109,109, 1])
 # h = conv_block(x, nb_cnn = 4, bn = True, scope_name = 'base')
 
-def dense_block(x, fc_layers = [128, 1], nb = True, scope_name = 'base'):
+def dense_block(x, fc_layers = [128, 1], bn = False, scope_name = 'base'):
 # 	shape = x.shape.as_list()[1:]
 	with tf.variable_scope(scope_name):
 		flat = tf.layers.flatten(x)
 		h1 = tf.layers.dense(flat, fc_layers[0], kernel_regularizer=l2_regularizer)
-		if nb:
+		if bn:
 			h1 = tf.layers.batch_normalization(h1, training = True)
 		h1 = tf.nn.leaky_relu(h1)
 		h2 = tf.layers.dense(h1, fc_layers[1], kernel_regularizer = l2_regularizer)
 	return h1, h2
 
 ### create network
-def conv_classifier(x, nb_cnn = 4, fc_layers = [128,1],  bn = True, scope_name = 'base', reuse = False):
+def conv_classifier(x, nb_cnn = 4, fc_layers = [128,1],  bn = False, scope_name = 'base', reuse = False):
 	with tf.variable_scope(scope_name, reuse = reuse):
 		conv_net = conv_block(x, nb_cnn = nb_cnn, bn = bn, scope_name = 'conv')
-		h, pred_logit = dense_block(conv_net, fc_layers = fc_layers, scope_name = 'classifier')
+		h, pred_logit = dense_block(conv_net, fc_layers = fc_layers, bn = bn, scope_name = 'classifier')
 
 	return conv_net, h, pred_logit
 
