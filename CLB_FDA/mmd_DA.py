@@ -147,18 +147,6 @@ def print_block(symbol = '*', nb_sybl = 70):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu", type=int)
-<<<<<<< HEAD
-parser.add_argument("--docker", type=bool)
-parser.add_argument("--shared", type = bool)
-parser.add_argument("--lr", type = float)
-parser.add_argument("--iters", type = int)
-parser.add_argument("--bz", type = int)
-parser.add_argument("--mmd_param", type = float)
-parser.add_argument("--source_scratch", type = bool)
-parser.add_argument("--nb_trg_labels", type = int, default = 0)
-parser.add_argument("--fc_layer", type = int, default = 128)
-parser.add_argument("--den_bn", type = bool)
-=======
 parser.add_argument("--docker", type = str2bool, default = True)
 parser.add_argument("--shared", type = str2bool, default = True)
 parser.add_argument("--lr", type = float)
@@ -171,7 +159,6 @@ parser.add_argument("--source_scratch", type = str2bool, default = True)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
 parser.add_argument("--den_bn", type = str2bool, default = False)
->>>>>>> ab924d57d0f964ebefa94de792a63ee2f7f3fcaa
 
 args = parser.parse_args()
 print(args)
@@ -190,8 +177,6 @@ den_bn = args.den_bn
 trg_clf_param = args.trg_clf_param
 src_clf_param = args.src_clf_param
 
-print(docker)
-
 if False:
 	gpu_num = 1
 	lr = 1e-5
@@ -207,11 +192,10 @@ if False:
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
 
-#if docker:
-#	output_folder ='/data/results'
-#else:
-#	output_folder = 'data'
-output_folder = 'data'
+if docker:
+	output_folder ='/data/results'
+else:
+	output_folder = 'data'
 
 print(output_folder)
 # hyper-parameters
@@ -222,12 +206,10 @@ source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-
 # load source data
 # source = '/data/results/CLB'
 # target = '/data/results/FDA'
-#source = os.path.join(output_folder,'CLB')
-#target = os.path.join(output_folder,'FDA')
-source = output_folder + 'CLB'
-target = output_folder + 'FDA'
+source = os.path.join(output_folder,'CLB')
+target = os.path.join(output_folder,'FDA')
 source_model_file = os.path.join(source, source_model_name, 'source-best')
-print(source_model_file)
+
 # load source data
 nb_source = 100000
 Xs_trn, Xs_val, Xs_tst, ys_trn, ys_val, ys_tst = load_source(train = nb_source, sig_rate = sig_rate)
@@ -245,8 +227,7 @@ yt_trn, yt_val, yt_tst = yt_trn.reshape(-1,1), yt_val.reshape(-1,1), yt_tst.resh
 Xt_trn_l = np.concatenate([Xt_trn[0:nb_trg_labels,:],Xt_trn[nb_target:nb_target+nb_trg_labels,:]], axis = 0)
 yt_trn_l = np.concatenate([yt_trn[0:nb_trg_labels,:],yt_trn[nb_target:nb_target+nb_trg_labels,:]], axis = 0)
 # DA = '/data/results/{}-{}'.format(os.path.basename(source), os.path.basename(target))
-DA = output_folder+ '/{}-{}'.format(os.path.basename(source), os.path.basename(target))
-print(DA)
+DA = os.path.join(output_folder, '{}-{}'.format(os.path.basename(source), os.path.basename(target)))
 generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
