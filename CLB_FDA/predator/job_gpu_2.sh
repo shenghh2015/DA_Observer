@@ -1,1 +1,12 @@
-python train_source.py --gpu_num 2 --nb_cnn 4 --bn False --lr 5e-5 --nb_train 100000 --noise 2.0 --sig_rate 0.035 --bz 400 --optimizer 'Adam' --nb_steps 100000
+# python train_source.py --gpu_num 2 --nb_cnn 4 --bn False --lr 5e-5 --nb_train 100000 --noise 2.0 --sig_rate 0.035 --bz 400 --optimizer 'Adam' --nb_steps 100000
+# parser.add_argument("--gpu", type=int)
+# parser.add_argument("--docker", type = str2bool, default = True)
+# # parser.add_argument("--shared", type = str2bool, default = True)
+# parser.add_argument("--lr", type = float)
+# parser.add_argument("--iters", type = int)
+# parser.add_argument("--bz", type = int)
+# parser.add_argument("--source_scratch", type = str2bool, default = False)
+# parser.add_argument("--nb_trg_labels", type = int, default = 0)
+# parser.add_argument("--fc_layer", type = int, default = 128)
+
+python TF.py --gpu 2 --docker True --lr 1e-5 --iters 10000 --bz 100 --source_scratch True --nb_trg_labels 400 --fc_layer 128
