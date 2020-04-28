@@ -16,6 +16,48 @@ from model import *
 
 from functools import partial
 
+def str2bool(value):
+    return value.lower() == 'true'
+
+def plot_LOSS(file_name, train_loss_list, val_loss_list, test_loss_list):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	ax = fig.add_subplot(111)
+	ax.plot(train_loss_list)
+	ax.plot(val_loss_list)
+	ax.plot(test_loss_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('Loss')
+	ax.legend(['D','S','T'])
+	ax.set_xlim([0,len(train_loss_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
+def plot_AUCs(file_name, train_list, val_list, test_list):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	file_name = file_name
+	ax = fig.add_subplot(111)
+	ax.plot(train_list)
+	ax.plot(val_list)
+	ax.plot(test_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('AUC')
+	ax.legend(['Train','Valid','Test'])
+	ax.set_xlim([0,len(train_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
 # generate the folder
 def generate_folder(folder):
     import os
@@ -50,7 +92,7 @@ def bias_variable(shape, name):
     return tf.Variable(initial, name=name)
 
 # plot and save the file
-def plot_loss(model_name,loss,val_loss, file_name):
+def plot_loss(model_name, loss,val_loss, file_name):
 	generate_folder(model_name)
 	f_out = file_name
 	from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -105,6 +147,7 @@ def print_block(symbol = '*', nb_sybl = 70):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu", type=int)
+<<<<<<< HEAD
 parser.add_argument("--docker", type=bool)
 parser.add_argument("--shared", type = bool)
 parser.add_argument("--lr", type = float)
@@ -115,8 +158,24 @@ parser.add_argument("--source_scratch", type = bool)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
 parser.add_argument("--den_bn", type = bool)
+=======
+parser.add_argument("--docker", type = str2bool, default = True)
+parser.add_argument("--shared", type = str2bool, default = True)
+parser.add_argument("--lr", type = float)
+parser.add_argument("--iters", type = int)
+parser.add_argument("--bz", type = int)
+parser.add_argument("--mmd_param", type = float, default = 1.0)
+parser.add_argument("--trg_clf_param", type = float, default = 1.0)
+parser.add_argument("--src_clf_param", type = float, default = 1.0)
+parser.add_argument("--source_scratch", type = str2bool, default = True)
+parser.add_argument("--nb_trg_labels", type = int, default = 0)
+parser.add_argument("--fc_layer", type = int, default = 128)
+parser.add_argument("--den_bn", type = str2bool, default = False)
+>>>>>>> ab924d57d0f964ebefa94de792a63ee2f7f3fcaa
 
 args = parser.parse_args()
+print(args)
+
 gpu_num = args.gpu
 docker = args.docker
 shared = args.shared
@@ -126,14 +185,15 @@ mmd_param = args.mmd_param
 lr = args.lr
 nb_trg_labels = args.nb_trg_labels
 source_scratch = args.source_scratch
-compute_node = args.docker
 fc_layer = args.fc_layer
 den_bn = args.den_bn
+trg_clf_param = args.trg_clf_param
+src_clf_param = args.src_clf_param
 
 print(docker)
 
 if False:
-	gpu_num = 0
+	gpu_num = 1
 	lr = 1e-5
 	batch_size = 400
 	nb_steps = 1000
@@ -143,7 +203,7 @@ if False:
 	docker = True
 	shared = True
 	fc_layer = 128
-	den_bn = True
+	den_bn = False
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
 
@@ -157,7 +217,8 @@ print(output_folder)
 # hyper-parameters
 noise = 2.0
 sig_rate = 0.035
-source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-4.0k'
+# source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-4.0k'
+source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
 # load source data
 # source = '/data/results/CLB'
 # target = '/data/results/FDA'
@@ -190,7 +251,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}_v2'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn)
+DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}-tclf-{8:}-sclf-{9:}-trg_labels-{10:}'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn, trg_clf_param, src_clf_param, nb_trg_labels)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -226,6 +287,8 @@ _, _, target_logit_l = conv_classifier(xt1, nb_cnn = nb_cnn, fc_layers = [fc_lay
 # flat2 = tf.layers.flatten(conv_net_trg)
 
 source_vars_list = tf.trainable_variables('source')
+# source_conv_list = tf.trainable_variables('source/conv')
+# source_clf_list = tf.trainable_variables('source/classifier')
 source_key_list = [v.name[:-2].replace('source', 'base') for v in tf.trainable_variables('source')]
 source_key_direct = {}
 for key, var in zip(source_key_list, source_vars_list):
@@ -242,9 +305,11 @@ target_key_direct = {}
 for key, var in zip(target_key_list, target_vars_list):
 	target_key_direct[key] = var
 target_saver = tf.train.Saver(target_key_direct, max_to_keep=nb_steps)
+print(target_vars_list)
 
 # source loss
 src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = ys, logits = source_logit))
+
 # mmd loss
 with tf.variable_scope('mmd'):
 	sigmas = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 5, 10, 15, 20, 25, 30, 35, 100, 1e3, 1e4, 1e5, 1e6]
@@ -253,11 +318,11 @@ with tf.variable_scope('mmd'):
 	mmd_loss = mmd_param*loss_value
 #     mmd_loss = mmd_param*tf.maximum(1e-2, loss_value)
 
-total_loss = mmd_loss + src_clf_loss
+total_loss = mmd_loss + src_clf_param*src_clf_loss
 
 if nb_trg_labels > 0:
-	trg_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = yt, logits = target_logit))
-	total_loss = total_loss + trg_clf_loss
+	trg_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = yt1, logits = target_logit_l))
+	total_loss = total_loss + trg_clf_param*trg_clf_loss
 
 if not shared:
 	# weight loss
@@ -285,15 +350,18 @@ else:
 	gen_step = tf.train.AdamOptimizer(lr).minimize(total_loss, var_list = target_vars_list)
 
 D_loss_list = []
-C_loss_list = []
+sC_loss_list = []
+tC_loss_list = []
 test_auc_list = []
 val_auc_list = []
+train_auc_list = []
+best_val_auc = 0
 
 ## model loading verification
 with tf.Session() as sess:
 	tf.global_variables_initializer().run(session=sess)
-	pre_trained_saver.restore(sess, source_model_file)
-# 	source_saver.restore(sess, source_model_file)
+# 	pre_trained_saver.restore(sess, source_model_file)
+	source_saver.restore(sess, source_model_file)
 	if not shared:
 		target_saver.restore(sess, source_model_file)
 	# source to source (target loading)
@@ -318,20 +386,29 @@ with tf.Session() as sess:
 with tf.Session() as sess:
 	tf.global_variables_initializer().run(session=sess)
 	if not source_scratch:
-		pre_trained_saver.restore(sess, source_model_file)
+# 		pre_trained_saver.restore(sess, source_model_file)
+		target_saver.restore(sess, source_model_file)
 		if not shared:
 			target_saver.restore(sess, source_model_file)
 	for iteration in range(nb_steps):
-		indices_s = np.random.randint(0, Xs_trn.shape[0], batch_size)
+		indices_s = np.random.randint(0, Xs_trn.shape[0]-1, batch_size)
 		batch_s = Xs_trn[indices_s,:]
 		batch_ys = ys_trn[indices_s,:]
-		indices_t = np.random.randint(0, Xt_trn.shape[0], batch_size)
+		indices_t = np.random.randint(0, Xt_trn.shape[0]-1, batch_size)
 		batch_t = Xt_trn[indices_t,:]
-		if nb_trg_labels == 0:
-			_, D_loss, C_loss = sess.run([gen_step, mmd_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys})
+		# training
+		if nb_trg_labels > 0:
+			indices_tl = np.random.randint(0, 2*nb_trg_labels-1, 100)
+			batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
+			_, D_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, mmd_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l})
+			train_target_stat = np.exp(trg_digit)
+			train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
+			train_auc_list.append(train_target_AUC)
+			tC_loss_list.append(tC_loss)
+			np.savetxt(os.path.join(DA_model_folder,'train_auc.txt'), val_auc_list)
+			np.savetxt(os.path.join(DA_model_folder,'trg_clf_loss.txt'),tC_loss_list)
 		else:
-			batch_xt_l, batch_yt_l = Xt_trn_l[:nb_trn_labels, :], yt_trn_l[:nb_trn_labels, :]
-			_, D_loss, C_loss = sess.run([gen_step, mmd_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l})
+			_, D_loss, sC_loss = sess.run([gen_step, mmd_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys})
 		#testing
 		test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst})
 		test_source_stat = np.exp(test_source_logit)
@@ -342,21 +419,32 @@ with tf.Session() as sess:
 		val_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_val})
 		val_target_stat = np.exp(val_target_logit)
 		val_target_AUC = roc_auc_score(yt_val, val_target_stat)
-		# print results
-		print_block(symbol = '-', nb_sybl = 60)
-		print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}; S-test: {2:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC))
-		print_yellow('MMD loss :{0:.4f}, Iter:{1:}'.format(D_loss, iteration))
-		# save results
-		D_loss_list.append(D_loss)
-		C_loss_list.append(C_loss)
 		test_auc_list.append(test_target_AUC)
 		val_auc_list.append(val_target_AUC)
-		print_yellow(os.path.basename(DA_model_folder))
-		plot_loss(DA_model_folder, D_loss_list, C_loss_list, DA_model_folder+'/loss_{}.png'.format(DA_model_name))
+		D_loss_list.append(D_loss)
+		sC_loss_list.append(sC_loss)
+		# save results
 		np.savetxt(os.path.join(DA_model_folder,'test_auc.txt'), test_auc_list)
 		np.savetxt(os.path.join(DA_model_folder,'val_auc.txt'), val_auc_list)
 		np.savetxt(os.path.join(DA_model_folder,'MMD_loss.txt'),D_loss_list)
-		np.savetxt(os.path.join(DA_model_folder,'clf_loss.txt'),C_loss_list)
-		plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
+		np.savetxt(os.path.join(DA_model_folder,'src_clf_loss.txt'),sC_loss_list)
+		# print and plot results
+		print_block(symbol = '-', nb_sybl = 60)
+		print_yellow(os.path.basename(DA_model_folder))
+		if nb_trg_labels > 0:
+			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, T-train {2:.4f}; S-test: {3:.4f}'.format(test_target_AUC, val_target_AUC, train_target_AUC, test_source_AUC))
+			print_yellow('Loss: MMD:{0:.4f}, S:{1:.4f}, t:{2:.4f}, Iter:{3:}'.format(D_loss, sC_loss, tC_loss, iteration))
+			plot_LOSS(DA_model_folder+'/loss_{}.png'.format(DA_model_name), D_loss_list, sC_loss_list, tC_loss_list)
+			plot_AUCs(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list)
+		else:
+			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}; S-test: {2:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC))
+			print_yellow('Loss: MMD:{0:.4f}, S:{1:.4f}, Iter:{2:}'.format(D_loss, sC_loss, iteration))
+			plot_loss(DA_model_folder, D_loss_list, sC_loss_list, DA_model_folder+'/loss_{}.png'.format(DA_model_name))
+			plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
 		# save models
-		target_saver.save(sess, DA_model_folder +'/target')
+		if iteration%10==0:
+			target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
+		if best_val_auc < val_target_AUC:
+			best_val_auc = val_target_AUC
+			target_saver.save(sess, DA_model_folder+'/target_best')
+			print_red('Update best:'+DA_model_folder)
