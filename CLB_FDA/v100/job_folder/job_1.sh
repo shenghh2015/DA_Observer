@@ -1,2 +1,1 @@
-python TF.py --gpu 1 --docker True --lr 1e-5 --iters 100000 --bz 100 --nb_trg_labels 1000 --source_scratch True
-
+python TF.py --gpu 0 --docker True --lr 1e-6 --iters 20000 --bz 100 --nb_trg_labels 400
