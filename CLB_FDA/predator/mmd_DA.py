@@ -19,6 +19,45 @@ from functools import partial
 def str2bool(value):
     return value.lower() == 'true'
 
+def plot_LOSS(file_name, train_loss_list, val_loss_list, test_loss_list):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	ax = fig.add_subplot(111)
+	ax.plot(train_loss_list)
+	ax.plot(val_loss_list)
+	ax.plot(test_loss_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('Loss')
+	ax.legend(['D','S','T'])
+	ax.set_xlim([0,len(train_loss_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
+def plot_AUCs(file_name, train_list, val_list, test_list):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	file_name = file_name
+	ax = fig.add_subplot(111)
+	ax.plot(train_list)
+	ax.plot(val_list)
+	ax.plot(test_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('AUC')
+	ax.legend(['Train','Valid','Test'])
+	ax.set_xlim([0,len(train_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
 # generate the folder
 def generate_folder(folder):
     import os
@@ -53,7 +92,7 @@ def bias_variable(shape, name):
     return tf.Variable(initial, name=name)
 
 # plot and save the file
-def plot_loss(model_name,loss,val_loss, file_name):
+def plot_loss(model_name, loss,val_loss, file_name):
 	generate_folder(model_name)
 	f_out = file_name
 	from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -292,9 +331,12 @@ else:
 	gen_step = tf.train.AdamOptimizer(lr).minimize(total_loss, var_list = target_vars_list)
 
 D_loss_list = []
-C_loss_list = []
+sC_loss_list = []
+tC_loss_list = []
 test_auc_list = []
 val_auc_list = []
+train_auc_list = []
+best_val_auc = 0
 
 ## model loading verification
 with tf.Session() as sess:
@@ -335,12 +377,19 @@ with tf.Session() as sess:
 		batch_ys = ys_trn[indices_s,:]
 		indices_t = np.random.randint(0, Xt_trn.shape[0]-1, batch_size)
 		batch_t = Xt_trn[indices_t,:]
-		if nb_trg_labels == 0:
-			_, D_loss, C_loss = sess.run([gen_step, mmd_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys})
-		else:
-			indices_tl = np.random.randint(0, nb_trg_labels-1, 100)
+		# training
+		if nb_trg_labels > 0:
+			indices_tl = np.random.randint(0, 2*nb_trg_labels-1, 100)
 			batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
-			_, D_loss, C_loss = sess.run([gen_step, mmd_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l})
+			_, D_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, mmd_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l})
+			train_target_stat = np.exp(trg_digit)
+			train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
+			train_auc_list.append(train_target_AUC)
+			tC_loss_list.append(tC_loss)
+			np.savetxt(os.path.join(DA_model_folder,'train_auc.txt'), val_auc_list)
+			np.savetxt(os.path.join(DA_model_folder,'trg_clf_loss.txt'),tC_loss_list)
+		else:
+			_, D_loss, sC_loss = sess.run([gen_step, mmd_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys})
 		#testing
 		test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst})
 		test_source_stat = np.exp(test_source_logit)
@@ -351,21 +400,32 @@ with tf.Session() as sess:
 		val_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_val})
 		val_target_stat = np.exp(val_target_logit)
 		val_target_AUC = roc_auc_score(yt_val, val_target_stat)
-		# print results
-		print_block(symbol = '-', nb_sybl = 60)
-		print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}; S-test: {2:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC))
-		print_yellow('MMD loss :{0:.4f}, Iter:{1:}'.format(D_loss, iteration))
-		# save results
-		D_loss_list.append(D_loss)
-		C_loss_list.append(C_loss)
 		test_auc_list.append(test_target_AUC)
 		val_auc_list.append(val_target_AUC)
-		print_yellow(os.path.basename(DA_model_folder))
-		plot_loss(DA_model_folder, D_loss_list, C_loss_list, DA_model_folder+'/loss_{}.png'.format(DA_model_name))
+		D_loss_list.append(D_loss)
+		sC_loss_list.append(sC_loss)
+		# save results
 		np.savetxt(os.path.join(DA_model_folder,'test_auc.txt'), test_auc_list)
 		np.savetxt(os.path.join(DA_model_folder,'val_auc.txt'), val_auc_list)
 		np.savetxt(os.path.join(DA_model_folder,'MMD_loss.txt'),D_loss_list)
-		np.savetxt(os.path.join(DA_model_folder,'clf_loss.txt'),C_loss_list)
-		plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
+		np.savetxt(os.path.join(DA_model_folder,'src_clf_loss.txt'),sC_loss_list)
+		# print and plot results
+		print_block(symbol = '-', nb_sybl = 60)
+		print_yellow(os.path.basename(DA_model_folder))
+		if nb_trg_labels > 0:
+			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, T-train {2:.4f}; S-test: {3:.4f}'.format(test_target_AUC, val_target_AUC, train_target_AUC, test_source_AUC))
+			print_yellow('Loss: MMD:{0:.4f}, S:{1:.4f}, t:{2:.4f}, Iter:{1:}'.format(D_loss, sC_loss, tC_loss, iteration))
+			plot_LOSS(DA_model_folder+'/loss_{}.png'.format(DA_model_name), D_loss_list, sC_loss_list, tC_loss_list)
+			plot_AUCs(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list)
+		else:
+			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}; S-test: {2:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC))
+			print_yellow('Loss: MMD:{0:.4f}, S:{1:.4f}, Iter:{1:}'.format(D_loss, sC_loss, iteration))
+			plot_loss(DA_model_folder, D_loss_list, sC_loss_list, DA_model_folder+'/loss_{}.png'.format(DA_model_name))
+			plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
 		# save models
-		target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
+		if iteration%10==0:
+			target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
+		if best_val_auc < val_target_AUC:
+			best_val_auc = val_target_AUC
+			target_saver.save(sess, model_folder+'/target_best')
+			print_red('Update best:'+model_folder)

@@ -66,17 +66,6 @@ bn_training = True
 num_steps = args.nb_steps
 # optimizer="Adam"
 
-if False:
-	gpu_num = 0
-	batch_size = 200
-	nb_cnn = 4
-	bn = False
-	lr = 1e-5
-	nb_train = 400
-	optimizer = 'Adam'
-	num_steps = 1000
-
-
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
 
 ## load data
@@ -126,6 +115,8 @@ test_auc = []
 
 val_loss = []
 val_auc = []
+best_val_auc = 0
+
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
 	for i_batch in range(num_steps):
@@ -167,12 +158,18 @@ with tf.Session() as sess:
 			generate_folder(model_folder)
 			saver.save(sess, model_folder+'/model', global_step=i_batch)
 			print(model_folder)
-			# save results
+			# save and plot results
 			np.savetxt(direct+'/training_auc.txt',train_auc)
 			np.savetxt(direct+'/testing_auc.txt',test_auc)
 			np.savetxt(direct+'/training_loss.txt',train_loss)
 			np.savetxt(direct+'/testing_loss.txt',test_loss)
-
 			np.savetxt(direct+'/val_loss.txt',val_loss)
 			np.savetxt(direct+'/val_auc.txt',val_auc)
 			np.savetxt(direct_st+'/statistics_'+str(i_batch)+'.txt',test_stat)
+			file_name = os.path.join(direct, 'AUC_over_Iterations_{}.png'.format(model_name))
+			plot_AUCs(file_name, train_auc, val_auc, test_auc)
+			# update the best model
+			if best_val_auc < val_auc[-1]:
+				best_val_auc = val_auc[-1]
+				saver.save(sess, model_folder+'/target-best')
+				print_red('Update best:'+model_folder)

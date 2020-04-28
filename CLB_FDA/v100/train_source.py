@@ -31,6 +31,25 @@ def print_green(str):
 def print_block(symbol = '*', nb_sybl = 70):
 	print_red(symbol*nb_sybl)
 
+def plot_AUCs(file_name, train_list, val_list, test_list):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	file_name = file_name
+	ax = fig.add_subplot(111)
+	ax.plot(train_list)
+	ax.plot(val_list)
+	ax.plot(test_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('AUC')
+	ax.legend(['Train','Valid','Test'])
+	ax.set_xlim([0,len(train_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
 
 ## input parameters
 parser = argparse.ArgumentParser()
@@ -61,7 +80,7 @@ num_steps = args.nb_steps
 # sig_rate = 0.035
 # noise = 2
 # nb_cnn = 4
-# bn = True
+# bn = False
 # batch_size = 200
 # lr = 5e-5
 # num_steps = 1000
@@ -83,7 +102,7 @@ y_val, y_tst = y_val.reshape(-1,1), y_tst.reshape(-1,1)
 model_root_folder = '/data/results/CLB'
 generate_folder(model_root_folder)
 
-direct = os.path.join(model_root_folder,'cnn-{}-bn-{}-noise-{}-trn-{}-sig-{}-bz-{}-lr-{}-{}-{}k'.format(nb_cnn, bn, noise, nb_train, sig_rate, batch_size, lr, optimizer, num_steps/1000))
+direct = os.path.join(model_root_folder,'cnn-{}-bn-{}-noise-{}-trn-{}-sig-{}-bz-{}-lr-{}-{}-stp-{}k'.format(nb_cnn, bn, noise, nb_train, sig_rate, batch_size, lr, optimizer, num_steps/1000))
 generate_folder(direct)
 direct_st = direct+'/statistics'
 generate_folder(direct_st)
@@ -100,6 +119,7 @@ key_var_direct = {}
 for key, var in zip(key_list, vars_list):
 	key_var_direct[key] = var
 saver = tf.train.Saver(key_var_direct, max_to_keep=num_steps)
+tf.global_variables()
 
 cross_entropy = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y_, logits = pred_logit))
 
@@ -118,6 +138,8 @@ test_auc = []
 
 val_loss = []
 val_auc = []
+best_val_auc = 0.0
+
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
 	for i_batch in range(num_steps):
@@ -159,12 +181,18 @@ with tf.Session() as sess:
 			generate_folder(model_folder)
 			saver.save(sess, model_folder+'/model', global_step=i_batch)
 			print(model_folder)
-			# save results
+			# save and plot results
 			np.savetxt(direct+'/training_auc.txt',train_auc)
 			np.savetxt(direct+'/testing_auc.txt',test_auc)
 			np.savetxt(direct+'/training_loss.txt',train_loss)
 			np.savetxt(direct+'/testing_loss.txt',test_loss)
-
 			np.savetxt(direct+'/val_loss.txt',val_loss)
 			np.savetxt(direct+'/val_auc.txt',val_auc)
 			np.savetxt(direct_st+'/statistics_'+str(i_batch)+'.txt',test_stat)
+			file_name = os.path.join(direct, 'AUC_over_Iterations_{}.png'.format(os.path.basename(direct)))
+			plot_AUCs(file_name, train_auc, val_auc, test_auc)
+			# update the best model
+			if best_val_auc < val_auc[-1]:
+				best_val_auc = val_auc[-1]
+				saver.save(sess, model_folder+'/source-best')
+				print_red('Update best:'+model_folder)
