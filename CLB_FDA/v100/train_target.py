@@ -66,6 +66,17 @@ bn_training = True
 num_steps = args.nb_steps
 # optimizer="Adam"
 
+if False:
+	gpu_num = 0
+	batch_size = 200
+	nb_cnn = 4
+	bn = False
+	lr = 1e-5
+	nb_train = 400
+	optimizer = 'Adam'
+	num_steps = 1000
+
+
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
 
 ## load data
@@ -88,7 +99,7 @@ generate_folder(direct_st)
 x = tf.placeholder("float", shape=[None, 109,109, 1])
 y_ = tf.placeholder("float", shape=[None, 1])
 
-scope_name = 'base'
+scope_name = 'source'
 conv_net, h, pred_logit = conv_classifier(x, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = scope_name)
 
 vars_list = tf.trainable_variables(scope_name)
