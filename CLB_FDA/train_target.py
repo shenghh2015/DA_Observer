@@ -174,7 +174,7 @@ with tf.Session() as sess:
 			np.savetxt(direct+'/val_loss.txt',val_loss)
 			np.savetxt(direct+'/val_auc.txt',val_auc)
 			np.savetxt(direct_st+'/statistics_'+str(i_batch)+'.txt',test_stat)
-			file_name = os.path.join(direct, 'AUC_over_Iterations_{}.png'.format(model_name))
+			file_name = os.path.join(direct, 'AUC_over_Iterations_{}.png'.format(os.path.basename(model_folder)))
 			plot_AUCs(file_name, train_auc, val_auc, test_auc)
 			# update the best model
 			if best_val_auc < val_auc[-1]:
