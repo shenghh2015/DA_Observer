@@ -48,6 +48,7 @@ parser.add_argument("--nb_steps", type = int, default = 100000)
 
 args = parser.parse_args()
 gpu = args.gpu
+docker = args.docker
 lr = args.lr
 nb_train = args.nb_train
 nb_cnn = args.nb_cnn
