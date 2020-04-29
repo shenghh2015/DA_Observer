@@ -210,7 +210,7 @@ if not DA_FLAG:
 else:
 	source = os.path.join(output_folder,'CLB-FDA')
 	target = os.path.join(output_folder,'DA-TF')
-	source_model_file = os.path.join(source, source_model_name, DA_name, 'source-best')
+	source_model_file = os.path.join(source, source_model_name, DA_name, 'target-best')
 	DA = target
 	generate_folder(DA)
 	base_model_folder = os.path.join(DA, DA_name)
