@@ -35,7 +35,7 @@ def print_block(symbol = '*', nb_sybl = 70):
 ## input parameters
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu", type=int)
-parser.add_argument("--docker", type=str2bool, False)
+parser.add_argument("--docker", type=str2bool, default = False)
 parser.add_argument("--nb_cnn", type = int)
 parser.add_argument("--bn", type = str2bool, default = False)
 parser.add_argument("--lr", type = float)
