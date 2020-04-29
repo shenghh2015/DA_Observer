@@ -19,6 +19,7 @@
 # # parser.add_argument("--den_bn", type = str2bool, default = False)
 
 # python TF.py --gpu 1 --docker True --lr 1e-6 --iters 20000 --bz 100 --nb_trg_labels 400
-python mmd_DA.py --gpu 1 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 100 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5
+# python mmd_DA.py --gpu 1 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 100 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5
+python TF.py --gpu 1 --docker True --lr 1e-5 --iters 50000 --bz 100 --nb_trg_labels 400 --DA_FLAG True
 
 #python TF.py --gpu 1 --docker True --source_scratch False --lr 1e-6 --iters 10000 --bz 100 --nb_trg_labels 500
