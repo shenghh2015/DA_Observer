@@ -159,6 +159,7 @@ parser.add_argument("--source_scratch", type = str2bool, default = True)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
 parser.add_argument("--den_bn", type = str2bool, default = False)
+parser.add_argument("--clf_v", type = int, default = 1)
 
 args = parser.parse_args()
 print(args)
@@ -176,6 +177,7 @@ fc_layer = args.fc_layer
 den_bn = args.den_bn
 trg_clf_param = args.trg_clf_param
 src_clf_param = args.src_clf_param
+clf_v = args.clf_v
 
 if False:
 	gpu_num = 1
@@ -232,7 +234,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}-tclf-{8:}-sclf-{9:}-trg_labels-{10:}'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn, trg_clf_param, src_clf_param, nb_trg_labels)
+DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}-tclf-{8:}-sclf-{9:}-trg_labels-{10:}-vclf-{11:}'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn, trg_clf_param, src_clf_param, nb_trg_labels, clf_v)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -261,11 +263,18 @@ else:
 	target_scope = 'target'
 	target_reuse = False
 
-conv_net_src, h_src, source_logit = conv_classifier(xs, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = 'source')
-# flat1 = tf.layers.flatten(conv_net_src)
-conv_net_trg, h_trg, target_logit = conv_classifier(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope, reuse = target_reuse)
-_, _, target_logit_l = conv_classifier(xt1, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope, reuse = True)
-# flat2 = tf.layers.flatten(conv_net_trg)
+if clf_v == 1:
+	conv_net_src, h_src, source_logit = conv_classifier(xs, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = 'source')
+	# flat1 = tf.layers.flatten(conv_net_src)
+	conv_net_trg, h_trg, target_logit = conv_classifier(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope, reuse = target_reuse)
+	_, _, target_logit_l = conv_classifier(xt1, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope, reuse = True)
+	# flat2 = tf.layers.flatten(conv_net_trg)
+else:
+	conv_net_src, h_src, source_logit = conv_classifier2(xs, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = 'source')
+	# flat1 = tf.layers.flatten(conv_net_src)
+	conv_net_trg, h_trg, target_logit = conv_classifier2(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope, reuse = target_reuse)
+	_, _, target_logit_l = conv_classifier2(xt1, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope, reuse = True)
+	# flat2 = tf.layers.flatten(conv_net_trg)
 
 source_vars_list = tf.trainable_variables('source')
 # source_conv_list = tf.trainable_variables('source/conv')
