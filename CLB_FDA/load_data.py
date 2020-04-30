@@ -3,13 +3,16 @@ import glob
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
+dataset_folder = '/data/datasets'
 def load_source(train = 80000, valid = 400, test = 400, sig_rate = 0.035):
 # 	train = 80000
 # 	valid = 400
 # 	test = 400
 # 	sig_rate = 0.035
-	sig_file = '/shared/planck/Phantom/Breast_Xray/FDA_signals/hetero_sig.dat'
-	CLB_file = '/shared/rsaas/shenghua/CLB/CLB_128N_400000IM.npy'
+# 	sig_file = '/shared/planck/Phantom/Breast_Xray/FDA_signals/hetero_sig.dat'
+# 	CLB_file = '/shared/rsaas/shenghua/CLB/CLB_128N_400000IM.npy'
+	sig_file = os.path.join(dataset_folder, 'FDA_signals/hetero_sig.dat')
+	CLB_file = os.path.join(dataset_folder, 'CLB/CLB_128N_400000IM.npy')
 	sig = np.fromfile(sig_file, dtype = np.float32).reshape(109,109)
 	data = np.load(CLB_file, mmap_mode='r')
 	X = data[:,:,0:train+valid+test]
@@ -29,10 +32,21 @@ def load_target(dataset = 'total', train = 80000, valid = 400, test = 400):
 # 	train = 80000
 # 	valid = 400
 # 	test = 400
-	offset_valid = 85000
+# 	X_SA = np.load('/shared/planck/Phantom/Breast_Xray/FDA_DM_ROIs/npy_dataset/{}_SA.npy'.format(dataset))
+# 	X_SP = np.load('/shared/planck/Phantom/Breast_Xray/FDA_DM_ROIs/npy_dataset/{}_SP.npy'.format(dataset))
+	if dataset == 'dense':
+		offset_valid = 7100
+	elif dataset == 'hetero':
+		offset_valid = 36000
+	elif dataset == 'scattered':
+		offset_valid = 33000
+	elif dataset == 'fatty':
+		offset_valid = 9000
+	elif datasaet == 'total':
+		offset_valid = 85000
 	offset_test = 400 + offset_valid
-	X_SA = np.load('/shared/planck/Phantom/Breast_Xray/FDA_DM_ROIs/npy_dataset/{}_SA.npy'.format(dataset))
-	X_SP = np.load('/shared/planck/Phantom/Breast_Xray/FDA_DM_ROIs/npy_dataset/{}_SP.npy'.format(dataset))
+	X_SA = np.load(os.path.join(dataset_folder, 'FDA_DM_ROIs/npy_dataset/{}_SA.npy'.format(dataset)))
+	X_SP = np.load(os.path.join(dataset_folder, 'FDA_DM_ROIs/npy_dataset/{}_SP.npy'.format(dataset)))
 	X_SA_trn, X_SA_val, X_SA_tst = X_SA[:train,:], X_SA[offset_valid:offset_valid+valid,:], X_SA[offset_test:offset_test+test,:]
 	X_SP_trn, X_SP_val, X_SP_tst = X_SP[:train,:], X_SP[offset_valid:offset_valid+valid,:], X_SP[offset_test:offset_test+test,:]
 	X_trn, X_val, X_tst = np.concatenate([X_SA_trn, X_SP_trn]), np.concatenate([X_SA_val, X_SP_val]), np.concatenate([X_SA_tst, X_SP_tst])
@@ -52,11 +66,11 @@ def load_target_archive(dataset = 'total', train = 80000, valid = 400, test = 40
 # 	train = 80000
 # 	valid = 400
 # 	test = 400
-	X_SA = np.fromfile('/shared/planck/Phantom/Breast_Xray/FDA_DM_ROIs/{}_SA.dat'.format(dataset), dtype = np.float32)
+	X_SA = np.fromfile(os.path.join(dataset_folder, 'FDA_DM_ROIs/npy_dataset/{}_SA.dat'.format(dataset)), dtype = np.float32)
 	X_SA = X_SA.reshape(-1,109,109)
 	shuff = np.random.RandomState(2).permutation(X_SA.shape[0])
 	X_SA = X_SA[shuff]
-	X_SP = np.fromfile('/shared/planck/Phantom/Breast_Xray/FDA_DM_ROIs/{}_SP.dat'.format(dataset), dtype = np.float32)
+	X_SP = np.fromfile(os.path.join(dataset_folder, 'FDA_DM_ROIs/npy_dataset/{}_SA.dat'.format(dataset)), dtype = np.float32)
 	X_SP = X_SP.reshape(-1,109,109)
 	shuff = np.random.RandomState(3).permutation(X_SP.shape[0])
 	X_SP = X_SP[shuff]
