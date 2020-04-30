@@ -142,6 +142,7 @@ parser.add_argument("--fc_layer", type = int, default = 128)
 parser.add_argument("--DA_FLAG", type = str2bool, default = False)
 parser.add_argument("--source_name", type = str, default = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k')
 parser.add_argument("--DA_name", type = str, default = 'mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.5-sclf-1.0-trg_labels-0')
+parser.add_argument("--clf_v", type = int, default = 1)
 # parser.add_argument("--den_bn", type = str2bool, default = False)
 
 args = parser.parse_args()
@@ -163,6 +164,7 @@ den_bn = False
 DA_FLAG = args.DA_FLAG
 source_model_name = args.source_name
 DA_name = args.DA_name
+clf_v = args.clf_v
 # trg_clf_param = args.trg_clf_param
 # src_clf_param = args.src_clf_param
 
@@ -202,7 +204,7 @@ if not DA_FLAG:
 	generate_folder(DA)
 	base_model_folder = os.path.join(DA, source_model_name)
 	generate_folder(base_model_folder)
-	DA_model_name = 'TF-lr-{0:}-bz-{1:}-iter-{2:}-scr-{3:}-fc-{4:}-bn-{5:}-trg_labels-{6:}'.format(lr, batch_size, nb_steps, source_scratch, fc_layer, den_bn, nb_trg_labels)
+	DA_model_name = 'TF-lr-{0:}-bz-{1:}-iter-{2:}-scr-{3:}-fc-{4:}-bn-{5:}-trg_labels-{6:}-clf_v{7:}'.format(lr, batch_size, nb_steps, source_scratch, fc_layer, den_bn, nb_trg_labels, clf_v)
 	DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 	generate_folder(DA_model_folder)
 	os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -252,7 +254,10 @@ xt = tf.placeholder("float", shape=[None, 109,109, 1])
 yt = tf.placeholder("float", shape=[None, 1])
 
 target_scope = 'target'
-conv_net_trg, h_trg, target_logit = conv_classifier(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope)
+if clf_v == 2:
+	conv_net_trg, h_trg, target_logit = conv_classifier2(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope)
+else:
+	conv_net_trg, h_trg, target_logit = conv_classifier(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope)
 target_vars_list = tf.trainable_variables(target_scope)
 target_key_list = [v.name[:-2].replace(target_scope, 'base') for v in tf.trainable_variables(target_scope)]
 target_key_direct = {}

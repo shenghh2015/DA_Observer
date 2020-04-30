@@ -139,6 +139,10 @@ parser.add_argument("--bz", type = int)
 parser.add_argument("--source_scratch", type = str2bool, default = False)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
+parser.add_argument("--DA_FLAG", type = str2bool, default = False)
+parser.add_argument("--source_name", type = str, default = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k')
+parser.add_argument("--DA_name", type = str, default = 'mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.5-sclf-1.0-trg_labels-0')
+parser.add_argument("--clf_v", type = int, default = 1)
 # parser.add_argument("--den_bn", type = str2bool, default = False)
 
 args = parser.parse_args()
@@ -157,6 +161,10 @@ source_scratch = args.source_scratch
 # source_scratch = False
 fc_layer = args.fc_layer
 den_bn = False
+DA_FLAG = args.DA_FLAG
+source_model_name = args.source_name
+DA_name = args.DA_name
+clf_v = args.clf_v
 # trg_clf_param = args.trg_clf_param
 # src_clf_param = args.src_clf_param
 
@@ -179,19 +187,40 @@ if docker:
 	output_folder ='/data/results'
 else:
 	output_folder = 'data'
+# load source data
+# source = '/data/results/CLB'
+# target = '/data/results/FDA'
 
 print(output_folder)
 # hyper-parameters
 noise = 2.0
 sig_rate = 0.035
 # source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-4.0k'
-source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
-# load source data
-# source = '/data/results/CLB'
-# target = '/data/results/FDA'
-source = os.path.join(output_folder,'CLB')
-target = os.path.join(output_folder,'FDA')
-source_model_file = os.path.join(source, source_model_name, 'source-best')
+if not DA_FLAG:
+	source = os.path.join(output_folder,'CLB')
+	target = os.path.join(output_folder,'FDA')
+	source_model_file = os.path.join(source, source_model_name, 'source-best')
+	DA = os.path.join(output_folder, '{}-{}'.format(os.path.basename(source), os.path.basename(target)))
+	generate_folder(DA)
+	base_model_folder = os.path.join(DA, source_model_name)
+	generate_folder(base_model_folder)
+	DA_model_name = 'TF-lr-{0:}-bz-{1:}-iter-{2:}-scr-{3:}-fc-{4:}-bn-{5:}-trg_labels-{6:}-clf_v{7:}'.format(lr, batch_size, nb_steps, source_scratch, fc_layer, den_bn, nb_trg_labels, clf_v)
+	DA_model_folder = os.path.join(base_model_folder, DA_model_name)
+	generate_folder(DA_model_folder)
+	os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
+# 	source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
+else:
+	source = os.path.join(output_folder,'CLB-FDA')
+	target = os.path.join(output_folder,'DA-TF')
+	source_model_file = os.path.join(source, source_model_name, DA_name, 'target_best')
+	DA = target
+	generate_folder(DA)
+	base_model_folder = os.path.join(DA, DA_name)
+	generate_folder(base_model_folder)
+	DA_model_name = 'DA-TF-lr-{0:}-bz-{1:}-iter-{2:}-scr-{3:}-fc-{4:}-bn-{5:}-trg_labels-{6:}'.format(lr, batch_size, nb_steps, source_scratch, fc_layer, den_bn, nb_trg_labels)
+	DA_model_folder = os.path.join(base_model_folder, DA_model_name)
+	generate_folder(DA_model_folder)
+	os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
 
 # load source data
 nb_source = 100000
@@ -209,19 +238,7 @@ Xt_trn, Xt_val, Xt_tst = (Xt_trn-np.min(Xt_trn))/(np.max(Xt_trn)-np.min(Xt_trn))
 Xt_trn, Xt_val, Xt_tst = np.expand_dims(Xt_trn, axis = 3), np.expand_dims(Xt_val, axis = 3), np.expand_dims(Xt_tst, axis = 3)
 yt_trn, yt_val, yt_tst = yt_trn.reshape(-1,1), yt_val.reshape(-1,1), yt_tst.reshape(-1,1)
 Xt_trn_l = np.concatenate([Xt_trn[0:nb_trg_labels,:],Xt_trn[sp_offset:sp_offset+nb_trg_labels,:]], axis = 0)
-# Xt_trn_l = (Xt_trn_l-np.min(Xt_trn_l))/(np.max(Xt_trn_l)-np.min(Xt_trn_l))
 yt_trn_l = np.concatenate([yt_trn[0:nb_trg_labels,:],yt_trn[sp_offset:sp_offset+nb_trg_labels,:]], axis = 0)
-# DA = '/data/results/{}-{}'.format(os.path.basename(source), os.path.basename(target))
-DA = os.path.join(output_folder, '{}-{}'.format(os.path.basename(source), os.path.basename(target)))
-generate_folder(DA)
-base_model_folder = os.path.join(DA, source_model_name)
-generate_folder(base_model_folder)
-# copy the source weight file to the DA_model_folder
-# DA_model_name = 'TF-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}-tclf-{8:}-sclf-{9:}-trg_labels-{10:}'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn, trg_clf_param, src_clf_param, nb_trg_labels)
-DA_model_name = 'TF-lr-{0:}-bz-{1:}-iter-{2:}-scr-{3:}-fc-{4:}-bn-{5:}-trg_labels-{6:}'.format(lr, batch_size, nb_steps, source_scratch, fc_layer, den_bn, nb_trg_labels)
-DA_model_folder = os.path.join(base_model_folder, DA_model_name)
-generate_folder(DA_model_folder)
-os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
 
 if source_model_name.split('-')[0] == 'cnn':
 	nb_cnn = int(source_model_name.split('-')[1])
@@ -237,7 +254,10 @@ xt = tf.placeholder("float", shape=[None, 109,109, 1])
 yt = tf.placeholder("float", shape=[None, 1])
 
 target_scope = 'target'
-conv_net_trg, h_trg, target_logit = conv_classifier(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope)
+if clf_v == 2:
+	conv_net_trg, h_trg, target_logit = conv_classifier2(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope)
+else:
+	conv_net_trg, h_trg, target_logit = conv_classifier(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = target_scope)
 target_vars_list = tf.trainable_variables(target_scope)
 target_key_list = [v.name[:-2].replace(target_scope, 'base') for v in tf.trainable_variables(target_scope)]
 target_key_direct = {}

@@ -122,7 +122,29 @@
 # parser.add_argument("--source_scratch", type = str2bool, default = False)
 # parser.add_argument("--nb_trg_labels", type = int, default = 0)
 # parser.add_argument("--fc_layer", type = int, default = 128)
-JOB: python TF.py --gpu 0 --docker True --lr 1e-6 --iters 30000 --bz 100 --nb_trg_labels 100
-JOB: python TF.py --gpu 1 --docker True --lr 1e-6 --iters 30000 --bz 100 --nb_trg_labels 200
-JOB: python TF.py --gpu 2 --docker True --lr 1e-6 --iters 30000 --bz 100 --nb_trg_labels 300
-JOB: python TF.py --gpu 3 --docker True --lr 1e-6 --iters 30000 --bz 100 --nb_trg_labels 400
+# JOB: python TF.py --gpu 0 --docker True --lr 1e-6 --iters 30000 --bz 100 --nb_trg_labels 100
+# JOB: python TF.py --gpu 1 --docker True --lr 1e-6 --iters 30000 --bz 100 --nb_trg_labels 200
+# JOB: python TF.py --gpu 2 --docker True --lr 1e-6 --iters 30000 --bz 100 --nb_trg_labels 300
+# JOB: python TF.py --gpu 3 --docker True --lr 1e-6 --iters 30000 --bz 100 --nb_trg_labels 400
+
+# parser.add_argument("--gpu", type=int)
+# parser.add_argument("--docker", type = str2bool, default = True)
+# parser.add_argument("--lr", type = float)
+# parser.add_argument("--iters", type = int)
+# parser.add_argument("--bz", type = int)
+# parser.add_argument("--source_scratch", type = str2bool, default = False)
+# parser.add_argument("--nb_trg_labels", type = int, default = 0)
+# parser.add_argument("--fc_layer", type = int, default = 128)
+# parser.add_argument("--DA_FLAG", type = str2bool, default = False)
+# parser.add_argument("--source_name", type = str, default = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k')
+# parser.add_argument("--DA_name", type = str, default = 'mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.5-sclf-1.0-trg_labels-0')
+
+# JOB: python TF.py --gpu 0 --docker True --lr 1e-5 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 100 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
+# JOB: python TF.py --gpu 1 --docker True --lr 1e-5 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 200 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
+# JOB: python TF.py --gpu 2 --docker True --lr 1e-5 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 300 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
+# JOB: python TF.py --gpu 4 --docker True --lr 1e-5 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 400 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
+
+JOB: python TF.py --gpu 0 --docker True --lr 1e-5 --iters 30000 --bz 100 --nb_trg_labels 100 --clf_v 2
+JOB: python TF.py --gpu 1 --docker True --lr 1e-5 --iters 30000 --bz 200 --nb_trg_labels 200 --clf_v 2
+JOB: python TF.py --gpu 2 --docker True --lr 1e-5 --iters 30000 --bz 300 --nb_trg_labels 300 --clf_v 2
+JOB: python TF.py --gpu 3 --docker True --lr 1e-5 --iters 30000 --bz 400 --nb_trg_labels 400 --clf_v 2
