@@ -68,6 +68,13 @@ def conv_classifier(x, nb_cnn = 4, fc_layers = [128,1],  bn = False, scope_name 
 
 	return conv_net, h, pred_logit
 
+def conv_classifier2(x, nb_cnn = 4, fc_layers = [128,1],  bn = False, scope_name = 'base', reuse = False):
+	with tf.variable_scope(scope_name, reuse = reuse):
+		conv_net = conv_block(x, nb_cnn = nb_cnn, bn = bn, scope_name = 'conv')
+		h, pred_logit = dense_block(conv_net, fc_layers = fc_layers, bn = True, scope_name = 'classifier')
+
+	return conv_net, h, pred_logit
+
 def discriminator(x, nb_cnn = 2, fc_layers = [128, 1], bn = True, reuse = False):
 	with tf.variable_scope('discriminator', reuse = reuse):
 		if nb_cnn > 0:
