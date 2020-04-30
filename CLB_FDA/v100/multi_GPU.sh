@@ -139,12 +139,33 @@
 # parser.add_argument("--source_name", type = str, default = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k')
 # parser.add_argument("--DA_name", type = str, default = 'mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.5-sclf-1.0-trg_labels-0')
 
-JOB: python TF.py --gpu 0 --docker True --lr 1e-6 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 100 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
-JOB: python TF.py --gpu 1 --docker True --lr 1e-6 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 200 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
-JOB: python TF.py --gpu 2 --docker True --lr 1e-6 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 300 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
-JOB: python TF.py --gpu 3 --docker True --lr 1e-6 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 400 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
+# JOB: python TF.py --gpu 0 --docker True --lr 1e-6 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 100 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
+# JOB: python TF.py --gpu 1 --docker True --lr 1e-6 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 200 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
+# JOB: python TF.py --gpu 2 --docker True --lr 1e-6 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 300 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
+# JOB: python TF.py --gpu 3 --docker True --lr 1e-6 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 400 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
 
 # JOB: python TF.py --gpu 0 --docker True --lr 1e-5 --iters 30000 --bz 100 --nb_trg_labels 100 --clf_v 2
 # JOB: python TF.py --gpu 1 --docker True --lr 1e-5 --iters 30000 --bz 200 --nb_trg_labels 200 --clf_v 2
 # JOB: python TF.py --gpu 2 --docker True --lr 1e-5 --iters 30000 --bz 300 --nb_trg_labels 300 --clf_v 2
 # JOB: python TF.py --gpu 3 --docker True --lr 1e-5 --iters 30000 --bz 400 --nb_trg_labels 400 --clf_v 2
+
+# Apri 30, 2020
+# JOB: python mmd_DA.py --gpu 0 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 100 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset 'dense'
+# JOB: python mmd_DA.py --gpu 1 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 200 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset 'dense'
+# JOB: python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 300 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset 'dense'
+# JOB: python mmd_DA.py --gpu 3 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 400 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset 'dense'
+
+# JOB: python TF.py --gpu 0 --docker True --lr 1e-5 --iters 30000 --bz 100 --nb_trg_labels 100 --clf_v 1 --dataset 'dense'
+# JOB: python TF.py --gpu 1 --docker True --lr 1e-5 --iters 30000 --bz 200 --nb_trg_labels 200 --clf_v 1 --dataset 'dense'
+# JOB: python TF.py --gpu 2 --docker True --lr 1e-5 --iters 30000 --bz 300 --nb_trg_labels 300 --clf_v 1 --dataset 'dense'
+# JOB: python TF.py --gpu 3 --docker True --lr 1e-5 --iters 30000 --bz 400 --nb_trg_labels 400 --clf_v 1 --dataset 'dense'
+
+# JOB: python mmd_DA.py --gpu 0 --docker True --shared True --source_scratch True --den_bn False --lr 1e-3 --iters 100000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset 'dense'
+# JOB: python mmd_DA.py --gpu 1 --docker True --shared True --source_scratch True --den_bn False --lr 1e-4 --iters 100000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset 'dense'
+# JOB: python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 100000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset 'dense'
+# JOB: python mmd_DA.py --gpu 3 --docker True --shared True --source_scratch True --den_bn False --lr 1e-6 --iters 100000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset 'dense'
+
+JOB: python mmd_DA.py --gpu 0 --docker True --shared True --source_scratch False --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 100 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset 'dense'
+JOB: python mmd_DA.py --gpu 1 --docker True --shared True --source_scratch False --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 200 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset 'dense'
+JOB: python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch False --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 300 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset 'dense'
+JOB: python mmd_DA.py --gpu 3 --docker True --shared True --source_scratch False --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 400 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset 'dense'

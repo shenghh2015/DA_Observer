@@ -143,6 +143,7 @@ parser.add_argument("--DA_FLAG", type = str2bool, default = False)
 parser.add_argument("--source_name", type = str, default = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k')
 parser.add_argument("--DA_name", type = str, default = 'mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.5-sclf-1.0-trg_labels-0')
 parser.add_argument("--clf_v", type = int, default = 1)
+parser.add_argument("--dataset", type = str, default = 'total')
 # parser.add_argument("--den_bn", type = str2bool, default = False)
 
 args = parser.parse_args()
@@ -165,6 +166,7 @@ DA_FLAG = args.DA_FLAG
 source_model_name = args.source_name
 DA_name = args.DA_name
 clf_v = args.clf_v
+dataset = args.dataset
 # trg_clf_param = args.trg_clf_param
 # src_clf_param = args.src_clf_param
 
@@ -204,7 +206,7 @@ if not DA_FLAG:
 	generate_folder(DA)
 	base_model_folder = os.path.join(DA, source_model_name)
 	generate_folder(base_model_folder)
-	DA_model_name = 'TF-lr-{0:}-bz-{1:}-iter-{2:}-scr-{3:}-fc-{4:}-bn-{5:}-trg_labels-{6:}-clf_v{7:}'.format(lr, batch_size, nb_steps, source_scratch, fc_layer, den_bn, nb_trg_labels, clf_v)
+	DA_model_name = 'TF-lr-{0:}-bz-{1:}-iter-{2:}-scr-{3:}-fc-{4:}-bn-{5:}-trg_labels-{6:}-clf_v{7:}-{8:}'.format(lr, batch_size, nb_steps, source_scratch, fc_layer, den_bn, nb_trg_labels, clf_v, dataset)
 	DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 	generate_folder(DA_model_folder)
 	os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -231,9 +233,22 @@ Xs_trn, Xs_val, Xs_tst = np.expand_dims(Xs_trn, axis = 3), np.expand_dims(Xs_val
 ys_tst = ys_tst.reshape(-1,1)
 ys_trn = ys_trn.reshape(-1,1)
 # load target data
-nb_target = 85000
-sp_offset = 85000
-Xt_trn, Xt_val, Xt_tst, yt_trn, yt_val, yt_tst = load_target(dataset = 'total', train = nb_target)
+if dataset == 'dense':
+	nb_target = 7100
+	sp_offset = 7100
+elif dataset == 'hetero':
+	nb_target = 36000
+	sp_offset = 36000
+elif dataset == 'scattered':
+	nb_target = 33000
+	sp_offset = 33000	
+elif dataset == 'fatty':
+	nb_target = 9000
+	sp_offset = 9000	
+elif datasaet == 'total':
+	nb_target = 85000
+	sp_offset = 85000
+Xt_trn, Xt_val, Xt_tst, yt_trn, yt_val, yt_tst = load_target(dataset = dataset, train = nb_target)
 Xt_trn, Xt_val, Xt_tst = (Xt_trn-np.min(Xt_trn))/(np.max(Xt_trn)-np.min(Xt_trn)), (Xt_val-np.min(Xt_val))/(np.max(Xt_val)-np.min(Xt_val)), (Xt_tst-np.min(Xt_tst))/(np.max(Xt_tst)-np.min(Xt_tst))
 Xt_trn, Xt_val, Xt_tst = np.expand_dims(Xt_trn, axis = 3), np.expand_dims(Xt_val, axis = 3), np.expand_dims(Xt_tst, axis = 3)
 yt_trn, yt_val, yt_tst = yt_trn.reshape(-1,1), yt_val.reshape(-1,1), yt_tst.reshape(-1,1)
