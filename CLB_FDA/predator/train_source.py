@@ -63,6 +63,7 @@ parser.add_argument("--sig_rate", type = float)
 parser.add_argument("--bz", type = int)
 parser.add_argument("--optimizer", type = str)
 parser.add_argument("--nb_steps", type = int, default = 100000)
+parser.add_argument("--clf_v", type = int, default = 1)
 
 args = parser.parse_args()
 gpu_num = args.gpu_num
@@ -75,6 +76,7 @@ sig_rate = args.sig_rate
 batch_size = args.bz
 optimizer = args.optimizer
 num_steps = args.nb_steps
+clf_v = args.clf_v
 # gpu_num = 1
 # nb_train = 100000
 # sig_rate = 0.035
@@ -102,7 +104,7 @@ y_val, y_tst = y_val.reshape(-1,1), y_tst.reshape(-1,1)
 model_root_folder = '/data/results/CLB'
 generate_folder(model_root_folder)
 
-direct = os.path.join(model_root_folder,'cnn-{}-bn-{}-noise-{}-trn-{}-sig-{}-bz-{}-lr-{}-{}-stp-{}k'.format(nb_cnn, bn, noise, nb_train, sig_rate, batch_size, lr, optimizer, num_steps/1000))
+direct = os.path.join(model_root_folder,'cnn-{}-bn-{}-noise-{}-trn-{}-sig-{}-bz-{}-lr-{}-{}-stp-{}k-clf_v{}'.format(nb_cnn, bn, noise, nb_train, sig_rate, batch_size, lr, optimizer, num_steps/1000, clf_v))
 generate_folder(direct)
 direct_st = direct+'/statistics'
 generate_folder(direct_st)
@@ -111,7 +113,10 @@ x = tf.placeholder("float", shape=[None, 109,109, 1])
 y_ = tf.placeholder("float", shape=[None, 1])
 
 scope_name = 'base'
-conv_net, h, pred_logit = conv_classifier(x, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = scope_name)
+if clf_v == 1:
+	conv_net, h, pred_logit = conv_classifier(x, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = scope_name)
+else:
+	conv_net, h, pred_logit = conv_classifier2(x, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = scope_name)
 
 vars_list = tf.trainable_variables(scope_name)
 key_list = [v.name[:-2] for v in tf.trainable_variables(scope_name)]
