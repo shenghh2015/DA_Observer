@@ -224,7 +224,7 @@ ys_tst = ys_tst.reshape(-1,1)
 ys_trn = ys_trn.reshape(-1,1)
 # load target data
 if dataset == 'dense':
-	nb_target = 7400
+	nb_target = 7100
 elif dataset == 'hetero':
 	nb_target = 36000
 elif dataset == 'scattered':
