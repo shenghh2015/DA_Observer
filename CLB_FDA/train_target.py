@@ -35,6 +35,7 @@ def print_block(symbol = '*', nb_sybl = 70):
 ## input parameters
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu_num", type=int)
+parser.add_argument("--docker", type = str2bool, default = True)
 parser.add_argument("--nb_cnn", type = int)
 parser.add_argument("--bn", type = str2bool, default = False)
 parser.add_argument("--lr", type = float)
@@ -89,7 +90,7 @@ X_val, X_tst = (X_val-np.min(X_val))/(np.max(X_val)-np.min(X_val)), (X_tst-np.mi
 X_val, X_tst = np.expand_dims(X_val, axis = 3), np.expand_dims(X_tst, axis = 3)
 y_val, y_tst = y_val.reshape(-1,1), y_tst.reshape(-1,1)
 
-model_root_folder = '/data/results/FDA' 	# dataset
+model_root_folder = 'data/FDA' 	# dataset
 generate_folder(model_root_folder)
 
 direct = os.path.join(model_root_folder,'cnn-{}-bn-{}-trn-{}-bz-{}-lr-{}-{}-stp-{}k-{}'.format(nb_cnn, bn, nb_train, batch_size, lr, optimizer, num_steps/1000),dataset)
