@@ -31,30 +31,10 @@ def print_green(str):
 def print_block(symbol = '*', nb_sybl = 70):
 	print_red(symbol*nb_sybl)
 
-def plot_AUCs(file_name, train_list, val_list, test_list):
-	import matplotlib.pyplot as plt
-	from matplotlib.backends.backend_agg import FigureCanvasAgg
-	from matplotlib.figure import Figure
-	fig_size = (8,6)
-	fig = Figure(figsize=fig_size)
-	file_name = file_name
-	ax = fig.add_subplot(111)
-	ax.plot(train_list)
-	ax.plot(val_list)
-	ax.plot(test_list)
-	title = os.path.basename(os.path.dirname(file_name))
-	ax.set_title(title)
-	ax.set_xlabel('Iterations')
-	ax.set_ylabel('AUC')
-	ax.legend(['Train','Valid','Test'])
-	ax.set_xlim([0,len(train_list)])
-	canvas = FigureCanvasAgg(fig)
-	canvas.print_figure(file_name, dpi=100)
 
 ## input parameters
 parser = argparse.ArgumentParser()
-parser.add_argument("--gpu", type=int)
-parser.add_argument("--docker", type=str2bool, default = False)
+parser.add_argument("--gpu_num", type=int)
 parser.add_argument("--nb_cnn", type = int)
 parser.add_argument("--bn", type = str2bool, default = False)
 parser.add_argument("--lr", type = float)
@@ -64,14 +44,15 @@ parser.add_argument("--nb_train", type = int)
 parser.add_argument("--bz", type = int)
 parser.add_argument("--optimizer", type = str)
 parser.add_argument("--nb_steps", type = int, default = 100000)
+parser.add_argument("--dataset", type = str, default = 'total')
 
 args = parser.parse_args()
-gpu = args.gpu
-docker = args.docker
+gpu_num = args.gpu_num
 lr = args.lr
 nb_train = args.nb_train
 nb_cnn = args.nb_cnn
 bn = args.bn
+dataset = args.dataset
 
 # noise = args.noise
 # sig_rate = args.sig_rate
@@ -87,26 +68,31 @@ bn_training = True
 num_steps = args.nb_steps
 # optimizer="Adam"
 
-os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
+os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
 
 ## load data
 # X_trn, X_val, X_tst, y_trn, y_val, y_tst = load_source(train = nb_train, sig_rate = sig_rate) 							# train, valid, test data
 # X_val, X_tst = np.random.RandomState(0).normal(X_val, noise), np.random.RandomState(1).normal(X_tst, noise) 			# add noise
-X_trn, X_val, X_tst, y_trn, y_val, y_tst = load_target(dataset = 'total', train = nb_train)
+# load target data
+if dataset == 'dense':
+	nb_train = 7100
+elif dataset == 'hetero':
+	nb_train = 36000
+elif dataset == 'scattered':
+	nb_train = 33000
+elif dataset == 'fatty':
+	nb_train = 9000
+elif datasaet == 'total':
+	nb_train = 85000
+X_trn, X_val, X_tst, y_trn, y_val, y_tst = load_target(dataset = dataset, train = nb_train)
 X_val, X_tst = (X_val-np.min(X_val))/(np.max(X_val)-np.min(X_val)), (X_tst-np.min(X_tst))/(np.max(X_tst)-np.min(X_tst)) # data normalization
 X_val, X_tst = np.expand_dims(X_val, axis = 3), np.expand_dims(X_tst, axis = 3)
 y_val, y_tst = y_val.reshape(-1,1), y_tst.reshape(-1,1)
 
-if docker:
-	output_folder ='/data/results'
-else:
-	output_folder = 'data'
-
-model_root_folder = output_folder+'/FDA' 	# dataset
-
+model_root_folder = '/data/results/FDA' 	# dataset
 generate_folder(model_root_folder)
 
-direct = os.path.join(model_root_folder,'cnn-{}-bn-{}-trn-{}-bz-{}-lr-{}-{}-stp-{}k'.format(nb_cnn, bn, nb_train, batch_size, lr, optimizer, num_steps/1000))
+direct = os.path.join(model_root_folder,'cnn-{}-bn-{}-trn-{}-bz-{}-lr-{}-{}-stp-{}k-{}'.format(nb_cnn, bn, nb_train, batch_size, lr, optimizer, num_steps/1000),dataset)
 generate_folder(direct)
 direct_st = direct+'/statistics'
 generate_folder(direct_st)
@@ -193,7 +179,7 @@ with tf.Session() as sess:
 			np.savetxt(direct+'/val_loss.txt',val_loss)
 			np.savetxt(direct+'/val_auc.txt',val_auc)
 			np.savetxt(direct_st+'/statistics_'+str(i_batch)+'.txt',test_stat)
-			file_name = os.path.join(direct, 'AUC_over_Iterations_{}.png'.format(os.path.basename(model_folder)))
+			file_name = os.path.join(direct, 'AUC_over_Iterations_{}.png'.format(model_name))
 			plot_AUCs(file_name, train_auc, val_auc, test_auc)
 			# update the best model
 			if best_val_auc < val_auc[-1]:
