@@ -34,7 +34,16 @@ def load_target(dataset = 'total', train = 80000, valid = 400, test = 400):
 # 	test = 400
 # 	X_SA = np.load('/shared/planck/Phantom/Breast_Xray/FDA_DM_ROIs/npy_dataset/{}_SA.npy'.format(dataset))
 # 	X_SP = np.load('/shared/planck/Phantom/Breast_Xray/FDA_DM_ROIs/npy_dataset/{}_SP.npy'.format(dataset))
-	offset_valid = 85000
+	if dataset == 'dense':
+		offset_valid = 7400
+	elif dataset == 'hetero':
+		offset_valid = 36000
+	elif dataset == 'scattered':
+		offset_valid = 33000
+	elif dataset == 'fatty':
+		offset_valid = 9000
+	elif datasaet == 'total':
+		offset_valid = 85000
 	offset_test = 400 + offset_valid
 	X_SA = np.load(os.path.join(dataset_folder, 'FDA_DM_ROIs/npy_dataset/{}_SA.npy'.format(dataset)))
 	X_SP = np.load(os.path.join(dataset_folder, 'FDA_DM_ROIs/npy_dataset/{}_SP.npy'.format(dataset)))

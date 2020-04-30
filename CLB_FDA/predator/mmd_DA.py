@@ -160,6 +160,7 @@ parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
 parser.add_argument("--den_bn", type = str2bool, default = False)
 parser.add_argument("--clf_v", type = int, default = 1)
+parser.add_argument("--dataset", type = str, default = 'total')
 
 args = parser.parse_args()
 print(args)
@@ -178,6 +179,7 @@ den_bn = args.den_bn
 trg_clf_param = args.trg_clf_param
 src_clf_param = args.src_clf_param
 clf_v = args.clf_v
+dataset = args.dataset
 
 if False:
 	gpu_num = 1
@@ -221,8 +223,17 @@ Xs_trn, Xs_val, Xs_tst = np.expand_dims(Xs_trn, axis = 3), np.expand_dims(Xs_val
 ys_tst = ys_tst.reshape(-1,1)
 ys_trn = ys_trn.reshape(-1,1)
 # load target data
-nb_target = 85000
-Xt_trn, Xt_val, Xt_tst, yt_trn, yt_val, yt_tst = load_target(dataset = 'total', train = nb_target)
+if dataset == 'dense':
+	nb_target = 7400
+elif dataset == 'hetero':
+	nb_target = 36000
+elif dataset == 'scattered':
+	nb_target = 33000
+elif dataset == 'fatty':
+	nb_target = 9000
+elif datasaet == 'total':
+	nb_target = 85000
+Xt_trn, Xt_val, Xt_tst, yt_trn, yt_val, yt_tst = load_target(dataset = dataset, train = nb_target)
 Xt_trn, Xt_val, Xt_tst = (Xt_trn-np.min(Xt_trn))/(np.max(Xt_trn)-np.min(Xt_trn)), (Xt_val-np.min(Xt_val))/(np.max(Xt_val)-np.min(Xt_val)), (Xt_tst-np.min(Xt_tst))/(np.max(Xt_tst)-np.min(Xt_tst))
 Xt_trn, Xt_val, Xt_tst = np.expand_dims(Xt_trn, axis = 3), np.expand_dims(Xt_val, axis = 3), np.expand_dims(Xt_tst, axis = 3)
 yt_trn, yt_val, yt_tst = yt_trn.reshape(-1,1), yt_val.reshape(-1,1), yt_tst.reshape(-1,1)
@@ -234,7 +245,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}-tclf-{8:}-sclf-{9:}-trg_labels-{10:}-vclf-{11:}'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn, trg_clf_param, src_clf_param, nb_trg_labels, clf_v)
+DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}-tclf-{8:}-sclf-{9:}-tlabels-{10:}-vclf-{11:}-{12:}'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn, trg_clf_param, src_clf_param, nb_trg_labels, clf_v, dataset)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
