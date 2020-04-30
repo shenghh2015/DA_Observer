@@ -166,6 +166,7 @@ DA_FLAG = args.DA_FLAG
 source_model_name = args.source_name
 DA_name = args.DA_name
 clf_v = args.clf_v
+dataset = args.dataset
 # trg_clf_param = args.trg_clf_param
 # src_clf_param = args.src_clf_param
 
