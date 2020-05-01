@@ -477,7 +477,7 @@ with tf.Session() as sess:
 			test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst})
 			test_source_stat = np.exp(test_source_logit)
 			test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
-			if nb_trg_labels > 0 and test_source_auc>0.8:
+			if nb_trg_labels > 0 and test_source_AUC>0.8:
 				indices_tl = np.random.randint(0, 2*nb_trg_labels-1, 100)
 				batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
 				_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, gen_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l})
