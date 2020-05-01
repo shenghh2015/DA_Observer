@@ -1,7 +1,7 @@
 import os
 import glob
 
-root_folder = './'
+root_folder = './data'
 result_root_folder = os.path.join(root_folder, 'results')
 new_root_folder = os.path.join(root_folder, 'backup')
 
@@ -13,6 +13,7 @@ def generate_folder(folder):
 generate_folder(new_root_folder)
 sub_folder_list = ['CLB', 'CLB-FDA', 'DA_TF', 'FDA']
 result_folders = glob.glob(result_root_folder+'/*')
+print(result_folders)
 for folder in result_folders:
 	print('Go into {}'.format(os.path.relpath(folder, root_folder)))
 	if os.path.isdir(folder) and os.path.basename(folder) in sub_folder_list:

@@ -36,7 +36,22 @@ for source_model in source_model_folders:
 		print_yellow('AUC: Best Val {0:.4f}, Test {1:.4f}'.format(val_auc[select_Idx], test_auc[select_Idx]))
 
 ## directly train the model
-
+print_green('The TF profermance')
+DA_folder = os.path.join(result_folder, 'CLB-FDA')
+base_model_folders = glob.glob(DA_folder +'/*')
+for base_model in base_model_folders:
+	if os.path.isdir(base_model):
+		print('Base Model: {}'.format(os.path.basename(base_model)))
+		target_models = [v for v in glob.glob(base_model+'/*') if os.path.isdir(v) and 'TF' in os.path.basename(v)]
+		for target_model in target_models:
+			for target_model in target_models:
+				if os.path.isdir(target_model) and 'nb_target_labels'
+		print_red(TF_model)
+		#load the AUC performance
+		val_auc = np.loadtxt(TF_model+'/val_auc.txt')
+		test_auc = np.loadtxt(TF_model+'/testing_auc.txt')
+		select_Idx = np.argmax(val_auc)
+		print_yellow('AUC: Best Val {0:.4f}, Test {1:.4f}'.format(val_auc[select_Idx], test_auc[select_Idx]))
 
 ## transfer learning
 
