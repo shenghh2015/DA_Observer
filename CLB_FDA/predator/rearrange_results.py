@@ -11,7 +11,7 @@ def generate_folder(folder):
 		os.system('mkdir {}'.format(folder))
 
 generate_folder(new_root_folder)
-sub_folder_list = ['CLB', 'CLB_FDA', 'DA_TF', 'FDA']
+sub_folder_list = ['CLB', 'CLB-FDA', 'DA_TF', 'FDA']
 result_folders = glob.glob(result_root_folder+'/*')
 for folder in result_folders:
 	print('Go into {}'.format(os.path.relpath(folder, root_folder)))

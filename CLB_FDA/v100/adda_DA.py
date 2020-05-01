@@ -431,6 +431,8 @@ val_auc_list = []
 dom_acc_list = []
 train_auc_list = []
 best_val_auc = 0
+train_target_AUC = 0.5
+tC_loss = 1.4
 
 ## model loading verification
 with tf.Session() as sess:
@@ -532,7 +534,7 @@ with tf.Session() as sess:
 		if nb_trg_labels > 0:
 			train_auc_list.append(train_target_AUC)
 			tC_loss_list.append(tC_loss)
-			np.savetxt(os.path.join(DA_model_folder,'train_auc.txt'), val_auc_list)
+			np.savetxt(os.path.join(DA_model_folder,'train_auc.txt'), train_auc_list)
 			np.savetxt(os.path.join(DA_model_folder,'trg_clf_loss.txt'),tC_loss_list)
 			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, T-train {2:.4f}, S-test: {3:.4f}; ACC: dom {4:.4f}'.format(test_target_AUC, val_target_AUC, train_target_AUC, test_source_AUC, domain_acc))
 			print_yellow('Loss: D:{0:.4f}, G:{1:.4f}, S:{2:.4f}, T:{3:.4f}, Iter:{4:}'.format(D_loss, G_loss, sC_loss, tC_loss, iteration))
