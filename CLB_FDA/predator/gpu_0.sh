@@ -29,5 +29,5 @@
 # parser.add_argument("--clf_v", type = int, default = 1)
 # parser.add_argument("--dataset", type = str, default = 'dense')
 
-python TF.py --gpu 0 --docker True --lr 5e-6 --iters 50000 --bz 100 --nb_trg_labels 100 --clf_v 1 --dataset 'total'
+python TF.py --gpu 0 --docker True --lr 5e-6 --iters 50000 --bz 50 --nb_trg_labels 70 --clf_v 1 --dataset 'total'
 # python adda_DA.py --gpu 0 --docker True --dis_cnn 0 --dis_fc 128 --dis_bn True --den_bn False --clf_v 1 --lr 1e-5 --iters 200000 --bz 300 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.0 --nb_trg_labels 0
