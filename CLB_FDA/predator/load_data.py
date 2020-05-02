@@ -42,7 +42,7 @@ def load_target(dataset = 'total', train = 80000, valid = 400, test = 400):
 		offset_valid = 33000
 	elif dataset == 'fatty':
 		offset_valid = 9000
-	elif datasaet == 'total':
+	elif dataset == 'total':
 		offset_valid = 85000
 	offset_test = 400 + offset_valid
 	X_SA = np.load(os.path.join(dataset_folder, 'FDA_DM_ROIs/npy_dataset/{}_SA.npy'.format(dataset)))
