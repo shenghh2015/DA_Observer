@@ -344,7 +344,7 @@ with tf.Session() as sess:
 # 		plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
 		plot_AUCs(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list)
 		# save models
-		if iteration%10 == 0:
+		if iteration%100 == 0:
 			target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
 		if best_val_auc < val_target_AUC:
 			best_val_auc = val_target_AUC
