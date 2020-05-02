@@ -234,3 +234,10 @@
 # on compton
 # python TF.py --docker False --gpu 0 --lr 5e-6 --iters 50000 --bz 400 --source_scratch False --dataset total --nb_trg_labels 100
 # python train_target.py --docker Flase --gpu_num 0 --nb_cnn 4 --bn False --lr 5e-6 --nb_train 100
+
+# May 2, 2020
+# compton 
+python mmd_DA.py --gpu 2 --docker False --shared True --source_scratch False --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 70 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.1 --clf_v 1
+python mmd_DA.py --gpu 5 --docker False --shared True --source_scratch False --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 70 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1
+
+# python TF.py --gpu 3 --docker True --lr 1e-6 --iters 30000 --bz 100 --source_scratch False --nb_trg_labels 400 --clf_v 2 --DA_FLAG True --DA_name 'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.0-sclf-1.0-trg_labels-0-vclf-2'
