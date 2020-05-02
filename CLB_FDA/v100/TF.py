@@ -245,7 +245,7 @@ elif dataset == 'scattered':
 elif dataset == 'fatty':
 	nb_target = 9000
 	sp_offset = 9000	
-elif datasaet == 'total':
+elif dataset == 'total':
 	nb_target = 85000
 	sp_offset = 85000
 Xt_trn, Xt_val, Xt_tst, yt_trn, yt_val, yt_tst = load_target(dataset = dataset, train = nb_target)
