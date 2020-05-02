@@ -103,7 +103,7 @@ elif dataset == 'scattered':
 	nb_train = 33000
 elif dataset == 'fatty':
 	nb_train = 9000
-elif datasaet == 'total':
+elif dataset == 'total':
 	nb_train = 85000
 X_trn, X_val, X_tst, y_trn, y_val, y_tst = load_target(dataset = dataset, train = nb_train)
 X_val, X_tst = (X_val-np.min(X_val))/(np.max(X_val)-np.min(X_val)), (X_tst-np.min(X_tst))/(np.max(X_tst)-np.min(X_tst)) # data normalization

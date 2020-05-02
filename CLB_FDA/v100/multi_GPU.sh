@@ -197,10 +197,10 @@
 # JOB: python adda_DA.py --gpu 3 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch False --den_bn False --clf_v 2 --lr 1e-5 --iters 200000 --bz 300 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.0 --nb_trg_labels 0
 
 # v100
-JOB: python adda_DA.py --gpu 0 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 200000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --nb_trg_labels 100
-JOB: python adda_DA.py --gpu 1 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 200000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --nb_trg_labels 200
-JOB: python adda_DA.py --gpu 2 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 200000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --nb_trg_labels 300
-JOB: python adda_DA.py --gpu 3 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 200000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --nb_trg_labels 400
+# JOB: python adda_DA.py --gpu 0 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 200000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --nb_trg_labels 100
+# JOB: python adda_DA.py --gpu 1 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 200000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --nb_trg_labels 200
+# JOB: python adda_DA.py --gpu 2 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 200000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --nb_trg_labels 300
+# JOB: python adda_DA.py --gpu 3 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 200000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --nb_trg_labels 400
 
 # v100
 # JOB: python adda_DA.py --gpu 0 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 5e-5 --iters 200000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --nb_trg_labels 100
@@ -213,3 +213,18 @@ JOB: python adda_DA.py --gpu 3 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn T
 # JOB: python adda_DA.py --gpu 2 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn False --source_scratch True --den_bn False --clf_v 2 --lr 1e-5 --iters 200000 --bz 300 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.0 --nb_trg_labels 0
 # JOB: python adda_DA.py --gpu 3 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn False --source_scratch False --den_bn False --clf_v 2 --lr 1e-5 --iters 200000 --bz 300 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.0 --nb_trg_labels 0
 
+# parser.add_argument("--gpu_num", type=int)
+# parser.add_argument("--nb_cnn", type = int)
+# parser.add_argument("--bn", type = str2bool, default = False)
+# parser.add_argument("--lr", type = float)
+# parser.add_argument("--nb_train", type = int)
+# # parser.add_argument("--noise", type = float)
+# # parser.add_argument("--sig_rate", type = float)
+# parser.add_argument("--bz", type = int)
+# parser.add_argument("--optimizer", type = str)
+# parser.add_argument("--nb_steps", type = int, default = 100000)
+# parser.add_argument("--dataset", type = str, default = 'total')
+
+# on compton
+python TF.py --docker False --gpu 0 --lr 5e-6 --iters 50000 --bz 400 --source_scratch False --dataset dense --nb_trg_labels 100
+# python train_target.py --docker Flase --gpu_num 0 --nb_cnn 4 --bn False --lr 5e-6 --nb_train 100
