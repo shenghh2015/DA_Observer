@@ -124,6 +124,8 @@ base_model_folders = glob.glob(DA_folder +'/*')
 for base_model_folder in base_model_folders:
 	if os.path.isdir(base_model_folder):
 		t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list = classify_categories(base_model_folder, 'ADDA', dataset)
+		print('Target label amount: {}'.format(0))
+		present_auc(t0_list)
 		print('Target label amount: {}'.format(70))
 		present_auc(t70_list)
 		print('Target label amount: {}'.format(100))
@@ -144,6 +146,8 @@ base_model_folders = glob.glob(DA_folder +'/*')
 for base_model_folder in base_model_folders:
 	if os.path.isdir(base_model_folder):
 		t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list = classify_categories(base_model_folder, 'mmd', dataset)
+		print('Target label amount: {}'.format(0))
+		present_auc(t0_list)
 		print('Target label amount: {}'.format(70))
 		present_auc(t70_list)
 		print('Target label amount: {}'.format(100))
