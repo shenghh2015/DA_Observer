@@ -2,7 +2,7 @@ import os
 import glob
 
 root_folder = './data'
-result_root_folder = os.path.join(root_folder, 'results')
+result_root_folder = os.path.join(root_folder, '.')
 new_root_folder = os.path.join(root_folder, 'backup')
 
 def generate_folder(folder):
