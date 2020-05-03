@@ -1,7 +1,7 @@
 import os
 import glob
 
-root_folder = '/scratch1/fs1/anastasio/Data_FDA_Breast/DA_Observer'
+root_folder = './data'
 result_root_folder = os.path.join(root_folder, 'results')
 new_root_folder = os.path.join(root_folder, 'backup')
 
