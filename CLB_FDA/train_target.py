@@ -95,16 +95,16 @@ os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
 # X_trn, X_val, X_tst, y_trn, y_val, y_tst = load_source(train = nb_train, sig_rate = sig_rate) 							# train, valid, test data
 # X_val, X_tst = np.random.RandomState(0).normal(X_val, noise), np.random.RandomState(1).normal(X_tst, noise) 			# add noise
 # load target data
-if dataset == 'dense':
-	nb_train = 7100
-elif dataset == 'hetero':
-	nb_train = 36000
-elif dataset == 'scattered':
-	nb_train = 33000
-elif dataset == 'fatty':
-	nb_train = 9000
-elif dataset == 'total':
-	nb_train = 85000
+# if dataset == 'dense':
+# 	nb_train = 7100
+# elif dataset == 'hetero':
+# 	nb_train = 36000
+# elif dataset == 'scattered':
+# 	nb_train = 33000
+# elif dataset == 'fatty':
+# 	nb_train = 9000
+# elif dataset == 'total':
+# 	nb_train = 85000
 X_trn, X_val, X_tst, y_trn, y_val, y_tst = load_target(dataset = dataset, train = nb_train)
 X_val, X_tst = (X_val-np.min(X_val))/(np.max(X_val)-np.min(X_val)), (X_tst-np.min(X_tst))/(np.max(X_tst)-np.min(X_tst)) # data normalization
 X_val, X_tst = np.expand_dims(X_val, axis = 3), np.expand_dims(X_tst, axis = 3)
