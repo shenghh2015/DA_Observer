@@ -195,7 +195,7 @@ parser.add_argument("--dis_fc", type=int, default = 128)
 parser.add_argument("--dis_bn", type=str2bool, default = True)
 parser.add_argument("--nD", type = int, default = 1)
 parser.add_argument("--nG", type = int, default = 1)
-parser.add_argument("--acc_up", type = float, default = 0.7)
+parser.add_argument("--acc_up", type = float, default = 0.8)
 parser.add_argument("--acc_down", type = float, default = 0.3)
 parser.add_argument("--lr", type = float, default = 1e-5)
 parser.add_argument("--iters", type = int, default = 1000)
@@ -287,7 +287,7 @@ elif dataset == 'scattered':
 	nb_target = 33000
 elif dataset == 'fatty':
 	nb_target = 9000
-elif datasaet == 'total':
+elif dataset == 'total':
 	nb_target = 85000
 Xt_trn, Xt_val, Xt_tst, yt_trn, yt_val, yt_tst = load_target(dataset = dataset, train = nb_target)
 Xt_trn, Xt_val, Xt_tst = (Xt_trn-np.min(Xt_trn))/(np.max(Xt_trn)-np.min(Xt_trn)), (Xt_val-np.min(Xt_val))/(np.max(Xt_val)-np.min(Xt_val)), (Xt_tst-np.min(Xt_tst))/(np.max(Xt_tst)-np.min(Xt_tst))
@@ -431,6 +431,8 @@ val_auc_list = []
 dom_acc_list = []
 train_auc_list = []
 best_val_auc = 0
+train_target_AUC = 0.5
+tC_loss = 1.4
 
 ## model loading verification
 with tf.Session() as sess:
@@ -532,7 +534,7 @@ with tf.Session() as sess:
 		if nb_trg_labels > 0:
 			train_auc_list.append(train_target_AUC)
 			tC_loss_list.append(tC_loss)
-			np.savetxt(os.path.join(DA_model_folder,'train_auc.txt'), val_auc_list)
+			np.savetxt(os.path.join(DA_model_folder,'train_auc.txt'), train_auc_list)
 			np.savetxt(os.path.join(DA_model_folder,'trg_clf_loss.txt'),tC_loss_list)
 			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, T-train {2:.4f}, S-test: {3:.4f}; ACC: dom {4:.4f}'.format(test_target_AUC, val_target_AUC, train_target_AUC, test_source_AUC, domain_acc))
 			print_yellow('Loss: D:{0:.4f}, G:{1:.4f}, S:{2:.4f}, T:{3:.4f}, Iter:{4:}'.format(D_loss, G_loss, sC_loss, tC_loss, iteration))

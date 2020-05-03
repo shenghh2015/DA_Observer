@@ -231,7 +231,7 @@ elif dataset == 'scattered':
 	nb_target = 33000
 elif dataset == 'fatty':
 	nb_target = 9000
-elif datasaet == 'total':
+elif dataset == 'total':
 	nb_target = 85000
 Xt_trn, Xt_val, Xt_tst, yt_trn, yt_val, yt_tst = load_target(dataset = dataset, train = nb_target)
 Xt_trn, Xt_val, Xt_tst = (Xt_trn-np.min(Xt_trn))/(np.max(Xt_trn)-np.min(Xt_trn)), (Xt_val-np.min(Xt_val))/(np.max(Xt_val)-np.min(Xt_val)), (Xt_tst-np.min(Xt_tst))/(np.max(Xt_tst)-np.min(Xt_tst))
@@ -443,7 +443,7 @@ with tf.Session() as sess:
 			plot_loss(DA_model_folder, D_loss_list, sC_loss_list, DA_model_folder+'/loss_{}.png'.format(DA_model_name))
 			plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
 		# save models
-		if iteration%10==0:
+		if iteration%100==0:
 			target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
 		if best_val_auc < val_target_AUC:
 			best_val_auc = val_target_AUC

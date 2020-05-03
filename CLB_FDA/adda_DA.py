@@ -58,6 +58,27 @@ def plot_AUCs(file_name, train_list, val_list, test_list):
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
 
+def plot_AUCs_DomACC(file_name, train_list, val_list, test_list, dom_acc_list):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	file_name = file_name
+	ax = fig.add_subplot(111)
+	ax.plot(train_list)
+	ax.plot(val_list)
+	ax.plot(test_list)
+	ax.plot(dom_acc_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('AUC/ACC')
+	ax.legend(['AUC:Train','AUC:Valid','AUC:Test','ACC:Dom'])
+	ax.set_xlim([0,len(train_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
 # generate the folder
 def generate_folder(folder):
     import os
@@ -130,6 +151,26 @@ def plot_auc_iterations(target_auc_list, val_auc_list, target_file_name):
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
 
+def plot_auc_dom_acc_iterations(target_auc_list, val_auc_list, dom_acc_list, target_file_name):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	file_name = target_file_name
+	ax = fig.add_subplot(111)
+	ax.plot(target_auc_list)
+	ax.plot(val_auc_list)
+	ax.plot(dom_acc_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('AUC/ACC')
+	ax.legend(['AUC:Test','AUC:Val', 'ACC:Dom'])
+	ax.set_xlim([0,len(target_auc_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
 def print_yellow(str):
 	from termcolor import colored 
 	print(colored(str, 'yellow'))
@@ -154,7 +195,7 @@ parser.add_argument("--dis_fc", type=int, default = 128)
 parser.add_argument("--dis_bn", type=str2bool, default = True)
 parser.add_argument("--nD", type = int, default = 1)
 parser.add_argument("--nG", type = int, default = 1)
-parser.add_argument("--acc_up", type = float, default = 0.7)
+parser.add_argument("--acc_up", type = float, default = 0.8)
 parser.add_argument("--acc_down", type = float, default = 0.3)
 parser.add_argument("--lr", type = float, default = 1e-5)
 parser.add_argument("--iters", type = int, default = 1000)
@@ -246,7 +287,7 @@ elif dataset == 'scattered':
 	nb_target = 33000
 elif dataset == 'fatty':
 	nb_target = 9000
-elif datasaet == 'total':
+elif dataset == 'total':
 	nb_target = 85000
 Xt_trn, Xt_val, Xt_tst, yt_trn, yt_val, yt_tst = load_target(dataset = dataset, train = nb_target)
 Xt_trn, Xt_val, Xt_tst = (Xt_trn-np.min(Xt_trn))/(np.max(Xt_trn)-np.min(Xt_trn)), (Xt_val-np.min(Xt_val))/(np.max(Xt_val)-np.min(Xt_val)), (Xt_tst-np.min(Xt_tst))/(np.max(Xt_tst)-np.min(Xt_tst))
@@ -342,7 +383,8 @@ else:
 
 disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)))
 gen_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.zeros_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.ones_like(trg_logits)))
-total_loss = dis_param* gen_loss + src_clf_param*src_clf_loss
+total_loss_no_labels = dis_param* gen_loss + src_clf_param*src_clf_loss
+total_loss = total_loss_no_labels
 discr_vars_list = tf.trainable_variables('discriminator')
 
 # total_loss = mmd_loss + src_clf_param*src_clf_loss
@@ -353,6 +395,7 @@ if nb_trg_labels > 0:
 
 disc_step = tf.train.AdamOptimizer(lr).minimize(disc_loss, var_list=discr_vars_list)
 gen_step = tf.train.AdamOptimizer(lr).minimize(total_loss, var_list=target_vars_list)
+gen_step_no_labels = tf.train.AdamOptimizer(lr).minimize(total_loss_no_labels, var_list=target_vars_list)
 
 # if not shared:
 # 	# weight loss
@@ -385,8 +428,11 @@ sC_loss_list = []
 tC_loss_list = []
 test_auc_list = []
 val_auc_list = []
+dom_acc_list = []
 train_auc_list = []
 best_val_auc = 0
+train_target_AUC = 0.5
+tC_loss = 1.4
 
 ## model loading verification
 with tf.Session() as sess:
@@ -430,18 +476,17 @@ with tf.Session() as sess:
 		for _ in range(nd_step_used):
 			_, D_loss = sess.run([disc_step, disc_loss], feed_dict={xs: batch_s, xt: batch_t})
 		for _ in range(ng_step_used):
-			if nb_trg_labels > 0:
+			test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst})
+			test_source_stat = np.exp(test_source_logit)
+			test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
+			if nb_trg_labels > 0 and test_source_AUC>0.8:
 				indices_tl = np.random.randint(0, 2*nb_trg_labels-1, 100)
 				batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
 				_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, gen_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l})
 				train_target_stat = np.exp(trg_digit)
 				train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
-				train_auc_list.append(train_target_AUC)
-				tC_loss_list.append(tC_loss)
-				np.savetxt(os.path.join(DA_model_folder,'train_auc.txt'), val_auc_list)
-				np.savetxt(os.path.join(DA_model_folder,'trg_clf_loss.txt'),tC_loss_list)
 			else:
-				_, G_loss, sC_loss = sess.run([gen_step, gen_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys})
+				_, G_loss, sC_loss = sess.run([gen_step_no_labels, gen_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys})
 # 			_, G_loss = sess.run([gen_step, gen_loss], feed_dict={xt: batch_t})
 		#training
 		train_source_logit = src_logits.eval(session=sess,feed_dict={xs:batch_s})
@@ -449,6 +494,7 @@ with tf.Session() as sess:
 		domain_preds = np.concatenate([train_source_logit, train_target_logit], axis = 0) > 0
 		domain_labels = np.concatenate([np.ones(train_source_logit.shape), np.zeros(train_target_logit.shape)])
 		domain_acc = np.sum(domain_preds == domain_labels)/domain_preds.shape[0]
+		dom_acc_list.append(domain_acc)
 		if domain_acc > acc_up:
 # 			nd_step_used = 1
 			ng_step_used = 10
@@ -464,9 +510,6 @@ with tf.Session() as sess:
 # 			nd_step_used = nd_steps
 # 			ng_step_used = ng_steps
 		#testing
-		test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst})
-		test_source_stat = np.exp(test_source_logit)
-		test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
 		test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst})
 		test_target_stat = np.exp(test_target_logit)
 		test_target_AUC = roc_auc_score(yt_tst, test_target_stat)
@@ -481,6 +524,7 @@ with tf.Session() as sess:
 		# save results
 		np.savetxt(os.path.join(DA_model_folder,'test_auc.txt'), test_auc_list)
 		np.savetxt(os.path.join(DA_model_folder,'val_auc.txt'), val_auc_list)
+		np.savetxt(os.path.join(DA_model_folder,'dom_acc.txt'), dom_acc_list)
 		np.savetxt(os.path.join(DA_model_folder,'D_loss.txt'),D_loss_list)
 		np.savetxt(os.path.join(DA_model_folder,'G_loss.txt'),G_loss_list)
 		np.savetxt(os.path.join(DA_model_folder,'src_clf_loss.txt'),sC_loss_list)
@@ -488,17 +532,23 @@ with tf.Session() as sess:
 		print_block(symbol = '-', nb_sybl = 60)
 		print_yellow(os.path.basename(DA_model_folder))
 		if nb_trg_labels > 0:
+			train_auc_list.append(train_target_AUC)
+			tC_loss_list.append(tC_loss)
+			np.savetxt(os.path.join(DA_model_folder,'train_auc.txt'), train_auc_list)
+			np.savetxt(os.path.join(DA_model_folder,'trg_clf_loss.txt'),tC_loss_list)
 			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, T-train {2:.4f}, S-test: {3:.4f}; ACC: dom {4:.4f}'.format(test_target_AUC, val_target_AUC, train_target_AUC, test_source_AUC, domain_acc))
 			print_yellow('Loss: D:{0:.4f}, G:{1:.4f}, S:{2:.4f}, T:{3:.4f}, Iter:{4:}'.format(D_loss, G_loss, sC_loss, tC_loss, iteration))
 			plot_LOSS(DA_model_folder+'/loss_{}.png'.format(DA_model_name), G_loss_list, sC_loss_list, tC_loss_list)
 			plot_loss(DA_model_folder, D_loss_list, G_loss_list, DA_model_folder+'/adver_{}.png'.format(DA_model_name))
-			plot_AUCs(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list)
+			plot_AUCs_DomACC(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list, dom_acc_list)
+# 			plot_AUCs(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list)
 		else:
 			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, S-test: {2:.4f}; ACC: dom {3:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC, domain_acc))
 			print_yellow('Loss: D:{0:.4f}, G:{1:.4f}, S:{2:.4f}, Iter:{3:}'.format(D_loss, G_loss, sC_loss, iteration))
 			plot_loss(DA_model_folder, G_loss_list, sC_loss_list, DA_model_folder+'/loss_{}.png'.format(DA_model_name))
 			plot_loss(DA_model_folder, D_loss_list, G_loss_list, DA_model_folder+'/adver_{}.png'.format(DA_model_name))
-			plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
+			plot_auc_dom_acc_iterations(test_auc_list, val_auc_list, dom_acc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
+# 			plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
 		# save models
 		if iteration%100==0:
 			target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
