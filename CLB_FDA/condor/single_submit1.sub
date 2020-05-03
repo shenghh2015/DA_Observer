@@ -16,5 +16,6 @@ getenv = true
 request_cpus = 2
 request_memory = 40 GB
 Executable = job1.sh
+Log=
 Requirements = (Machine == "aristotle.bioen.illinois.edu")
 queue
