@@ -92,11 +92,9 @@ def present_auc(model_list):
 			model_name = os.path.basename(m)
 			val_auc = np.loadtxt(m+'/val_auc.txt')
 			test_auc = np.loadtxt(m+'/test_auc.txt')
-# 			print(len(val_auc), len(test_auc))
 			if len(val_auc.shape)>0:
 				if len(val_auc) == len(test_auc) and len(val_auc) > 0:
 					select_Idx = np.argmax(val_auc)
-					print(val_auc.shape)
 					print_red(model_name)
 					print_yellow('AUC: Best Test {0:.4f},  Val {1:.4f}'.format(test_auc[select_Idx], val_auc[select_Idx]))
 
