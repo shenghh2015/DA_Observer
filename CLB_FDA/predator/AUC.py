@@ -160,6 +160,23 @@ for base_model_folder in base_model_folders:
 		present_auc(t400_list)
 		print('Target label amount: {}'.format(500))
 		present_auc(t500_list)
-## ADDA + target labels
 
-## mmd + target labels
+
+## naively-trained target model
+def present_auc(model_list):
+	for m in model_list:
+# 		if os.path.exists(m+'/target_best.meta') and os.path.exists(m+'/val_auc.txt'):
+		if os.path.exists(m+'/val_auc.txt'):
+			model_name = os.path.basename(m)
+			val_auc = np.loadtxt(m+'/val_auc.txt')
+			test_auc = np.loadtxt(m+'/testing_auc.txt')
+			if len(val_auc.shape)>0:
+				if len(val_auc) == len(test_auc) and len(val_auc) > 0:
+					select_Idx = np.argmax(val_auc)
+					print_red(model_name)
+					print_yellow('AUC: Best Test {0:.4f},  Val {1:.4f}'.format(test_auc[select_Idx], val_auc[select_Idx]))
+
+print_green('The naviely-trained target model profermance')
+target_folder = os.path.join(result_folder, 'FDA')
+target_model_folders = glob.glob(target_folder +'/*')
+present_auc(target_model_folders)

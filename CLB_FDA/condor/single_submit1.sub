@@ -1,0 +1,20 @@
+# When you submit an interactive job use the -interactive argument
+# for example: condor_submit /shared/rsaas/glen_example_jobs/interactive_job.sub -interactive
+#
+# on an interactive job there is no need for the executeable line
+#
+# Set the enviorment argument so the job gets the current user's enviorment
+Universe = vanilla
+request_gpus = 1
+getenv = true
+Executable = job1.sh
+
+# Set the notifications to never
+#notification = never
+# Request 12MB of memory
+#request_memory = 12
+# Request a machine that has a GPU available
+request_cpus = 2
+request_memory = 40 GB
+Requirements = (Machine == "aristotle.bioen.illinois.edu")
+queue
