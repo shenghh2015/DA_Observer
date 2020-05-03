@@ -262,3 +262,12 @@
 # python TF.py --gpu 1 --docker True --lr 1e-6 --iters 50000 --bz 100 --nb_trg_labels 100 --clf_v 1 --dataset 'dense'
 # python TF.py --gpu 2 --docker True --lr 1e-6 --iters 50000 --bz 100 --nb_trg_labels 200 --clf_v 1 --dataset 'dense'
 
+## compton
+# python adda_DA.py --gpu 2 --docker False --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 100000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.1 --nb_trg_labels 70 --dataset dense
+# python adda_DA.py --gpu 2 --docker False --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 100000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.1 --nb_trg_labels 70 --dataset dense
+# python adda_DA.py --gpu 5 --docker False --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 100000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.1 --nb_trg_labels 100 --dataset dense
+# turing
+# python adda_DA.py --gpu 6 --docker False --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 100000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.1 --nb_trg_labels 200 --dataset dense
+# deep learning
+# python adda_DA.py --gpu 6 --docker False --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 100000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.1 --nb_trg_labels 300 --dataset dense
+# python adda_DA.py --gpu 3 --docker False --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-5 --iters 100000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.1 --nb_trg_labels 400 --dataset dense
