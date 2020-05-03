@@ -24,7 +24,7 @@ def print_block(symbol = '*', nb_sybl = 70):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("dataset", type=str, default = 'dense')
-parser.add_argument("docker", type=str2bool, default = 'false')
+parser.add_argument("docker", type=str2bool, default = 'true')
 args = parser.parse_args()
 print(args)
 
