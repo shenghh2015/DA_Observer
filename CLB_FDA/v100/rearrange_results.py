@@ -25,7 +25,7 @@ for folder in result_folders:
 				generate_folder(new_base_folder)
 				model_folders = glob.glob(os.path.join(base_folder, '*'))
 				for model_folder in model_folders:
-					if os.path.exists(os.path.join(model_folder, 'target_best.meta')):
+					if os.path.isdir(model_folder):
 						print('Go into {}'.format(os.path.relpath(model_folder, root_folder)))
 						## copy the models and results
 						new_model_folder = model_folder.replace(result_root_folder, new_root_folder)
