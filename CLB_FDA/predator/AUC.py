@@ -68,7 +68,7 @@ def classify_categories(base_model_folder, method = 'TF', dataset = 'dense'):
 		target_model = target_models[i]
 		model_name = os.path.basename(target_model)
 # 		print_red(model_name)
-		if 'labels-0' in model_name:
+		if 'labels-0' in model_name or (not 'labels' in model_name):
 			t0_list.append(target_model)
 		if 'labels-70' in model_name:
 			t70_list.append(target_model)		
