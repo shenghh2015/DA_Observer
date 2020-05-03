@@ -1,7 +1,7 @@
 import os
 import glob
 
-root_folder = './data'
+root_folder = '/scratch1/fs1/anastasio/Data_FDA_Breast/DA_Observer'
 result_root_folder = os.path.join(root_folder, 'results')
 new_root_folder = os.path.join(root_folder, 'backup')
 
@@ -11,9 +11,8 @@ def generate_folder(folder):
 		os.system('mkdir {}'.format(folder))
 
 generate_folder(new_root_folder)
-sub_folder_list = ['CLB', 'CLB-FDA', 'DA_TF', 'FDA']
+sub_folder_list = ['CLB', 'CLB-FDA', 'DA-TF', 'FDA']
 result_folders = glob.glob(result_root_folder+'/*')
-print(result_folders)
 for folder in result_folders:
 	print('Go into {}'.format(os.path.relpath(folder, root_folder)))
 	if os.path.isdir(folder) and os.path.basename(folder) in sub_folder_list:
@@ -26,7 +25,7 @@ for folder in result_folders:
 				generate_folder(new_base_folder)
 				model_folders = glob.glob(os.path.join(base_folder, '*'))
 				for model_folder in model_folders:
-					if os.path.isdir(model_folde):
+					if os.path.isdir(model_folder):
 						print('Go into {}'.format(os.path.relpath(model_folder, root_folder)))
 						## copy the models and results
 						new_model_folder = model_folder.replace(result_root_folder, new_root_folder)
