@@ -7,7 +7,6 @@
 Universe = vanilla
 request_gpus = 1
 getenv = true
-Executable = job1.sh
 
 # Set the notifications to never
 #notification = never
@@ -16,5 +15,6 @@ Executable = job1.sh
 # Request a machine that has a GPU available
 request_cpus = 2
 request_memory = 40 GB
+Executable = job1.sh
 Requirements = (Machine == "aristotle.bioen.illinois.edu")
 queue
