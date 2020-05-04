@@ -51,7 +51,7 @@ def run_evaluation(model_list, model_set):
 	for model_name in model_list:
 		# model_set = 'CLB-FDA'
 		# model_name = 'TF-lr-1e-06-bz-50-iter-50000-scr-False-fc-128-bn-False-trg_labels-70-clf_v1-total'
-
+		print_yellow(model_name)
 		if model_set == 'FDA':
 			model_meta_files = glob.glob(os.path.join(output_folder, model_set, model_name, 'model*.meta'))
 			best_model_meta = os.path.join(output_folder, model_set, model_name, 'target-best.meta')
@@ -61,7 +61,7 @@ def run_evaluation(model_list, model_set):
 		model_meta_files = natsorted(model_meta_files)
 		if os.path.exists(best_model_meta):
 			model_meta_files.insert(0, best_model_meta)
-
+		print('Amount of models:{}'.format(len(model_files)))
 		best_val_auc = 0
 		select_test_auc = 0
 		val_auc_list = []
@@ -89,7 +89,7 @@ def run_evaluation(model_list, model_set):
 						select_model_meta = model_meta
 		# 				target_saver.save(sess, os.path.dirname(model_meta)+'/val_100_target_best')
 						print_red('Update best based on val 100:'+os.path.dirname(model_meta))
-					print('AUC: T-test {0:.4f}, T-valid {1:.4f}'.format(test_target_AUC, val_target_AUC))
+# 					print('AUC: T-test {0:.4f}, T-valid {1:.4f}'.format(test_target_AUC, val_target_AUC))
 				# calculate the statistics for the selected model
 				tf.global_variables_initializer().run(session=sess)
 				target_saver.restore(sess, select_model_meta.replace('.meta', ''))
