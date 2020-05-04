@@ -48,6 +48,7 @@ def plot_auc_iterations(target_auc_list, val_auc_list, target_file_name):
 
 ## load weights and calculate the AUC and test statistics
 def run_evaluation(model_list, model_set):
+	np.random.shuffle(model_list)   ## raondom shuffle it, and allow to parallely run the jobs
 	for model_name in model_list:
 		# model_set = 'CLB-FDA'
 		# model_name = 'TF-lr-1e-06-bz-50-iter-50000-scr-False-fc-128-bn-False-trg_labels-70-clf_v1-total'
@@ -55,9 +56,13 @@ def run_evaluation(model_list, model_set):
 		if model_set == 'FDA':
 			model_meta_files = glob.glob(os.path.join(output_folder, model_set, model_name, 'model*.meta'))
 			best_model_meta = os.path.join(output_folder, model_set, model_name, 'target-best.meta')
+			new_best_meta = os.path.join(output_folder, model_set, model_name, 'val_100_target_best.meta')
 		else:
 			model_meta_files = glob.glob(os.path.join(output_folder, model_set, base_model, model_name, 'target-*.meta'))
 			best_model_meta = os.path.join(output_folder, model_set, base_model, model_name, 'target_best.meta')
+			new_best_meta = os.path.join(output_folder, model_set, base_model, model_name, 'val_100_target_best.meta')
+		if os.path.exists(new_best_meta):
+			continue
 		model_meta_files = natsorted(model_meta_files)
 		if os.path.exists(best_model_meta):
 			model_meta_files.insert(0, best_model_meta)
@@ -171,6 +176,6 @@ for key, var in zip(key_list, vars_list):
 target_saver = tf.train.Saver(key_var_direct, max_to_keep=1)
 
 # run evaluation
-run_evaluation(TF_list, 'CLB-FDA')
 run_evaluation(mmd_list, 'CLB-FDA')
+run_evaluation(TF_list, 'CLB-FDA')
 run_evaluation(naive_list, 'FDA')
