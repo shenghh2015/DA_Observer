@@ -297,3 +297,6 @@
 # predator
 # mmd-1.0-lr-1e-05-bz-400-iter-100000-scr-None-shar-True-fc-128-bn-False
 # python mmd_DA.py --gpu 0 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 500000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total
+
+# turing
+python mmd_DA.py --gpu 6 --docker True --shared True --source_scratch True --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total
