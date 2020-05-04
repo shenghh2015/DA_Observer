@@ -9,6 +9,9 @@ import argparse
 from load_data import *
 from model import *
 
+def str2bool(value):
+    return value.lower() == 'true'
+
 def print_yellow(str):
 	from termcolor import colored 
 	print(colored(str, 'yellow'))
