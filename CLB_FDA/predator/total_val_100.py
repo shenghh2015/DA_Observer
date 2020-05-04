@@ -176,6 +176,6 @@ for key, var in zip(key_list, vars_list):
 target_saver = tf.train.Saver(key_var_direct, max_to_keep=1)
 
 # run evaluation
-run_evaluation(mmd_list, 'CLB-FDA')
-run_evaluation(TF_list, 'CLB-FDA')
+run_evaluation(mmd_list + TF_list, 'CLB-FDA')
+# run_evaluation(TF_list, 'CLB-FDA')
 run_evaluation(naive_list, 'FDA')
