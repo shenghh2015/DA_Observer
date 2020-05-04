@@ -39,31 +39,32 @@ def plot_auc_iterations(target_auc_list, val_auc_list, target_file_name):
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
 
-TF_list = [TF-lr-1e-06-bz-50-iter-50000-scr-False-fc-128-bn-False-trg_labels-70-clf_v1-total,
-			TF-lr-5e-06-bz-400-iter-50000-scr-False-fc-128-bn-False-trg_labels-100-clf_v1-total,
-			TF-lr-1e-06-bz-100-iter-50000-scr-False-fc-128-bn-False-trg_labels-200-clf_v1-total,
-			TF-lr-5e-06-bz-100-iter-50000-scr-False-fc-128-bn-False-trg_labels-200-clf_v1-total,
-			TF-lr-5e-06-bz-100-iter-50000-scr-False-fc-128-bn-False-trg_labels-300-clf_v1-total
-			TF-lr-1e-06-bz-100-iter-20000-scr-False-fc-128-bn-False-trg_labels-400,
-			TF-lr-1e-06-bz-100-iter-10000-scr-False-fc-128-bn-False-trg_labels-500]
-mmd_list = [mmd-1.0-lr-1e-05-bz-400-iter-100000-scr-None-shar-True-fc-128-bn-False,
-		   mmd-1.0-lr-1e-05-bz-400-iter-100000-scr-None-shar-True-fc-128-bn-False,
-		   mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-0.1-sclf-1.0-tlabels-70-vclf-1-total,
-		   mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-tlabels-70-vclf-1-total,
-		   mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-100-vclf-1,
-		   mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-200-vclf-1,
-		   mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-300-vclf-1,
-		   mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-300-vclf-1,
-		   mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-400-vclf-1,
-		   mmd-1.0-lr-1e-05-bz-400-iter-100000-scr-True-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-500]
-naive_list = [cnn-4-bn-False-trn-70-bz-50-lr-1e-05-Adam-stp-25.0k-total,
-			  cnn-4-bn-False-trn-100-bz-100-lr-1e-05-Adam-stp-25.0k-total,
-			  cnn-4-bn-False-trn-200-bz-100-lr-1e-05-Adam-stp-25.0k-total,
-			  cnn-4-bn-False-trn-300-bz-100-lr-1e-05-Adam-stp-25.0k-total,
-			  cnn-4-bn-False-trn-400-bz-100-lr-1e-05-Adam-stp-25.0k-total,
-			  cnn-4-bn-False-trn-500-bz-400-lr-1e-05-Adam-stp-20.0k]
+TF_list = ['TF-lr-1e-06-bz-50-iter-50000-scr-False-fc-128-bn-False-trg_labels-70-clf_v1-total',
+			'TF-lr-5e-06-bz-400-iter-50000-scr-False-fc-128-bn-False-trg_labels-100-clf_v1-total',
+			'TF-lr-1e-06-bz-100-iter-50000-scr-False-fc-128-bn-False-trg_labels-200-clf_v1-total',
+			'TF-lr-5e-06-bz-100-iter-50000-scr-False-fc-128-bn-False-trg_labels-200-clf_v1-total',
+			'TF-lr-5e-06-bz-100-iter-50000-scr-False-fc-128-bn-False-trg_labels-300-clf_v1-total',
+			'TF-lr-1e-06-bz-100-iter-20000-scr-False-fc-128-bn-False-trg_labels-400',
+			'TF-lr-1e-06-bz-100-iter-10000-scr-False-fc-128-bn-False-trg_labels-500']
+mmd_list = ['mmd-1.0-lr-1e-05-bz-400-iter-100000-scr-None-shar-True-fc-128-bn-False',
+		   'mmd-1.0-lr-1e-05-bz-400-iter-100000-scr-None-shar-True-fc-128-bn-False',
+		   'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-0.1-sclf-1.0-tlabels-70-vclf-1-total',
+		   'mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-tlabels-70-vclf-1-total',
+		   'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-100-vclf-1',
+		   'mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-200-vclf-1',
+		   'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-300-vclf-1',
+		   'mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-300-vclf-1',
+		   'mmd-1.0-lr-1e-05-bz-400-iter-50000-scr-False-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-400-vclf-1',
+		   'mmd-1.0-lr-1e-05-bz-400-iter-100000-scr-True-shar-True-fc-128-bn-False-tclf-1.0-sclf-1.0-trg_labels-500']
+naive_list = ['cnn-4-bn-False-trn-70-bz-50-lr-1e-05-Adam-stp-25.0k-total',
+			  'cnn-4-bn-False-trn-100-bz-100-lr-1e-05-Adam-stp-25.0k-total',
+			  'cnn-4-bn-False-trn-200-bz-100-lr-1e-05-Adam-stp-25.0k-total',
+			  'cnn-4-bn-False-trn-300-bz-100-lr-1e-05-Adam-stp-25.0k-total',
+			  'cnn-4-bn-False-trn-400-bz-100-lr-1e-05-Adam-stp-25.0k-total',
+			  'cnn-4-bn-False-trn-500-bz-400-lr-1e-05-Adam-stp-20.0k']
 
 docker = True
+gpu = 1
 
 if docker:
 	output_folder = '/data/results'
@@ -71,17 +72,20 @@ else:
 	output_folder = './data'
 
 base_model = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
+os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
 
 ## load target data
+from load_data import *
 _, Xt_val, Xt_tst, _, yt_val, yt_tst = load_target(dataset = 'total', train = 85000, valid = 100, test = 400)
 Xt_val, Xt_tst = (Xt_val-np.min(Xt_val))/(np.max(Xt_val)-np.min(Xt_val)), (Xt_tst-np.min(Xt_tst))/(np.max(Xt_tst)-np.min(Xt_tst))
 Xt_val, Xt_tst = np.expand_dims(Xt_val, axis = 3), np.expand_dims(Xt_tst, axis = 3)
 
 ## create target model
+from model import *
 xt = tf.placeholder("float", shape=[None, 109,109, 1])
 yt = tf.placeholder("float", shape=[None, 1])
 _, _, target_logit = conv_classifier(xt, nb_cnn = 4, fc_layers = [128,1],  bn = False, scope_name = 'base')
-
+scope_name = 'base'
 vars_list = tf.trainable_variables(scope_name)
 key_list = [v.name[:-2] for v in tf.trainable_variables(scope_name)]
 key_var_direct = {}
@@ -98,7 +102,7 @@ if model_set == 'FDA':
 else:
 	model_meta_files = glob.glob(os.path.join(output_folder, model_set, base_model, model_name, 'target-*.meta'))
 	best_model_meta = os.path.join(output_folder, model_set, base_model, model_name, 'target_best.meta')
-natsorted(model_meta_files)
+model_meta_files = natsorted(model_meta_files)
 if os.path.exists(best_model_meta):
 	model_meta_files.insert(0, best_model_meta)
 
@@ -145,5 +149,6 @@ with tf.Session() as sess:
 		np.savetxt(os.path.join(os.path.dirname(select_model_meta),'best_test_stat_100.txt'), test_target_stat)
 		np.savetxt(os.path.join(os.path.dirname(select_model_meta),'best_test_auc_100.txt'), test_target_AUC)
 		np.savetxt(os.path.join(os.path.dirname(select_model_meta),'best_val_auc_100.txt'), val_target_AUC)
+		target_saver.save(sess, os.path.dirname(select_model_meta)+'/val_100_target_best')
 		print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}'.format(select_test_auc, best_val_auc))
 		plot_auc_iterations(target_auc_list, val_auc_list, os.path.dirname(model_meta)+'/val_100_AUC_{}.png'.format(os.path.basename(os.path.dirname(select_model_meta))))
