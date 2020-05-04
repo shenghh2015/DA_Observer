@@ -4,6 +4,10 @@ import numpy as np
 import glob
 from natsort import natsorted
 from termcolor import colored 
+import argparse
+
+from load_data import *
+from model import *
 
 def print_yellow(str):
 	from termcolor import colored 
@@ -39,6 +43,68 @@ def plot_auc_iterations(target_auc_list, val_auc_list, target_file_name):
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
 
+## load weights and calculate the AUC and test statistics
+def run_evaluation(model_list, model_set):
+	for model_name in model_list:
+		# model_set = 'CLB-FDA'
+		# model_name = 'TF-lr-1e-06-bz-50-iter-50000-scr-False-fc-128-bn-False-trg_labels-70-clf_v1-total'
+
+		if model_set == 'FDA':
+			model_meta_files = glob.glob(os.path.join(output_folder, model_set, model_name, 'model*.meta'))
+			best_model_meta = os.path.join(output_folder, model_set, model_name, 'target-best.meta')
+		else:
+			model_meta_files = glob.glob(os.path.join(output_folder, model_set, base_model, model_name, 'target-*.meta'))
+			best_model_meta = os.path.join(output_folder, model_set, base_model, model_name, 'target_best.meta')
+		model_meta_files = natsorted(model_meta_files)
+		if os.path.exists(best_model_meta):
+			model_meta_files.insert(0, best_model_meta)
+
+		best_val_auc = 0
+		select_test_auc = 0
+		val_auc_list = []
+		test_auc_list = []
+		with tf.Session() as sess:
+			if len(model_meta_files) > 2:
+				for model_meta in model_meta_files:
+					tf.global_variables_initializer().run(session=sess)
+					target_saver.restore(sess, model_meta.replace('.meta', ''))
+					# AUC calculation
+					test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst})
+					test_target_stat = np.exp(test_target_logit)
+					test_target_AUC = roc_auc_score(yt_tst, test_target_stat)
+					val_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_val})
+					val_target_stat = np.exp(val_target_logit)
+					val_target_AUC = roc_auc_score(yt_val, val_target_stat)
+					if not model_meta == best_model_meta:
+						test_auc_list.append(test_target_AUC)
+						val_auc_list.append(val_target_AUC)
+						np.savetxt(os.path.join(os.path.dirname(model_meta),'test_auc_100.txt'), test_auc_list)
+						np.savetxt(os.path.join(os.path.dirname(model_meta),'val_auc_100.txt'), val_auc_list)
+					if best_val_auc < val_target_AUC:
+						best_val_auc = val_target_AUC
+						select_test_auc = test_target_AUC
+						select_model_meta = model_meta
+		# 				target_saver.save(sess, os.path.dirname(model_meta)+'/val_100_target_best')
+						print_red('Update best based on val 100:'+os.path.dirname(model_meta))
+					print('AUC: T-test {0:.4f}, T-valid {1:.4f}'.format(test_target_AUC, val_target_AUC))
+				# calculate the statistics for the selected model
+				tf.global_variables_initializer().run(session=sess)
+				target_saver.restore(sess, select_model_meta.replace('.meta', ''))
+				# AUC calculation
+				test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst})
+				test_target_stat = np.exp(test_target_logit)
+				test_target_AUC = roc_auc_score(yt_tst, test_target_stat)
+				val_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_val})
+				val_target_stat = np.exp(val_target_logit)
+				val_target_AUC = roc_auc_score(yt_val, val_target_stat)
+				# save the selected statistics
+				np.savetxt(os.path.join(os.path.dirname(select_model_meta),'best_test_stat_100.txt'), test_target_stat)
+				np.savetxt(os.path.join(os.path.dirname(select_model_meta),'best_test_auc_100.txt'), [test_target_AUC])
+				np.savetxt(os.path.join(os.path.dirname(select_model_meta),'best_val_auc_100.txt'), [val_target_AUC])
+				target_saver.save(sess, os.path.dirname(select_model_meta)+'/val_100_target_best')
+				print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}'.format(select_test_auc, best_val_auc))
+				plot_auc_iterations(test_auc_list, val_auc_list, os.path.dirname(model_meta)+'/val_100_AUC_{}.png'.format(os.path.basename(os.path.dirname(select_model_meta))))
+
 TF_list = ['TF-lr-1e-06-bz-50-iter-50000-scr-False-fc-128-bn-False-trg_labels-70-clf_v1-total',
 			'TF-lr-5e-06-bz-400-iter-50000-scr-False-fc-128-bn-False-trg_labels-100-clf_v1-total',
 			'TF-lr-1e-06-bz-100-iter-50000-scr-False-fc-128-bn-False-trg_labels-200-clf_v1-total',
@@ -63,8 +129,17 @@ naive_list = ['cnn-4-bn-False-trn-70-bz-50-lr-1e-05-Adam-stp-25.0k-total',
 			  'cnn-4-bn-False-trn-400-bz-100-lr-1e-05-Adam-stp-25.0k-total',
 			  'cnn-4-bn-False-trn-500-bz-400-lr-1e-05-Adam-stp-20.0k']
 
-docker = True
-gpu = 1
+parser = argparse.ArgumentParser()
+parser.add_argument("gpu", type=int, default = 0)
+parser.add_argument("docker", type = str2bool, default = True)
+
+args = parser.parse_args()
+print(args)
+
+gpu = args.gpu
+docker = args.docker
+# docker = True
+# gpu = 1
 
 if docker:
 	output_folder = '/data/results'
@@ -75,13 +150,11 @@ base_model = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
 
 ## load target data
-from load_data import *
 _, Xt_val, Xt_tst, _, yt_val, yt_tst = load_target(dataset = 'total', train = 85000, valid = 100, test = 400)
 Xt_val, Xt_tst = (Xt_val-np.min(Xt_val))/(np.max(Xt_val)-np.min(Xt_val)), (Xt_tst-np.min(Xt_tst))/(np.max(Xt_tst)-np.min(Xt_tst))
 Xt_val, Xt_tst = np.expand_dims(Xt_val, axis = 3), np.expand_dims(Xt_tst, axis = 3)
 
 ## create target model
-from model import *
 xt = tf.placeholder("float", shape=[None, 109,109, 1])
 yt = tf.placeholder("float", shape=[None, 1])
 _, _, target_logit = conv_classifier(xt, nb_cnn = 4, fc_layers = [128,1],  bn = False, scope_name = 'base')
@@ -93,62 +166,7 @@ for key, var in zip(key_list, vars_list):
 	key_var_direct[key] = var
 target_saver = tf.train.Saver(key_var_direct, max_to_keep=1)
 
-## load weights and calculate the AUC and test statistics
-model_set = 'CLB-FDA'
-model_name = 'TF-lr-1e-06-bz-50-iter-50000-scr-False-fc-128-bn-False-trg_labels-70-clf_v1-total'
-if model_set == 'FDA':
-	model_meta_files = glob.glob(os.path.join(output_folder, model_set, model_name, 'model*.meta'))
-	best_model_meta = os.path.join(output_folder, model_set, model_name, 'target-best.meta')
-else:
-	model_meta_files = glob.glob(os.path.join(output_folder, model_set, base_model, model_name, 'target-*.meta'))
-	best_model_meta = os.path.join(output_folder, model_set, base_model, model_name, 'target_best.meta')
-model_meta_files = natsorted(model_meta_files)
-if os.path.exists(best_model_meta):
-	model_meta_files.insert(0, best_model_meta)
-
-best_val_auc = 0
-select_test_auc = 0
-select_model_meta = ''
-val_auc_list = []
-test_auc_list = []
-with tf.Session() as sess:
-	if len(model_meta_files) > 2:
-		for model_meta in model_meta_files:
-			tf.global_variables_initializer().run(session=sess)
-			target_saver.restore(sess, model_meta.replace('.meta', ''))
-			# AUC calculation
-			test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst})
-			test_target_stat = np.exp(test_target_logit)
-			test_target_AUC = roc_auc_score(yt_tst, test_target_stat)
-			val_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_val})
-			val_target_stat = np.exp(val_target_logit)
-			val_target_AUC = roc_auc_score(yt_val, val_target_stat)
-			if not model_meta == best_model_meta:
-				test_auc_list.append(test_target_AUC)
-				val_auc_list.append(val_target_AUC)
-				np.savetxt(os.path.join(os.path.dirname(model_meta),'test_auc_100.txt'), test_auc_list)
-				np.savetxt(os.path.join(os.path.dirname(model_meta),'val_auc_100.txt'), val_auc_list)
-			if best_val_auc < val_target_AUC:
-				best_val_auc = val_target_AUC
-				select_test_auc = test_target_AUC
-				select_model_meta = model_meta
-# 				target_saver.save(sess, os.path.dirname(model_meta)+'/val_100_target_best')
-				print_red('Update best based on val 100:'+os.path.dirname(model_meta))
-			print('AUC: T-test {0:.4f}, T-valid {1:.4f}'.format(test_target_AUC, val_target_AUC))
-		# calculate the statistics for the selected model
-		tf.global_variables_initializer().run(session=sess)
-		target_saver.restore(sess, select_model_meta.replace('.meta', ''))
-		# AUC calculation
-		test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst})
-		test_target_stat = np.exp(test_target_logit)
-		test_target_AUC = roc_auc_score(yt_tst, test_target_stat)
-		val_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_val})
-		val_target_stat = np.exp(val_target_logit)
-		val_target_AUC = roc_auc_score(yt_val, val_target_stat)
-		# save the selected statistics
-		np.savetxt(os.path.join(os.path.dirname(select_model_meta),'best_test_stat_100.txt'), test_target_stat)
-		np.savetxt(os.path.join(os.path.dirname(select_model_meta),'best_test_auc_100.txt'), test_target_AUC)
-		np.savetxt(os.path.join(os.path.dirname(select_model_meta),'best_val_auc_100.txt'), val_target_AUC)
-		target_saver.save(sess, os.path.dirname(select_model_meta)+'/val_100_target_best')
-		print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}'.format(select_test_auc, best_val_auc))
-		plot_auc_iterations(target_auc_list, val_auc_list, os.path.dirname(model_meta)+'/val_100_AUC_{}.png'.format(os.path.basename(os.path.dirname(select_model_meta))))
+# run evaluation
+run_evaluation(TF_list, 'CLB-FDA')
+run_evaluation(mmd_list, 'CLB-FDA')
+run_evaluation(naive_list, 'FDA')
