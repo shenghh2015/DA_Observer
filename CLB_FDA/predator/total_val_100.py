@@ -61,7 +61,7 @@ def run_evaluation(model_list, model_set):
 		model_meta_files = natsorted(model_meta_files)
 		if os.path.exists(best_model_meta):
 			model_meta_files.insert(0, best_model_meta)
-		print('Amount of models:{}'.format(len(model_meta_files)))
+		print_yellow('Amount of models:{}'.format(len(model_meta_files)))
 		best_val_auc = 0
 		select_test_auc = 0
 		val_auc_list = []
@@ -89,6 +89,7 @@ def run_evaluation(model_list, model_set):
 						select_model_meta = model_meta
 		# 				target_saver.save(sess, os.path.dirname(model_meta)+'/val_100_target_best')
 						print_red('Update best based on val 100:'+os.path.dirname(model_meta))
+						print_green('Update: AUC: T-test {0:.4f}, T-valid {1:.4f}'.format(select_test_auc, best_val_auc))
 # 					print('AUC: T-test {0:.4f}, T-valid {1:.4f}'.format(test_target_AUC, val_target_AUC))
 				# calculate the statistics for the selected model
 				tf.global_variables_initializer().run(session=sess)
@@ -105,7 +106,7 @@ def run_evaluation(model_list, model_set):
 				np.savetxt(os.path.join(os.path.dirname(select_model_meta),'best_test_auc_100.txt'), [test_target_AUC])
 				np.savetxt(os.path.join(os.path.dirname(select_model_meta),'best_val_auc_100.txt'), [val_target_AUC])
 				target_saver.save(sess, os.path.dirname(select_model_meta)+'/val_100_target_best')
-				print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}'.format(select_test_auc, best_val_auc))
+				print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}'.format(test_target_AUC, val_target_AUC))
 				plot_auc_iterations(test_auc_list, val_auc_list, os.path.dirname(model_meta)+'/val_100_AUC_{}.png'.format(os.path.basename(os.path.dirname(select_model_meta))))
 
 TF_list = ['TF-lr-1e-06-bz-50-iter-50000-scr-False-fc-128-bn-False-trg_labels-70-clf_v1-total',
