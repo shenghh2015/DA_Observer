@@ -61,7 +61,7 @@ def run_evaluation(model_list, model_set):
 		model_meta_files = natsorted(model_meta_files)
 		if os.path.exists(best_model_meta):
 			model_meta_files.insert(0, best_model_meta)
-		print('Amount of models:{}'.format(len(model_files)))
+		print('Amount of models:{}'.format(len(model_meta_files)))
 		best_val_auc = 0
 		select_test_auc = 0
 		val_auc_list = []
