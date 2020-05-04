@@ -153,7 +153,7 @@ base_model = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
 
 ## load target data
-_, Xt_val, Xt_tst, _, yt_val, yt_tst = load_target(dataset = 'total', train = 85000, valid = 100, test = 400)
+_, Xt_val, Xt_tst, _, yt_val, yt_tst = load_target(dataset = 'total', train = 1000, valid = 100, test = 400)
 Xt_val, Xt_tst = (Xt_val-np.min(Xt_val))/(np.max(Xt_val)-np.min(Xt_val)), (Xt_tst-np.min(Xt_tst))/(np.max(Xt_tst)-np.min(Xt_tst))
 Xt_val, Xt_tst = np.expand_dims(Xt_val, axis = 3), np.expand_dims(Xt_tst, axis = 3)
 
