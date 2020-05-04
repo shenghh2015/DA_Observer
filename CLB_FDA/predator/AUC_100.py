@@ -47,8 +47,8 @@ for source_model in source_model_folders:
 	if os.path.isdir(source_model) and os.path.exists(source_model+'/source-best.meta'):
 		print_red(os.path.basename(source_model))
 		#load the AUC performance
-		val_auc = np.loadtxt(source_model+'/val_auc_100.txt')
-		test_auc = np.loadtxt(source_model+'/testing_auc_100.txt')
+		val_auc = np.loadtxt(source_model+'/val_auc.txt')
+		test_auc = np.loadtxt(source_model+'/testing_auc.txt')
 		select_Idx = np.argmax(val_auc)
 		print_yellow('AUC: Best Test {0:.4f},  Val {1:.4f}'.format(test_auc[select_Idx], val_auc[select_Idx]))
 
@@ -88,10 +88,10 @@ def classify_categories(base_model_folder, method = 'TF', dataset = 'dense'):
 def present_auc(model_list):
 	for m in model_list:
 # 		if os.path.exists(m+'/target_best.meta') and os.path.exists(m+'/val_auc.txt'):
-		if os.path.exists(m+'/val_auc.txt'):
+		if os.path.exists(m+'/val_auc_100.txt'):
 			model_name = os.path.basename(m)
-			val_auc = np.loadtxt(m+'/val_auc.txt')
-			test_auc = np.loadtxt(m+'/test_auc.txt')
+			val_auc = np.loadtxt(m+'/val_auc_100.txt')
+			test_auc = np.loadtxt(m+'/test_auc_100.txt')
 			if len(val_auc.shape)>0:
 				if len(val_auc) == len(test_auc) and len(val_auc) > 0:
 					select_Idx = np.argmax(val_auc)
