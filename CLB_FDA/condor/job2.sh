@@ -1,7 +1,10 @@
 cd /home/sh38/DA_Observers/CLB_FDA
 # May 3, 2020
-python train_target.py --gpu_num 0 --docker False --nb_cnn 4 --bn False --lr 1e-5 --nb_train 70 --bz 50 --nb_steps 25000 --optimizer Adam --dataset total
-python train_target.py --gpu_num 0 --docker False --nb_cnn 4 --bn False --lr 1e-5 --nb_train 100 --bz 100 --nb_steps 25000 --optimizer Adam --dataset total
+# python train_target.py --gpu_num 0 --docker False --nb_cnn 4 --bn False --lr 1e-5 --nb_train 70 --bz 50 --nb_steps 25000 --optimizer Adam --dataset total
+# python train_target.py --gpu_num 0 --docker False --nb_cnn 4 --bn False --lr 1e-5 --nb_train 100 --bz 100 --nb_steps 25000 --optimizer Adam --dataset total
+python train_target.py --gpu_num 0 --docker False --nb_cnn 4 --bn False --lr 1e-5 --nb_train 500 --bz 100 --nb_steps 25000 --optimizer Adam --dataset total
+python train_target.py --gpu_num 0 --docker False --nb_cnn 4 --bn False --lr 1e-6 --nb_train 70 --bz 50 --nb_steps 25000 --optimizer Adam --dataset total
+python train_target.py --gpu_num 0 --docker False --nb_cnn 4 --bn False --lr 1e-6 --nb_train 100 --bz 50 --nb_steps 25000 --optimizer Adam --dataset total
 # python train_target.py --gpu_num 0 --docker False nb_cnn 4 --bn False --lr 1e-5 --nb_train 200 --bz 50 --nb_steps 25000 --optimizer Adam --dataset total
 # python train_target.py --gpu_num 0 --docker False nb_cnn 4 --bn False --lr 1e-5 --nb_train 300 --bz 50 --nb_steps 25000 --optimizer Adam --dataset total
 # python train_target.py --gpu_num 0 --docker False nb_cnn 4 --bn False --lr 1e-5 --nb_train 400 --bz 50 --nb_steps 25000 --optimizer Adam --dataset total

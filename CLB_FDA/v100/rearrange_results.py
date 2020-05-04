@@ -30,6 +30,6 @@ for folder in result_folders:
 						## copy the models and results
 						new_model_folder = model_folder.replace(result_root_folder, new_root_folder)
 						generate_folder(new_model_folder)
-						os.system('cp -rf {}/target_best* {}/*.png {}/*.txt {}'.format(model_folder, model_folder, model_folder, new_model_folder))
+						os.system('cp -f {}/target_best* {}/*.png {}/*.txt {}'.format(model_folder, model_folder, model_folder, new_model_folder))
 					elif model_folder.endswith('.png') or model_folder.endswith('.txt') or 'source-best' in model_folder:
-						os.system('cp -rf {} {}'.format(model_folder, new_base_folder))
+						os.system('cp -f {} {}'.format(model_folder, new_base_folder))

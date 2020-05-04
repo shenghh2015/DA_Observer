@@ -5,6 +5,9 @@ cd /home/sh38/DA_Observers/CLB_FDA
 # python train_target.py --gpu_num 1 --docker False --nb_cnn 4 --bn False --lr 1e-5 --nb_train 200 --bz 100 --nb_steps 25000 --optimizer Adam --dataset total
 # python train_target.py --gpu_num 1 --docker False --nb_cnn 4 --bn False --lr 1e-5 --nb_train 300 --bz 100 --nb_steps 25000 --optimizer Adam --dataset total
 python train_target.py --gpu_num 1 --docker False --nb_cnn 4 --bn False --lr 1e-5 --nb_train 400 --bz 100 --nb_steps 25000 --optimizer Adam --dataset total
+python train_target.py --gpu_num 0 --docker False --nb_cnn 4 --bn False --lr 1e-6 --nb_train 100 --bz 50 --nb_steps 25000 --optimizer Adam --dataset total
+python train_target.py --gpu_num 0 --docker False --nb_cnn 4 --bn False --lr 1e-6 --nb_train 100 --bz 50 --nb_steps 25000 --optimizer Adam --dataset total
+python train_target.py --gpu_num 0 --docker False --nb_cnn 4 --bn False --lr 1e-6 --nb_train 100 --bz 50 --nb_steps 25000 --optimizer Adam --dataset total
 # python train_target.py --gpu_num 0 --docker False nb_cnn 4 --bn False --lr 1e-5 --nb_train 400 --bz 50 --nb_steps 25000 --optimizer Adam --dataset total
 
 # parser.add_argument("--gpu_num", type=int)
