@@ -258,7 +258,7 @@ else:
 	nb_cnn = 4
 
 if source_model_name.split('-')[2] == 'bn':
-	bn = bool(source_model_name.split('-')[3])
+	bn = source_model_name.split('-')[3].lower() == 'true' 
 else:
 	bn = False
 
