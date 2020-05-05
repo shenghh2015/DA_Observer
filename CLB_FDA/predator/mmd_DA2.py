@@ -247,7 +247,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}-tclf-{8:}-sclf-{9:}-tlabels-{10:}-vclf-{11:}-{12:}-val-{13:}'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn, trg_clf_param, src_clf_param, nb_trg_labels, clf_v, dataset, valid)
+DA_model_name = 'mmd-{0:}-lr-{1:}-bz-{2:}-iter-{3:}-scr-{4:}-shar-{5:}-fc-{6:}-bn-{7:}-tclf-{8:}-sclf-{9:}-tlabels-{10:}-vclf-{11:}-{12:}-val-{13:}S'.format(mmd_param, lr, batch_size, nb_steps, source_scratch, shared, fc_layer, den_bn, trg_clf_param, src_clf_param, nb_trg_labels, clf_v, dataset, valid)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -359,7 +359,7 @@ test_auc_list = []
 val_auc_list = []
 train_auc_list = []
 best_val_auc = 0
-
+best_val_auc_list = [0,0,0,0,0]
 ## model loading verification
 with tf.Session() as sess:
 	tf.global_variables_initializer().run(session=sess)
@@ -447,9 +447,10 @@ with tf.Session() as sess:
 		# save models
 		if iteration%100==0:
 			target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
-		if best_val_auc < val_target_AUC:
-			best_val_auc = val_target_AUC
+		if np.mean(best_val_auc_list) < val_target_AUC:
+			best_val_auc_list.insert(len(best_val_auc_list), val_target_AUC)
+			best_val_auc_list.pop(0)
 			target_saver.save(sess, DA_model_folder+'/target_best')
 			np.savetxt(os.path.join(DA_model_folder,'test_stat.txt'), test_target_stat)
-			np.savetxt(os.path.join(DA_model_folder,'test_best_auc.txt'), test_target_AUC)
+			np.savetxt(os.path.join(DA_model_folder,'test_select_AUC.txt'), test_target_AUC)
 			print_red('Update best:'+DA_model_folder)
