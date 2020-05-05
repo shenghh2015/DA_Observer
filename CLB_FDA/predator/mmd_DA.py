@@ -451,5 +451,5 @@ with tf.Session() as sess:
 			best_val_auc = val_target_AUC
 			target_saver.save(sess, DA_model_folder+'/target_best')
 			np.savetxt(os.path.join(DA_model_folder,'test_stat.txt'), test_target_stat)
-			np.savetxt(os.path.join(DA_model_folder,'test_best_auc.txt'), test_target_AUC)
+			np.savetxt(os.path.join(DA_model_folder,'test_best_auc.txt'), [test_target_AUC])
 			print_red('Update best:'+DA_model_folder)
