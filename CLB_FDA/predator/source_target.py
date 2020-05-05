@@ -26,10 +26,10 @@ def print_green(str):
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 source = '/data/results/CLB'
 target = '/data/results/FDA'
-# source_model_name = 'noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
-source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-4.0k'
+source_model_name = 'noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
+# source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-4.0k'
 source_model_file = os.path.join(source, source_model_name,'source-best')
-nb_train = 85000
+nb_train = 100
 
 # load target images
 _, X_val, X_tst, _, y_val, y_tst = load_target(dataset = 'total', train = nb_train)
@@ -71,6 +71,8 @@ with tf.Session() as sess:
 	test_target_stat = np.exp(test_target_logit)
 	test_target_AUC = roc_auc_score(y_tst, test_target_stat)
 	print_yellow('AUC: source-target-T {0:.4f} -V {1:.4f}'.format(test_target_AUC, val_target_AUC))
+	## save statistics
+	np.savetxt(os.path.join(source+'/'+source_model_name,'test_stat.txt'), test_target_stat)
 	# save result
 	with open(source+'/'+source_model_name+'/source_to_target.txt', 'w+') as f:
 		f.write('>>>> Source {} To Target {} >>>>'.format(os.path.basename(source), os.path.basename(target)))
