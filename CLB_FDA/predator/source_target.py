@@ -24,7 +24,8 @@ def print_green(str):
 	print(colored(str, 'green'))
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-source = '/data/results/CLB'
+# source = '/data/results/CLB'
+source = '../CLB'
 target = '/data/results/FDA'
 source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
 # source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-4.0k'
@@ -43,7 +44,7 @@ else:
 	nb_cnn = 4
 
 if source_model_name.split('-')[2] == 'bn':
-	bn = source_model_name.split('-')[3].lower() == 'true' 
+	bn = source_model_name.split('-')[3].lower() == 'true'
 else:
 	bn = False
 
