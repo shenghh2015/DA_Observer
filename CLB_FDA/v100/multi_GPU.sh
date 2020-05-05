@@ -300,7 +300,9 @@
 
 # turing
 # python mmd_DA.py --gpu 6 --docker True --shared False --source_scratch True --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total
-python mmd_DA.py --gpu 6 --docker False --shared False --source_scratch True --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
-python mmd_DA.py --gpu 5 --docker False --shared False --source_scratch True --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 100 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --clf_v 1 --dataset total --valid 100
-python mmd_DA.py --gpu 6 --docker False --shared False --source_scratch True --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --clf_v 1 --dataset total --valid 100
+python mmd_DA.py --gpu 6 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+python mmd_DA.py --gpu 5 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 100 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.7 --clf_v 1 --dataset total --valid 100
+python mmd_DA.py --gpu 6 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 200 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.7 --clf_v 1 --dataset total --valid 100
+python mmd_DA.py --gpu 6 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 300 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.7 --clf_v 1 --dataset total --valid 100
+
 python mmd_DA.py --gpu 6 --docker False --shared False --source_scratch True --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --clf_v 1 --dataset total --valid 100
