@@ -10,7 +10,8 @@ def load_source(train = 80000, valid = 400, test = 400, sig_rate = 0.035):
 # 	test = 400
 # 	sig_rate = 0.035
 	sig_file = '/shared/planck/Phantom/Breast_Xray/FDA_signals/hetero_sig.dat'
-	CLB_file = '/shared/rsaas/shenghua/CLB/CLB_128N_400000IM.npy'
+	CLB_file = '/shared/planck/Phantom/Breast_Xray/CLB/CLB_128N_400000IM.npy'
+# 	CLB_file = '/shared/rsaas/shenghua/CLB/CLB_128N_400000IM.npy'
 # 	sig_file = os.path.join(dataset_folder, 'FDA_signals/hetero_sig.dat')
 # 	CLB_file = os.path.join(dataset_folder, 'CLB/CLB_128N_400000IM.npy')
 	sig = np.fromfile(sig_file, dtype = np.float32).reshape(109,109)
