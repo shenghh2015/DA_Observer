@@ -53,6 +53,8 @@ conv_net_src, h_src, source_logit = conv_classifier(xs, nb_cnn = nb_cnn, fc_laye
 source_vars_list = tf.trainable_variables('source')
 source_key_list = [v.name[:-2].replace('source', 'base') for v in tf.trainable_variables('source')]
 source_key_direct = {}
+print(source_vars_list)
+print(source_key_list)
 for key, var in zip(source_key_list, source_vars_list):
 	source_key_direct[key] = var
 source_saver = tf.train.Saver(source_key_direct, max_to_keep=1)
