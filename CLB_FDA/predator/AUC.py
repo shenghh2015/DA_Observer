@@ -83,7 +83,7 @@ def classify_categories(base_model_folder, method = 'TF', dataset = 'dense'):
 		if 'labels-500' in model_name:
 			t500_list.append(target_model)
 		if 'labels-1000' in model_name:
-			t500_list.append(target_model)
+			t1000_list.append(target_model)
 
 	return t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list, t1000_list
 
