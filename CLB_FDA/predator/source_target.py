@@ -48,6 +48,7 @@ else:
 	bn = False
 
 print(bn)
+print(source_model_name)
 xs = tf.placeholder("float", shape=[None, 109,109, 1])
 ys = tf.placeholder("float", shape=[None, 1])
 conv_net_src, h_src, source_logit = conv_classifier(xs, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = 'source')
