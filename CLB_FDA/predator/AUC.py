@@ -63,7 +63,7 @@ def classify_categories(base_model_folder, method = 'TF', dataset = 'dense'):
 		target_models = [v for v in glob.glob(base_model_folder+'/*') if os.path.isdir(v) and method in os.path.basename(v) and 'dense' in os.path.basename(v)]
 	elif dataset == 'total':
 		target_models = [v for v in glob.glob(base_model_folder+'/*') if os.path.isdir(v) and method in os.path.basename(v) and (not 'dense' in os.path.basename(v))]
-	t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list = [],[],[],[],[], [], [], []
+	t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list, t1000_list = [],[],[],[],[], [], [], []
 	for i in range(len(target_models)):
 		target_model = target_models[i]
 		model_name = os.path.basename(target_model)
@@ -105,7 +105,7 @@ DA_folder = os.path.join(result_folder, 'CLB-FDA')
 base_model_folders = glob.glob(DA_folder +'/*')
 for base_model_folder in base_model_folders:
 	if os.path.isdir(base_model_folder):
-		_, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list, 1000_list = classify_categories(base_model_folder, 'TF', dataset)
+		_, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list, t1000_list = classify_categories(base_model_folder, 'TF', dataset)
 		print('Target label amount: {}'.format(70))
 		present_auc(t70_list)
 		print('Target label amount: {}'.format(100))
