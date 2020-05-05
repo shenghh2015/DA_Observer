@@ -63,7 +63,7 @@ def classify_categories(base_model_folder, method = 'TF', dataset = 'dense'):
 		target_models = [v for v in glob.glob(base_model_folder+'/*') if os.path.isdir(v) and method in os.path.basename(v) and 'dense' in os.path.basename(v)]
 	elif dataset == 'total':
 		target_models = [v for v in glob.glob(base_model_folder+'/*') if os.path.isdir(v) and method in os.path.basename(v) and (not 'dense' in os.path.basename(v))]
-	t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list = [],[],[],[],[], [], []
+	t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list = [],[],[],[],[], [], [], []
 	for i in range(len(target_models)):
 		target_model = target_models[i]
 		model_name = os.path.basename(target_model)
@@ -82,8 +82,10 @@ def classify_categories(base_model_folder, method = 'TF', dataset = 'dense'):
 			t400_list.append(target_model)
 		if 'labels-500' in model_name:
 			t500_list.append(target_model)
+		if 'labels-1000' in model_name:
+			t500_list.append(target_model)
 
-	return t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list
+	return t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list, t1000_list
 
 def present_auc(model_list):
 	for m in model_list:
@@ -103,7 +105,7 @@ DA_folder = os.path.join(result_folder, 'CLB-FDA')
 base_model_folders = glob.glob(DA_folder +'/*')
 for base_model_folder in base_model_folders:
 	if os.path.isdir(base_model_folder):
-		_, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list = classify_categories(base_model_folder, 'TF', dataset)
+		_, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list, 1000_list = classify_categories(base_model_folder, 'TF', dataset)
 		print('Target label amount: {}'.format(70))
 		present_auc(t70_list)
 		print('Target label amount: {}'.format(100))
@@ -116,6 +118,8 @@ for base_model_folder in base_model_folders:
 		present_auc(t400_list)
 		print('Target label amount: {}'.format(500))
 		present_auc(t500_list)
+		print('Target label amount: {}'.format(1000))
+		present_auc(t1000_list)
 
 ## ADDA
 print_green('Adversarial Domain Adaptation')
@@ -123,7 +127,7 @@ DA_folder = os.path.join(result_folder, 'CLB-FDA')
 base_model_folders = glob.glob(DA_folder +'/*')
 for base_model_folder in base_model_folders:
 	if os.path.isdir(base_model_folder):
-		t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list = classify_categories(base_model_folder, 'ADDA', dataset)
+		t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list, t1000_list = classify_categories(base_model_folder, 'ADDA', dataset)
 		print('Target label amount: {}'.format(0))
 		present_auc(t0_list)
 		print('Target label amount: {}'.format(70))
@@ -138,6 +142,8 @@ for base_model_folder in base_model_folders:
 		present_auc(t400_list)
 		print('Target label amount: {}'.format(500))
 		present_auc(t500_list)
+		print('Target label amount: {}'.format(1000))
+		present_auc(t1000_list)
 
 ## mmd
 print_green('Maxim Mean Dsicrepancy')
@@ -145,7 +151,7 @@ DA_folder = os.path.join(result_folder, 'CLB-FDA')
 base_model_folders = glob.glob(DA_folder +'/*')
 for base_model_folder in base_model_folders:
 	if os.path.isdir(base_model_folder):
-		t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list = classify_categories(base_model_folder, 'mmd', dataset)
+		t0_list, t70_list, t100_list, t200_list, t300_list, t400_list, t500_list, t1000_list = classify_categories(base_model_folder, 'mmd', dataset)
 		print('Target label amount: {}'.format(0))
 		present_auc(t0_list)
 		print('Target label amount: {}'.format(70))
@@ -160,6 +166,8 @@ for base_model_folder in base_model_folders:
 		present_auc(t400_list)
 		print('Target label amount: {}'.format(500))
 		present_auc(t500_list)
+		print('Target label amount: {}'.format(1000))
+		present_auc(t1000_list)
 
 
 ## naively-trained target model
