@@ -11,7 +11,8 @@ def generate_folder(folder):
 		os.system('mkdir {}'.format(folder))
 
 generate_folder(new_root_folder)
-sub_folder_list = ['CLB', 'CLB-FDA', 'DA-TF', 'FDA']
+# sub_folder_list = ['CLB', 'CLB-FDA', 'DA-TF', 'FDA']
+sub_folder_list = ['CLB-FDA']
 result_folders = glob.glob(result_root_folder+'/*')
 for folder in result_folders:
 	print('Go into {}'.format(os.path.relpath(folder, root_folder)))
@@ -25,7 +26,7 @@ for folder in result_folders:
 				generate_folder(new_base_folder)
 				model_folders = glob.glob(os.path.join(base_folder, '*'))
 				for model_folder in model_folders:
-					if os.path.isdir(model_folder):
+					if os.path.isdir(model_folder) and not 'statistics' in os.path.basename(model_folder):
 						print('Go into {}'.format(os.path.relpath(model_folder, root_folder)))
 						## copy the models and results
 						new_model_folder = model_folder.replace(result_root_folder, new_root_folder)

@@ -1,2 +1,2 @@
-python adda_DA.py --gpu 0 --docker True --dis_cnn 4 --dis_fc 128 --dis_bn True --source_scratch True --den_bn False --clf_v 1 --lr 1e-4 --iters 100000 --bz 400 --dis_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --nb_trg_labels 70 --dataset total
+python mmd_DA.py --gpu 0 --docker True --shared True --source_scratch True --den_bn False --lr 1e-4 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.6 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
 

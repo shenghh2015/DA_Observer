@@ -144,6 +144,7 @@ parser.add_argument("--source_name", type = str, default = 'cnn-4-bn-False-noise
 parser.add_argument("--DA_name", type = str, default = 'mmd-1.0-lr-0.0001-bz-400-iter-50000-scr-True-shar-True-fc-128-bn-False-tclf-0.5-sclf-1.0-trg_labels-0')
 parser.add_argument("--clf_v", type = int, default = 1)
 parser.add_argument("--dataset", type = str, default = 'total')
+parser.add_argument("--valid", type = int, default = 400)
 # parser.add_argument("--den_bn", type = str2bool, default = False)
 
 args = parser.parse_args()
@@ -167,6 +168,7 @@ source_model_name = args.source_name
 DA_name = args.DA_name
 clf_v = args.clf_v
 dataset = args.dataset
+valid = args.valid
 # trg_clf_param = args.trg_clf_param
 # src_clf_param = args.src_clf_param
 
@@ -206,7 +208,7 @@ if not DA_FLAG:
 	generate_folder(DA)
 	base_model_folder = os.path.join(DA, source_model_name)
 	generate_folder(base_model_folder)
-	DA_model_name = 'TF-lr-{0:}-bz-{1:}-iter-{2:}-scr-{3:}-fc-{4:}-bn-{5:}-trg_labels-{6:}-clf_v{7:}-{8:}'.format(lr, batch_size, nb_steps, source_scratch, fc_layer, den_bn, nb_trg_labels, clf_v, dataset)
+	DA_model_name = 'TF-lr-{0:}-bz-{1:}-iter-{2:}-scr-{3:}-fc-{4:}-bn-{5:}-trg_labels-{6:}-clf_v{7:}-{8:}-valid-{9:}'.format(lr, batch_size, nb_steps, source_scratch, fc_layer, den_bn, nb_trg_labels, clf_v, dataset, valid)
 	DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 	generate_folder(DA_model_folder)
 	os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -349,4 +351,6 @@ with tf.Session() as sess:
 		if best_val_auc < val_target_AUC:
 			best_val_auc = val_target_AUC
 			target_saver.save(sess, DA_model_folder+'/target_best')
-		print_red('Update best:'+DA_model_folder)
+			np.savetxt(os.path.join(DA_model_folder,'test_stat.txt'), test_target_stat)
+			np.savetxt(os.path.join(DA_model_folder,'test_best_auc.txt'), [test_target_AUC])
+			print_red('Update best:'+DA_model_folder)

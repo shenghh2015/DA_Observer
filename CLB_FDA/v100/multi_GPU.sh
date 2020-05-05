@@ -301,12 +301,12 @@
 # python mmd_DA.py --gpu 1 --docker False --shared True --source_scratch False --den_bn False --lr 1e-4 --iters 500000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
 
 # turing
-python mmd_DA.py --gpu 6 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 200 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --clf_v 1 --dataset total --valid 100
-python mmd_DA.py --gpu 5 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 300 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --clf_v 1 --dataset total --valid 100
-python mmd_DA.py --gpu 6 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 400 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --clf_v 1 --dataset total --valid 100
-python mmd_DA.py --gpu 2 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 500 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --clf_v 1 --dataset total --valid 100
-
-python mmd_DA.py --gpu 1 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 500 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.2 --clf_v 1 --dataset total --valid 100
+# python mmd_DA.py --gpu 6 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 200 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --clf_v 1 --dataset total --valid 100
+# python mmd_DA.py --gpu 5 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 300 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --clf_v 1 --dataset total --valid 100
+# python mmd_DA.py --gpu 6 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 400 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --clf_v 1 --dataset total --valid 100
+# python mmd_DA.py --gpu 2 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 500 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.5 --clf_v 1 --dataset total --valid 100
+# 
+# python mmd_DA.py --gpu 1 --docker False --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 500000 --bz 400 --nb_trg_labels 500 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0.2 --clf_v 1 --dataset total --valid 100
 
 
 # turing
@@ -314,3 +314,38 @@ python mmd_DA.py --gpu 1 --docker False --shared True --source_scratch False --d
 
 # gauss
 # python mmd_DA.py --gpu 1 --docker False --shared True --source_scratch True --den_bn False --lr 1e-3 --iters 500000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+
+
+# May 5, 2020
+## v100
+# JOB: python mmd_DA.py --gpu 0 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.4 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 1 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.3 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.3 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 3 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.1 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+
+# JOB: python mmd_DA.py --gpu 0 --docker True --shared True --source_scratch True --den_bn False --lr 5e-6 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.4 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 1 --docker True --shared True --source_scratch True --den_bn False --lr 5e-6 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.3 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch True --den_bn False --lr 5e-6 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.3 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 3 --docker True --shared True --source_scratch True --den_bn False --lr 5e-6 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.1 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+
+# JOB: python mmd_DA.py --gpu 0 --docker True --shared True --source_scratch True --den_bn False --lr 5e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.4 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 1 --docker True --shared True --source_scratch True --den_bn False --lr 5e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.3 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch True --den_bn False --lr 5e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.3 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 3 --docker True --shared True --source_scratch True --den_bn False --lr 5e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.1 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+
+# JOB: python mmd_DA.py --gpu 0 --docker True --shared True --source_scratch True --den_bn False --lr 5e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.6 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 1 --docker True --shared True --source_scratch True --den_bn False --lr 5e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.7 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch True --den_bn False --lr 5e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.8 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 3 --docker True --shared True --source_scratch True --den_bn False --lr 5e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.9 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+
+# JOB: python mmd_DA.py --gpu 0 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.6 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 1 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.7 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.8 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+# JOB: python mmd_DA.py --gpu 3 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.9 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+
+JOB: python mmd_DA.py --gpu 0 --docker True --shared True --source_scratch True --den_bn False --lr 1e-4 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.6 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+JOB: python mmd_DA.py --gpu 1 --docker True --shared True --source_scratch True --den_bn False --lr 1e-4 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.7 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+JOB: python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch True --den_bn False --lr 1e-4 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.8 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+JOB: python mmd_DA.py --gpu 3 --docker True --shared True --source_scratch True --den_bn False --lr 1e-4 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.9 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
+
+
