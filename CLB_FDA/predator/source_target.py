@@ -26,7 +26,7 @@ def print_green(str):
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 source = '/data/results/CLB'
 target = '/data/results/FDA'
-source_model_name = 'noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
+source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
 # source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-4.0k'
 source_model_file = os.path.join(source, source_model_name,'source-best')
 nb_train = 100
