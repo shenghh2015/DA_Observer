@@ -192,8 +192,8 @@ parser.add_argument("--docker", type = str2bool, default = True)
 parser.add_argument("--shared", type = str2bool, default = True)
 parser.add_argument("--dis_cnn", type = int, default = 0)
 parser.add_argument("--g_cnn", type=int, default = 4)
-parser.add_argument("--g_lr", type=int, default = 1e-5)
-parser.add_argument("--d_lr", type=int, default = 1e-5)
+parser.add_argument("--g_lr", type=float, default = 1e-5)
+parser.add_argument("--d_lr", type=float, default = 1e-5)
 parser.add_argument("--lsmooth", type=str2bool, default = False)
 parser.add_argument("--dis_fc", type=int, default = 128)
 parser.add_argument("--dis_bn", type=str2bool, default = True)
@@ -298,7 +298,7 @@ elif dataset == 'fatty':
 	nb_target = 9000
 elif dataset == 'total':
 	nb_target = 85000
-Xt_trn, Xt_val, Xt_tst, yt_trn, yt_val, yt_tst = load_target(dataset = dataset, train = nb_target)
+Xt_trn, Xt_val, Xt_tst, yt_trn, yt_val, yt_tst = load_target(dataset = dataset, train = nb_target, valid = 100)
 Xt_trn, Xt_val, Xt_tst = (Xt_trn-np.min(Xt_trn))/(np.max(Xt_trn)-np.min(Xt_trn)), (Xt_val-np.min(Xt_val))/(np.max(Xt_val)-np.min(Xt_val)), (Xt_tst-np.min(Xt_tst))/(np.max(Xt_tst)-np.min(Xt_tst))
 Xt_trn, Xt_val, Xt_tst = np.expand_dims(Xt_trn, axis = 3), np.expand_dims(Xt_val, axis = 3), np.expand_dims(Xt_tst, axis = 3)
 yt_trn, yt_val, yt_tst = yt_trn.reshape(-1,1), yt_val.reshape(-1,1), yt_tst.reshape(-1,1)
