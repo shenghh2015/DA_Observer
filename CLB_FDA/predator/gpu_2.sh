@@ -24,5 +24,5 @@
 # python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch True --den_bn False --lr 1e-5 --iters 500000 --bz 400 --nb_trg_labels 0 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total
 # python total_val_100.py 2 true
 # python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch True --den_bn False --lr 5e-5 --iters 50000 --bz 400 --nb_trg_labels 0 --mmd_param 0.5 --src_clf_param 1.0 --trg_clf_param 0 --clf_v 1 --dataset total --valid 100
-python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 20000 --bz 400 --nb_trg_labels 1000 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset total --valid 100
-python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch False --den_bn False --lr 1e-4 --iters 20000 --bz 400 --nb_trg_labels 1000 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset total --valid 100
+# python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch False --den_bn False --lr 5e-5 --iters 20000 --bz 400 --nb_trg_labels 1000 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset total --valid 100
+# python mmd_DA.py --gpu 2 --docker True --shared True --source_scratch False --den_bn False --lr 1e-4 --iters 20000 --bz 400 --nb_trg_labels 1000 --mmd_param 1.0 --src_clf_param 1.0 --trg_clf_param 1.0 --clf_v 1 --dataset total --valid 100
