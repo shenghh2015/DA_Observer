@@ -58,6 +58,27 @@ def plot_AUCs(file_name, train_list, val_list, test_list):
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
 
+def plot_src_trg_AUCs(file_name, train_list, val_list, test_list, src_test_list):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	file_name = file_name
+	ax = fig.add_subplot(111)
+	ax.plot(train_list)
+	ax.plot(val_list)
+	ax.plot(test_list)
+	ax.plot(src_test_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('AUC')
+	ax.legend(['T-Train','T-Valid','T-Test', 'S-Test'])
+	ax.set_xlim([0,len(train_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
 def plot_AUCs_DomACC(file_name, train_list, val_list, test_list, dom_acc_list):
 	import matplotlib.pyplot as plt
 	from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -167,6 +188,27 @@ def plot_auc_dom_acc_iterations(target_auc_list, val_auc_list, dom_acc_list, tar
 	ax.set_xlabel('Iterations')
 	ax.set_ylabel('AUC/ACC')
 	ax.legend(['AUC:Test','AUC:Val', 'ACC:Dom'])
+	ax.set_xlim([0,len(target_auc_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
+
+def plot_src_trg_auc_iterations(target_auc_list, val_auc_list, src_auc_list, target_file_name):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	file_name = target_file_name
+	ax = fig.add_subplot(111)
+	ax.plot(target_auc_list)
+	ax.plot(val_auc_list)
+	ax.plot(src_auc_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('AUC/ACC')
+	ax.legend(['T-Test','T-Val', 'S-Test'])
 	ax.set_xlim([0,len(target_auc_list)])
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
@@ -431,6 +473,7 @@ test_auc_list = []
 val_auc_list = []
 dom_acc_list = []
 train_auc_list = []
+src_test_list =[]
 best_val_auc = 0
 train_target_AUC = 0.5
 tC_loss = 1.4
@@ -480,6 +523,7 @@ with tf.Session() as sess:
 		test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst})
 		test_source_stat = np.exp(test_source_logit)
 		test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
+		src_test_list.append(test_source_AUC)
 # 		if nb_trg_labels > 0 and test_source_AUC>0.8:
 		if nb_trg_labels > 0:
 			indices_tl = np.random.randint(0, 2*nb_trg_labels-1, 100)
@@ -542,6 +586,7 @@ with tf.Session() as sess:
 			plot_LOSS(DA_model_folder+'/loss_{}.png'.format(DA_model_name), G_loss_list, sC_loss_list, tC_loss_list)
 			plot_loss(DA_model_folder, D_loss_list, G_loss_list, DA_model_folder+'/adver_{}.png'.format(DA_model_name))
 			plot_AUCs_DomACC(DA_model_folder+'/AUC_dom_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list, dom_acc_list)
+			plot_src_trg_AUCs(DA_model_folder+'/AUC_src_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list, src_test_list)
 			plot_AUCs(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list)
 		else:
 			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, S-test: {2:.4f}; ACC: dom {3:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC, domain_acc))
@@ -550,6 +595,7 @@ with tf.Session() as sess:
 			plot_loss(DA_model_folder, D_loss_list, G_loss_list, DA_model_folder+'/adver_{}.png'.format(DA_model_name))
 			plot_auc_dom_acc_iterations(test_auc_list, val_auc_list, dom_acc_list, DA_model_folder+'/AUC_dom_{}.png'.format(DA_model_name))
 			plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
+			plot_src_trg_auc_iterations(target_auc_list, val_auc_list, src_test_list, DA_model_folder+'/AUC_src_{}.png'.format(DA_model_name))
 		# save models
 		if iteration%100==0:
 			target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
