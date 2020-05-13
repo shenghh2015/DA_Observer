@@ -7,6 +7,9 @@ import argparse
 from load_data import *
 from model import *
 
+def str2bool(value):
+    return value.lower() == 'true'
+
 # generate the folder
 def generate_folder(folder):
     import os
@@ -28,12 +31,31 @@ def print_green(str):
 def print_block(symbol = '*', nb_sybl = 70):
 	print_red(symbol*nb_sybl)
 
+def plot_AUCs(file_name, train_list, val_list, test_list):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	file_name = file_name
+	ax = fig.add_subplot(111)
+	ax.plot(train_list)
+	ax.plot(val_list)
+	ax.plot(test_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('AUC')
+	ax.legend(['Train','Valid','Test'])
+	ax.set_xlim([0,len(train_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
 
 ## input parameters
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu_num", type=int)
 parser.add_argument("--nb_cnn", type = int)
-parser.add_argument("--bn", type = bool)
+parser.add_argument("--bn", type = str2bool, default = False)
 parser.add_argument("--lr", type = float)
 parser.add_argument("--nb_train", type = int)
 parser.add_argument("--noise", type = float)
@@ -41,6 +63,7 @@ parser.add_argument("--sig_rate", type = float)
 parser.add_argument("--bz", type = int)
 parser.add_argument("--optimizer", type = str)
 parser.add_argument("--nb_steps", type = int, default = 100000)
+parser.add_argument("--clf_v", type = int, default = 1)
 
 args = parser.parse_args()
 gpu_num = args.gpu_num
@@ -53,12 +76,13 @@ sig_rate = args.sig_rate
 batch_size = args.bz
 optimizer = args.optimizer
 num_steps = args.nb_steps
+clf_v = args.clf_v
 # gpu_num = 1
 # nb_train = 100000
 # sig_rate = 0.035
 # noise = 2
 # nb_cnn = 4
-# bn = True
+# bn = False
 # batch_size = 200
 # lr = 5e-5
 # num_steps = 1000
@@ -76,10 +100,14 @@ X_val, X_tst = (X_val-np.min(X_val))/(np.max(X_val)-np.min(X_val)), (X_tst-np.mi
 X_val, X_tst = np.expand_dims(X_val, axis = 3), np.expand_dims(X_tst, axis = 3)
 y_val, y_tst = y_val.reshape(-1,1), y_tst.reshape(-1,1)
 
-model_root_folder = 'data/CLB' 	# dataset
+#model_root_folder = 'data/CLB' 	# dataset
+if docker:
+	model_root_folder = '/data/results/CLB'
+else:
+	model_root_folder = 'data/CLB'
 generate_folder(model_root_folder)
 
-direct = os.path.join(model_root_folder,'cnn-{}-bn-{}-noise-{}-trn-{}-sig-{}-bz-{}-lr-{}-{}-{}k'.format(nb_cnn, bn, noise, nb_train, sig_rate, batch_size, lr, optimizer, num_steps/1000))
+direct = os.path.join(model_root_folder,'cnn-{}-bn-{}-noise-{}-trn-{}-sig-{}-bz-{}-lr-{}-{}-stp-{}k-clf_v{}'.format(nb_cnn, bn, noise, nb_train, sig_rate, batch_size, lr, optimizer, num_steps/1000, clf_v))
 generate_folder(direct)
 direct_st = direct+'/statistics'
 generate_folder(direct_st)
@@ -88,7 +116,10 @@ x = tf.placeholder("float", shape=[None, 109,109, 1])
 y_ = tf.placeholder("float", shape=[None, 1])
 
 scope_name = 'base'
-conv_net, h, pred_logit = conv_classifier(x, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = scope_name)
+if clf_v == 1:
+	conv_net, h, pred_logit = conv_classifier(x, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = scope_name)
+else:
+	conv_net, h, pred_logit = conv_classifier2(x, nb_cnn = nb_cnn, fc_layers = [128,1],  bn = bn, scope_name = scope_name)
 
 vars_list = tf.trainable_variables(scope_name)
 key_list = [v.name[:-2] for v in tf.trainable_variables(scope_name)]
@@ -96,6 +127,7 @@ key_var_direct = {}
 for key, var in zip(key_list, vars_list):
 	key_var_direct[key] = var
 saver = tf.train.Saver(key_var_direct, max_to_keep=num_steps)
+tf.global_variables()
 
 cross_entropy = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y_, logits = pred_logit))
 
@@ -114,6 +146,8 @@ test_auc = []
 
 val_loss = []
 val_auc = []
+best_val_auc = 0.0
+
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
 	for i_batch in range(num_steps):
@@ -155,12 +189,18 @@ with tf.Session() as sess:
 			generate_folder(model_folder)
 			saver.save(sess, model_folder+'/model', global_step=i_batch)
 			print(model_folder)
-			# save results
+			# save and plot results
 			np.savetxt(direct+'/training_auc.txt',train_auc)
 			np.savetxt(direct+'/testing_auc.txt',test_auc)
 			np.savetxt(direct+'/training_loss.txt',train_loss)
 			np.savetxt(direct+'/testing_loss.txt',test_loss)
-
 			np.savetxt(direct+'/val_loss.txt',val_loss)
 			np.savetxt(direct+'/val_auc.txt',val_auc)
 			np.savetxt(direct_st+'/statistics_'+str(i_batch)+'.txt',test_stat)
+			file_name = os.path.join(direct, 'AUC_over_Iterations_{}.png'.format(os.path.basename(direct)))
+			plot_AUCs(file_name, train_auc, val_auc, test_auc)
+			# update the best model
+			if best_val_auc < val_auc[-1]:
+				best_val_auc = val_auc[-1]
+				saver.save(sess, model_folder+'/source-best')
+				print_red('Update best:'+model_folder)

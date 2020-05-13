@@ -95,6 +95,7 @@ with tf.Session() as sess:
 	DA_logits = source_logit.eval(session =sess, feed_dict = {x: np.expand_dims(Xt_test, axis = 3)})
 	DA_auc = roc_auc_score(yt_test, DA_logits)
 
+tf.keras.backend.clear_session()
 # create a graph
 x = tf.placeholder("float", shape=[None, 109,109, 1])
 y = tf.placeholder("float", shape=[None, 1])
