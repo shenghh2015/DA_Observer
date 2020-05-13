@@ -68,6 +68,7 @@ parser.add_argument("--clf_v", type = int, default = 1)
 
 args = parser.parse_args()
 gpu_num = args.gpu_num
+docker = args.docker
 nb_cnn = args.nb_cnn
 bn = args.bn
 lr = args.lr
