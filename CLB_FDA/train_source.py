@@ -54,6 +54,7 @@ def plot_AUCs(file_name, train_list, val_list, test_list):
 ## input parameters
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu_num", type=int)
+parser.add_argument("--docker", type = str2bool, default = False)
 parser.add_argument("--nb_cnn", type = int)
 parser.add_argument("--bn", type = str2bool, default = False)
 parser.add_argument("--lr", type = float)
