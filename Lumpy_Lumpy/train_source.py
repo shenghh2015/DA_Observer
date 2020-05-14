@@ -203,7 +203,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
 if docker:
 	output_folder ='/data/results/'
 else:
-	output_folder = 'data/'
+	output_folder = 'data/results/'
 print(output_folder)
 data_folder = os.path.join(output_folder,'Lumpy/{}'.format(model_type))
 # load source data
