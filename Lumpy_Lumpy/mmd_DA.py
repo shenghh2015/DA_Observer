@@ -146,7 +146,7 @@ def print_block(symbol = '*', nb_sybl = 70):
 	print_red(symbol*nb_sybl)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--gpu", type=int)
+parser.add_argument("--gpu", type=int, default = 2)
 parser.add_argument("--docker", type = str2bool, default = True)
 parser.add_argument("--shared", type = str2bool, default = True)
 parser.add_argument("--lr", type = float, default = 1e-5)

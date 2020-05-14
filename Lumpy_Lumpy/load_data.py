@@ -3,7 +3,7 @@ import glob
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
-import DA_tools import normalize_0_1
+from DA_tools import normalize_0_1
 
 dataset_folder = '/data/datasets'
 def load_Lumpy(docker = True, train = 100000, valid = 100, test = 400, height = 40, blur= 1.0, noise = 10):
