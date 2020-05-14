@@ -346,7 +346,7 @@ with tf.Session() as sess:
 				trg_loss_list, trg_trn_auc_list = np.append(trg_loss_lis, trg_loss), np.append(trg_trn_auc_list, trg_trn_auc)
 				np.savetxt(DA_model_folder+'/target_train_loss.txt',trg_loss)
 				np.savetxt(DA_model_folder+'/target_train_auc.txt',trg_trn_auc)
-			src_trn_stat = source_logit.eval(session=sess, feed_dict={xs:source_x}); src_auc = roc_auc_score(source_y, src_trn_stat)
+			src_trn_stat = source_logit.eval(session=sess, feed_dict={xs:source_x}); src_trn_auc = roc_auc_score(source_y, src_trn_stat)
 			src_stat = source_logit.eval(session=sess, feed_dict={xs:Xs_tst}); src_auc = roc_auc_score(ys_tst, src_stat)
 			trg_val_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_val}); trg_val_auc = roc_auc_score(yt_val, trg_val_stat)
 			trg_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_tst}); trg_auc = roc_auc_score(yt_tst, trg_stat)
@@ -359,5 +359,5 @@ with tf.Session() as sess:
 			print(DA_model_name)
 			if best_val_auc < trg_val_auc:
 				best_val_auc = trg_val_auc
-				np.savetxt(DA_model_folder+'/best_stat.txt')
+				np.savetxt(DA_model_folder+'/best_stat.txt', trg_stat)
 				target_saver.save(sess, DA_model_folder +'/best')

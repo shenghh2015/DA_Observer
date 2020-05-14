@@ -11,6 +11,7 @@ def load_Lumpy(docker = True, train = 100000, valid = 100, test = 400, height = 
 		dataset_folder = '/data/datasets/Lumpy/h_blur'
 	else:
 		dataset_folder = 'data/Lumpy/h_blur'
+	height = int(height)
 	if not blur == 0.5:
 		blur = int(blur)
 		sig = np.fromfile(dataset_folder+'/sig_target_h{}_blur{}.dat'.format(height, blur), dtype = np.float32).reshape(1,64,64)
@@ -31,7 +32,6 @@ def load_Lumpy(docker = True, train = 100000, valid = 100, test = 400, height = 
 		seed = 4
 	elif blur == 5.0:
 		seed = 5
-	height = int(height)
 	gaussian_noise = np.random.RandomState(seed).normal(0, noise, bk.shape)
 	sig_absent = bk + gaussian_noise
 	sig_present = sig + bk + gaussian_noise
