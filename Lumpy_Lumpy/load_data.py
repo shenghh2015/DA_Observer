@@ -20,16 +20,17 @@ def load_Lumpy(docker = True, train = 100000, valid = 100, test = 400, height = 
 		bk = np.fromfile(dataset_folder+'/b_source_b{}_blur{}.dat'.format(height, blur), dtype = np.float32).reshape(100400,64,64)
 	print('Lumpy data shape: sig {}, bk {}'.format(sig.shape, bk.shape))
 	if blur == 0.5:
-	elif blur == 1.0:
 		seed = 0
-	elif blur == 2.0:
+	elif blur == 1.0:
 		seed = 1
-	elif blur == 3.0:
+	elif blur == 2.0:
 		seed = 2
-	elif blur == 4.0:
+	elif blur == 3.0:
 		seed = 3
-	elif blur == 5.0:
+	elif blur == 4.0:
 		seed = 4
+	elif blur == 5.0:
+		seed = 5
 	noise = np.random.RandomState(seed).normal(0, nosie, bk.shape)
 	sig_absent = bk + noise
 	sig_present = sig + bk + noise
