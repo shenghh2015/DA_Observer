@@ -13,11 +13,11 @@ def load_Lumpy(docker = True, train = 100000, valid = 100, test = 400, height = 
 		dataset_folder = 'data/Lumpy/h_blur/'
 	if not blur == 0.5:
 		blur = int(blur)
-		sig = np.fromfile(dataset_folder+'/sig_target_b{}_blur{}.dat'.format(height, blur), dtype = np.float32).reshape(1,64,64)
-		bk = np.fromfile(dataset_folder+'/b_target_b{}_blur{}.dat'.format(height, blur), dtype = np.float32).reshape(100400,64,64)
+		sig = np.fromfile(dataset_folder+'/sig_target_h{}_blur{}.dat'.format(height, blur), dtype = np.float32).reshape(1,64,64)
+		bk = np.fromfile(dataset_folder+'/b_target_h{}_blur{}.dat'.format(height, blur), dtype = np.float32).reshape(100400,64,64)
 	else:
-		sig = np.fromfile(dataset_folder+'/sig_source_b{}_blur{}.dat'.format(height, blur), dtype = np.float32).reshape(1,64,64)
-		bk = np.fromfile(dataset_folder+'/b_source_b{}_blur{}.dat'.format(height, blur), dtype = np.float32).reshape(100400,64,64)
+		sig = np.fromfile(dataset_folder+'/sig_source_h{}_blur{}.dat'.format(height, blur), dtype = np.float32).reshape(1,64,64)
+		bk = np.fromfile(dataset_folder+'/b_source_h{}_blur{}.dat'.format(height, blur), dtype = np.float32).reshape(100400,64,64)
 	print('Lumpy data shape: sig {}, bk {}'.format(sig.shape, bk.shape))
 	if blur == 0.5:
 		seed = 0
