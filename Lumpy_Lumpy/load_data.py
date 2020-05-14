@@ -3,6 +3,8 @@ import glob
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
+import DA_tools import normalize_0_1
+
 dataset_folder = '/data/datasets'
 def load_Lumpy(docker = True, train = 100000, valid = 100, test = 400, height = 40, blur= 1.0, noise = 10):
 	if docker:
@@ -31,12 +33,16 @@ def load_Lumpy(docker = True, train = 100000, valid = 100, test = 400, height = 
 	noise = np.random.RandomState(seed).normal(0, nosie, bk.shape)
 	sig_absent = bk + noise
 	sig_present = sig + bk + noise
+	print('0-1 normalization ... ')
+	sig_absent = normalize_0_1(sig_absent)
+	sig_present = normalize_0_1(sig_present)
 	X_trn = np.concatenate([sig_absent[:train,:], sig_present[:train,:]])
 	X_val = np.concatenate([sig_absent[100000:100000+valid,:], sig_present[100000:100000+valid,:]])
 	X_tst = np.concatenate([sig_absent[100200:100200+test,:], sig_present[100200:100200+test,:]])
 	y_trn = np.concatenate([np.zeros((train, 1)), np.ones((train, 1))]).flatten()
 	y_val = np.concatenate([np.zeros((valid, 1)), np.ones((valid, 1))]).flatten()
 	y_tst = np.concatenate([np.zeros((test, 1)), np.ones((test, 1))]).flatten()
+	print('Data loaded!')
 	return X_trn, X_val, X_tst, y_trn, y_val, y_tst
 
 def load_source(train = 80000, valid = 400, test = 400, sig_rate = 0.035):
