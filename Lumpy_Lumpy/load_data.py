@@ -8,9 +8,9 @@ from DA_tools import normalize_0_1
 dataset_folder = '/data/datasets'
 def load_Lumpy(docker = True, train = 100000, valid = 100, test = 400, height = 40, blur= 1.0, noise = 10):
 	if docker:
-		dataset_folder = '/data/datasets/Lumpy/h_blur/'
+		dataset_folder = '/data/datasets/Lumpy/h_blur'
 	else:
-		dataset_folder = 'data/Lumpy/h_blur/'
+		dataset_folder = 'data/Lumpy/h_blur'
 	if not blur == 0.5:
 		blur = int(blur)
 		sig = np.fromfile(dataset_folder+'/sig_target_h{}_blur{}.dat'.format(height, blur), dtype = np.float32).reshape(1,64,64)
