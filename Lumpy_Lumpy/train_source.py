@@ -33,7 +33,7 @@ def plot_LOSS(file_name, train_loss_list, val_loss_list, test_loss_list):
 	ax.set_title(title)
 	ax.set_xlabel('Iterations')
 	ax.set_ylabel('Loss')
-	ax.legend(['D','S','T'])
+	ax.legend(['Train','Val','Test'])
 	ax.set_xlim([0,len(train_loss_list)])
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
@@ -260,6 +260,6 @@ with tf.Session() as sess:
 			plot_AUC(model_folder+'/auc-{}.png'.format(model_name), train_auc_list, val_auc_list, test_auc_list)
 			if best_val_auc < trg_val_auc:
 				best_val_auc = trg_val_auc
-				np.savetxt(DA_model_folder+'/best_stat.txt', test_stat)
-				target_saver.save(sess, DA_model_folder +'/best')
+				np.savetxt(model_folder+'/best_stat.txt', test_stat)
+				target_saver.save(sess, model_folder +'/best')
 				plot_hist(model_folder +'/hist-{}.png'.format(model_name), test_stat[:int(len(test_stat)/2)], test_stat[int(len(test_stat)/2):])

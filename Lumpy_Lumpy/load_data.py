@@ -5,12 +5,11 @@ from sklearn.metrics import roc_auc_score
 
 from DA_tools import normalize_0_1
 
-dataset_folder = '/data/datasets'
 def load_Lumpy(docker = True, train = 100000, valid = 100, test = 400, height = 40, blur= 1.0, noise = 10):
 	if docker:
 		dataset_folder = '/data/datasets/Lumpy/h_blur'
 	else:
-		dataset_folder = 'data/Lumpy/h_blur'
+		dataset_folder = '/shared/turing/Observers/sh38/01-DA_Observers/01-DataSet/02-Lumpy_Data/h_blur'
 	height = int(height)
 	if not blur == 0.5:
 		blur = int(blur)
