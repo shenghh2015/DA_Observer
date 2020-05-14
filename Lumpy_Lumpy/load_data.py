@@ -31,9 +31,9 @@ def load_Lumpy(docker = True, train = 100000, valid = 100, test = 400, height = 
 		seed = 4
 	elif blur == 5.0:
 		seed = 5
-	noise = np.random.RandomState(seed).normal(0, nosie, bk.shape)
-	sig_absent = bk + noise
-	sig_present = sig + bk + noise
+	gaussian_noise = np.random.RandomState(seed).normal(0, noise, bk.shape)
+	sig_absent = bk + gaussian_noise
+	sig_present = sig + bk + gaussian_noise
 	print('0-1 normalization ... ')
 	sig_absent = normalize_0_1(sig_absent)
 	sig_present = normalize_0_1(sig_present)
