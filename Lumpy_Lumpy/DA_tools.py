@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 def normalize_0_1(data):
 	data = np.squeeze(data)
