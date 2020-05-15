@@ -334,7 +334,7 @@ with tf.Session() as sess:
 		# train the target
 		if nb_trg_labels > 0:
 			l_indices = np.random.randint(0, Xt_trn_l.shape[0]-1, 50)
-			batch_x = Xt_trn_l[indices,:]; batch_y = yt_trn_l[indices,:]; sess.run(target_trn_ops, feed_dict={xt1:batch_x, yt1:batch_y})
+			batch_x = Xt_trn_l[l_indices,:]; batch_y = yt_trn_l[l_indices,:]; sess.run(target_trn_ops, feed_dict={xt1:batch_x, yt1:batch_y})
 		if iteration%100 == 0:
 			src_loss = source_loss.eval(session=sess, feed_dict={xs:source_x, ys: source_y})
 			MMD_loss = mmd_loss.eval(session=sess, feed_dict={xs:source_x, xt:target_x})

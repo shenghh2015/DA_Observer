@@ -260,8 +260,8 @@ with tf.Session() as sess:
 			np.savetxt(model_folder+'/test_loss.txt', test_loss_list);np.savetxt(model_folder+'/test_auc.txt', test_auc_list)
 			plot_LOSS(model_folder+'/loss-{}.png'.format(model_name), train_loss_list, val_loss_list, test_loss_list)
 			plot_AUC(model_folder+'/auc-{}.png'.format(model_name), train_auc_list, val_auc_list, test_auc_list)
-			if best_val_auc < trg_val_auc:
-				best_val_auc = trg_val_auc
+			if best_val_auc < val_auc:
+				best_val_auc = val_auc
 				np.savetxt(model_folder+'/best_stat.txt', test_stat)
 				target_saver.save(sess, model_folder +'/best')
 				plot_hist(model_folder +'/hist-{}.png'.format(model_name), test_stat[:int(len(test_stat)/2)], test_stat[int(len(test_stat)/2):])
