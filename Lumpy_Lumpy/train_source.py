@@ -190,6 +190,7 @@ model_type = args.model_type
 batch_size = args.bz
 nb_steps = args.iters
 lr = args.lr
+nb_cnn = args.nb_cnn
 fc_layer = args.fc_layer
 bn = args.bn
 h =args.h
