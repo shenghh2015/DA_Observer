@@ -239,7 +239,6 @@ train_auc_list, val_auc_list, test_auc_list = [], [], []
 
 best_val_auc = -np.inf
 with tf.Session() as sess:
-	print_block(symbol = '-', nb_sybl = 50)
 	tf.global_variables_initializer().run(session=sess)
 	for iteration in range(nb_steps):
 		indices = np.random.randint(0, Xs_trn.shape[0]-1, batch_size)
@@ -260,6 +259,9 @@ with tf.Session() as sess:
 			np.savetxt(model_folder+'/test_loss.txt', test_loss_list);np.savetxt(model_folder+'/test_auc.txt', test_auc_list)
 			plot_LOSS(model_folder+'/loss-{}.png'.format(model_name), train_loss_list, val_loss_list, test_loss_list)
 			plot_AUC(model_folder+'/auc-{}.png'.format(model_name), train_auc_list, val_auc_list, test_auc_list)
+			print_block(symbol = '-', nb_sybl = 70)
+			print_green('Loss: train {0:.4f} val {1:.4f} test {2:.4f}; AUC: train {3:.4f} val {4:.4f} test {5:.4f}; iter {6:.4f}'.format(train_loss, val_loss, test_loss, train_auc, val_auc, test_auc, iteration))
+			print(model_name)
 			if best_val_auc < val_auc:
 				best_val_auc = val_auc
 				np.savetxt(model_folder+'/best_stat.txt', test_stat)
