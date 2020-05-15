@@ -359,9 +359,9 @@ with tf.Session() as sess:
 			print(DA_model_name)
 			if nb_trg_labels > 0:
 				plot_AUC(DA_model_folder + '/auc-full_{}.png'.format(DA_model_name), trg_trn_auc_list, trg_val_auc_list, trg_tst_auc_list)
-				plot_LOSS(DA_model_folder + '/loss-full_{}.png'.format(DA_model_name), trg_trn_loss_list, trg_val_loss_list, trg_tst_loss_list)			
+				plot_LOSS(DA_model_folder + '/loss-full_{}.png'.format(DA_model_name), trg_loss_list, src_loss_list, mmd_loss_list)			
 			plot_auc(DA_model_folder + '/auc_{}.png'.format(DA_model_name), trg_val_auc_list, trg_tst_auc_list)
-			plot_loss(DA_model_folder + '/loss_{}.png'.format(DA_model_name), trg_val_loss_list, trg_tst_loss_list)
+			plot_loss(DA_model_folder + '/loss_{}.png'.format(DA_model_name), src_loss_list, mmd_loss_list)
 			if best_val_auc < trg_val_auc:
 				best_val_auc = trg_val_auc
 				np.savetxt(DA_model_folder+'/best_stat.txt', trg_stat)
