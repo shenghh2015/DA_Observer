@@ -33,7 +33,7 @@ def plot_LOSS(file_name, train_loss_list, val_loss_list, test_loss_list):
 	ax.set_title(title)
 	ax.set_xlabel('Iterations')
 	ax.set_ylabel('Loss')
-	ax.legend(['D','S','T'])
+	ax.legend(['target','source','mmd'])
 	ax.set_xlim([0,len(train_loss_list)])
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
@@ -357,7 +357,13 @@ with tf.Session() as sess:
 			np.savetxt(DA_model_folder+'/target_val_auc.txt', trg_val_auc_list)
 			print_green('LOSS: src-test {0:.4f} mmd {1:.4f}; AUC: T-val {2:.4f} T-test {3:.4f} S-train {4:.4f} S-test {5:.4f}-iter-{6:}'.format(src_loss, MMD_loss, trg_val_auc, trg_auc, src_trn_auc, src_auc, iteration))
 			print(DA_model_name)
+			if nb_trg_labels > 0:
+				plot_AUC(DA_model_folder + '/auc-full_{}.png'.format(model_name), trg_trn_auc_list, trg_val_auc_list, trg_tst_auc_list)
+				plot_LOSS(DA_model_folder + '/loss-full_{}.png'.format(model_name), trg_trn_loss_list, trg_val_loss_list, trg_tst_loss_list)			
+			plot_auc(DA_model_folder + '/auc_{}.png'.format(model_name), trg_val_auc_list, trg_tst_auc_list)
+			plot_loss(DA_model_folder + '/loss_{}.png'.format(model_name), trg_val_loss_list, trg_tst_loss_list)
 			if best_val_auc < trg_val_auc:
 				best_val_auc = trg_val_auc
 				np.savetxt(DA_model_folder+'/best_stat.txt', trg_stat)
 				target_saver.save(sess, DA_model_folder +'/best')
+				plot_hist(DA_model_folder + '/hist_{}.png'.format(model_name), trg_stat[:int(len(trg_stat)/2)], trg_stat[int(len(trg_stat)/2):])
