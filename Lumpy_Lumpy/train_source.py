@@ -263,5 +263,5 @@ with tf.Session() as sess:
 			if best_val_auc < val_auc:
 				best_val_auc = val_auc
 				np.savetxt(model_folder+'/best_stat.txt', test_stat)
-				target_saver.save(sess, model_folder +'/best')
+				source_saver.save(sess, model_folder +'/best')
 				plot_hist(model_folder +'/hist-{}.png'.format(model_name), test_stat[:int(len(test_stat)/2)], test_stat[int(len(test_stat)/2):])
