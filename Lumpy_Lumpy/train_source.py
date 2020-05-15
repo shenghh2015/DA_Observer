@@ -246,9 +246,9 @@ with tf.Session() as sess:
 		# train the source
 		source_x = Xs_trn[indices,:]; source_y = ys_trn[indices,:]; sess.run(source_trn_ops, feed_dict={xs:source_x, ys: source_y})
 		if iteration%100 == 0:
-			train_loss = source_loss.eval(session=sess, feed_dict={xs:source_x, ys:source_y})
-			val_loss = val_loss.eval(session=sess, feed_dict={xs:Xs_val, ys:ys_val})
-			test_loss = val_loss.eval(session=sess, feed_dict={xs:Xs_tst, ys:ys_tst})
+			train_loss = src_clf_loss.eval(session=sess, feed_dict={xs:source_x, ys:source_y})
+			val_loss = src_clf_loss.eval(session=sess, feed_dict={xs:Xs_val, ys:ys_val})
+			test_loss = src_clf_loss.eval(session=sess, feed_dict={xs:Xs_tst, ys:ys_tst})
 			train_stat = source_logit.eval(session=sess, feed_dict={xs:source_x}); train_auc = roc_auc_score(source_y, train_stat)
 			val_stat = source_logit.eval(session=sess, feed_dict={xs:Xs_val}); val_auc = roc_auc_score(ys_val, val_stat)
 			test_stat = source_logit.eval(session=sess, feed_dict={xs:Xt_tst}); test_auc = roc_auc_score(yt_tst, test_stat)
