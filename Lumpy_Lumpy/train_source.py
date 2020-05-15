@@ -260,7 +260,7 @@ with tf.Session() as sess:
 			plot_LOSS(model_folder+'/loss-{}.png'.format(model_name), train_loss_list, val_loss_list, test_loss_list)
 			plot_AUC(model_folder+'/auc-{}.png'.format(model_name), train_auc_list, val_auc_list, test_auc_list)
 			print_block(symbol = '-', nb_sybl = 70)
-			print_green('Loss: train {0:.4f} val {1:.4f} test {2:.4f}; AUC: train {3:.4f} val {4:.4f} test {5:.4f}; iter {6:.4f}'.format(train_loss, val_loss, test_loss, train_auc, val_auc, test_auc, iteration))
+			print_green('Loss: train {0:.4f} val {1:.4f} test {2:.4f}; AUC: train {3:.4f} val {4:.4f} test {5:.4f}; iter {6:}'.format(train_loss, val_loss, test_loss, train_auc, val_auc, test_auc, iteration))
 			print(model_name)
 			if best_val_auc < val_auc:
 				best_val_auc = val_auc
