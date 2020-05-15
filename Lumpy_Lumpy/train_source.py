@@ -251,7 +251,7 @@ with tf.Session() as sess:
 			test_loss = src_clf_loss.eval(session=sess, feed_dict={xs:Xs_tst, ys:ys_tst})
 			train_stat = source_logit.eval(session=sess, feed_dict={xs:source_x}); train_auc = roc_auc_score(source_y, train_stat)
 			val_stat = source_logit.eval(session=sess, feed_dict={xs:Xs_val}); val_auc = roc_auc_score(ys_val, val_stat)
-			test_stat = source_logit.eval(session=sess, feed_dict={xs:Xt_tst}); test_auc = roc_auc_score(yt_tst, test_stat)
+			test_stat = source_logit.eval(session=sess, feed_dict={xs:Xs_tst}); test_auc = roc_auc_score(ys_tst, test_stat)
 			train_loss_list, train_auc_list = np.append(train_loss_list, train_loss), np.append(train_auc_list, train_auc)
 			val_loss_list, val_auc_list = np.append(val_loss_list, val_loss), np.append(val_auc_list, val_auc)
 			test_loss_list, test_auc_list = np.append(test_loss_list, test_loss), np.append(test_auc_list, test_auc)
