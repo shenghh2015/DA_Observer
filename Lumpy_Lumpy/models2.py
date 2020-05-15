@@ -122,7 +122,7 @@ def dense_block(x, fc_layers = [128, 1], bn = False, scope_name = 'base', bn_tra
 		h1 = tf.layers.dense(flat, fc_layers[0], kernel_regularizer=l2_regularizer)
 		if bn:
 # 			h1 = tf.layers.batch_normalization(h1, training = True)
-			h1 = bn_layer_top(_conv, scope = 'dense', is_training = bn_training, epsilon=0.001, decay=0.99)
+			h1 = bn_layer_top(h1, scope = 'dense', is_training = bn_training, epsilon=0.001, decay=0.99)
 		h1 = tf.nn.leaky_relu(h1)
 		h2 = tf.layers.dense(h1, fc_layers[1], kernel_regularizer = l2_regularizer)
 	return h1, h2
