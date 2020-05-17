@@ -15,54 +15,11 @@ from functools import partial
 # user-defined tools
 from load_data import load_Lumpy 
 from model import conv_classifier
+from helper_function import generate_folder
+from helper_function import plot_LOSS, plot_AUC, plot_loss, plot_auc, plot_hist
 
 def str2bool(value):
     return value.lower() == 'true'
-
-def plot_LOSS(file_name, train_loss_list, val_loss_list, test_loss_list):
-	import matplotlib.pyplot as plt
-	from matplotlib.backends.backend_agg import FigureCanvasAgg
-	from matplotlib.figure import Figure
-	fig_size = (8,6)
-	fig = Figure(figsize=fig_size)
-	ax = fig.add_subplot(111)
-	ax.plot(train_loss_list)
-	ax.plot(val_loss_list)
-	ax.plot(test_loss_list)
-	title = os.path.basename(os.path.dirname(file_name))
-	ax.set_title(title)
-	ax.set_xlabel('Iterations')
-	ax.set_ylabel('Loss')
-	ax.legend(['target','source','mmd'])
-	ax.set_xlim([0,len(train_loss_list)])
-	canvas = FigureCanvasAgg(fig)
-	canvas.print_figure(file_name, dpi=100)
-
-def plot_AUC(file_name, train_list, val_list, test_list):
-	import matplotlib.pyplot as plt
-	from matplotlib.backends.backend_agg import FigureCanvasAgg
-	from matplotlib.figure import Figure
-	fig_size = (8,6)
-	fig = Figure(figsize=fig_size)
-	file_name = file_name
-	ax = fig.add_subplot(111)
-	ax.plot(train_list)
-	ax.plot(val_list)
-	ax.plot(test_list)
-	title = os.path.basename(os.path.dirname(file_name))
-	ax.set_title(title)
-	ax.set_xlabel('Iterations')
-	ax.set_ylabel('AUC')
-	ax.legend(['Train','Valid','Test'])
-	ax.set_xlim([0,len(train_list)])
-	canvas = FigureCanvasAgg(fig)
-	canvas.print_figure(file_name, dpi=100)
-
-# generate the folder
-def generate_folder(folder):
-    import os
-    if not os.path.exists(folder):
-        os.system('mkdir -p {}'.format(folder))
 
 def compute_pairwise_distances(x, y):
     if not len(x.get_shape()) == len(y.get_shape()) == 2:
@@ -79,90 +36,12 @@ def gaussian_kernel_matrix(x, y, sigmas):
     s = tf.matmul(beta, tf.reshape(dist, (1, -1)))
     return tf.reshape(tf.reduce_sum(tf.exp(-s), 0), tf.shape(dist))
 
-
 def maximum_mean_discrepancy(x, y, kernel=gaussian_kernel_matrix):
     cost = tf.reduce_mean(kernel(x, x))
     cost += tf.reduce_mean(kernel(y, y))
     cost -= 2 * tf.reduce_mean(kernel(x, y))
     cost = tf.where(cost > 0, cost, 0, name='value')
     return cost
-
-def bias_variable(shape, name):
-    initial = tf.constant(0.1, shape=shape)
-    return tf.Variable(initial, name=name)
-
-# plot and save the file
-def plot_loss(file_name, loss, val_loss):
-	f_out = file_name
-	from matplotlib.backends.backend_agg import FigureCanvasAgg
-	from matplotlib.figure import Figure
-	start_idx = 0
-	if len(loss)>start_idx:
-		title = os.path.basename(os.path.dirname(file_name))
-		fig = Figure(figsize=(8,6))
-		ax = fig.add_subplot(1,1,1)
-		ax.plot(loss[start_idx:],'b-',linewidth=1.3)
-		ax.plot(val_loss[start_idx:],'r-',linewidth=1.3)
-		ax.set_title(title)
-		ax.set_ylabel('Loss')
-		ax.set_xlabel('Iterations/100')
-		ax.legend(['source-loss', 'mmd-loss'], loc='upper left')  
-		canvas = FigureCanvasAgg(fig)
-		canvas.print_figure(f_out, dpi=80)
-
-def plot_auc(target_file_name, val_auc_list, target_auc_list):
-	import matplotlib.pyplot as plt
-	from matplotlib.backends.backend_agg import FigureCanvasAgg
-	from matplotlib.figure import Figure
-	fig_size = (8,6)
-	fig = Figure(figsize=fig_size)
-	file_name = target_file_name
-	ax = fig.add_subplot(111)
-	ax.plot(target_auc_list)
-	ax.plot(val_auc_list)
-	title = os.path.basename(os.path.dirname(file_name))
-	ax.set_title(title)
-	ax.set_xlabel('Iterations')
-	ax.set_ylabel('AUC')
-	ax.legend(['Test','Val'])
-	ax.set_xlim([0,len(target_auc_list)])
-	canvas = FigureCanvasAgg(fig)
-	canvas.print_figure(file_name, dpi=100)
-
-def plot_hist(file_name, x, y):
-	import matplotlib.pyplot as plt
-	from matplotlib.backends.backend_agg import FigureCanvasAgg
-	from matplotlib.figure import Figure
-	kwargs = dict(alpha=0.6, bins=100, density= False, stacked=True)
-	fig_size = (8,6)
-	fig = Figure(figsize=fig_size)
-	file_name = file_name
-	ax = fig.add_subplot(111)
-	ax.hist(x, **kwargs, color='g', label='SA')
-	ax.hist(y, **kwargs, color='r', label='Anomaly')
-	title = os.path.basename(os.path.dirname(file_name))
-	ax.set_title(title)
-	ax.set_xlabel('statistics')
-	ax.set_ylabel('Frequency')
-	ax.legend(['SA', 'SP'])
-	ax.set_xlim([np.min(np.concatenate([x,y])), np.max(np.concatenate([x,y]))])
-	canvas = FigureCanvasAgg(fig)
-	canvas.print_figure(file_name, dpi=100)
-
-def print_yellow(str):
-	from termcolor import colored 
-	print(colored(str, 'yellow'))
-
-def print_red(str):
-	from termcolor import colored 
-	print(colored(str, 'red'))
-
-def print_green(str):
-	from termcolor import colored 
-	print(colored(str, 'green'))
-
-def print_block(symbol = '*', nb_sybl = 70):
-	print_red(symbol*nb_sybl)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu", type=int, default = 2)
@@ -334,7 +213,7 @@ with tf.Session() as sess:
 		# train the target
 		if nb_trg_labels > 0:
 			l_indices = np.random.randint(0, Xt_trn_l.shape[0]-1, 50)
-			batch_x = Xt_trn_l[indices,:]; batch_y = yt_trn_l[indices,:]; sess.run(target_trn_ops, feed_dict={xt1:batch_x, yt1:batch_y})
+			batch_x = Xt_trn_l[l_indices,:]; batch_y = yt_trn_l[l_indices,:]; sess.run(target_trn_ops, feed_dict={xt1:batch_x, yt1:batch_y})
 		if iteration%100 == 0:
 			src_loss = source_loss.eval(session=sess, feed_dict={xs:source_x, ys: source_y})
 			MMD_loss = mmd_loss.eval(session=sess, feed_dict={xs:source_x, xt:target_x})
@@ -343,9 +222,9 @@ with tf.Session() as sess:
 				trg_trn_stat = target_logit_l.eval(session=sess, feed_dict={xt1:batch_x})
 				trg_trn_auc = roc_auc_score(batch_y, trg_trn_stat)
 				print_yellow('Train with target labels:loss {0:.4f} auc {1:.4f}'.format(trg_loss, trg_trn_auc))
-				trg_loss_list, trg_trn_auc_list = np.append(trg_loss_lis, trg_loss), np.append(trg_trn_auc_list, trg_trn_auc)
-				np.savetxt(DA_model_folder+'/target_train_loss.txt',trg_loss)
-				np.savetxt(DA_model_folder+'/target_train_auc.txt',trg_trn_auc)
+				trg_loss_list, trg_trn_auc_list = np.append(trg_loss_list, trg_loss), np.append(trg_trn_auc_list, trg_trn_auc)
+				np.savetxt(DA_model_folder+'/target_train_loss.txt',trg_loss_list)
+				np.savetxt(DA_model_folder+'/target_train_auc.txt',trg_trn_auc_list)
 			src_trn_stat = source_logit.eval(session=sess, feed_dict={xs:source_x}); src_trn_auc = roc_auc_score(source_y, src_trn_stat)
 			src_stat = source_logit.eval(session=sess, feed_dict={xs:Xs_tst}); src_auc = roc_auc_score(ys_tst, src_stat)
 			trg_val_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_val}); trg_val_auc = roc_auc_score(yt_val, trg_val_stat)
@@ -358,12 +237,12 @@ with tf.Session() as sess:
 			print_green('LOSS: src-test {0:.4f} mmd {1:.4f}; AUC: T-val {2:.4f} T-test {3:.4f} S-train {4:.4f} S-test {5:.4f}-iter-{6:}'.format(src_loss, MMD_loss, trg_val_auc, trg_auc, src_trn_auc, src_auc, iteration))
 			print(DA_model_name)
 			if nb_trg_labels > 0:
-				plot_AUC(DA_model_folder + '/auc-full_{}.png'.format(model_name), trg_trn_auc_list, trg_val_auc_list, trg_tst_auc_list)
-				plot_LOSS(DA_model_folder + '/loss-full_{}.png'.format(model_name), trg_trn_loss_list, trg_val_loss_list, trg_tst_loss_list)			
-			plot_auc(DA_model_folder + '/auc_{}.png'.format(model_name), trg_val_auc_list, trg_tst_auc_list)
-			plot_loss(DA_model_folder + '/loss_{}.png'.format(model_name), trg_val_loss_list, trg_tst_loss_list)
+				plot_AUC(DA_model_folder + '/auc-full_{}.png'.format(DA_model_name), trg_trn_auc_list, trg_val_auc_list, trg_tst_auc_list)
+				plot_LOSS(DA_model_folder + '/loss-full_{}.png'.format(DA_model_name), trg_loss_list, src_loss_list, mmd_loss_list)			
+			plot_auc(DA_model_folder + '/auc_{}.png'.format(DA_model_name), trg_val_auc_list, trg_tst_auc_list)
+			plot_loss(DA_model_folder + '/loss_{}.png'.format(DA_model_name), src_loss_list, mmd_loss_list)
 			if best_val_auc < trg_val_auc:
 				best_val_auc = trg_val_auc
 				np.savetxt(DA_model_folder+'/best_stat.txt', trg_stat)
 				target_saver.save(sess, DA_model_folder +'/best')
-				plot_hist(DA_model_folder + '/hist_{}.png'.format(model_name), trg_stat[:int(len(trg_stat)/2)], trg_stat[int(len(trg_stat)/2):])
+				plot_hist(DA_model_folder + '/hist_{}.png'.format(DA_model_name), trg_stat[:int(len(trg_stat)/2)], trg_stat[int(len(trg_stat)/2):])

@@ -171,6 +171,7 @@ parser.add_argument("--model_type", type = str, default = 'source')
 parser.add_argument("--lr", type = float, default = 1e-5)
 parser.add_argument("--bz", type = int, default = 300)
 parser.add_argument("--train", type = int, default = 100000)
+parser.add_argument("--nb_cnn", type = int, default = 4)
 parser.add_argument("--fc_layer", type = int, default = 128)
 parser.add_argument("--bn", type = str2bool, default = False)
 parser.add_argument("--h", type = float, default = 40)
@@ -189,6 +190,7 @@ model_type = args.model_type
 batch_size = args.bz
 nb_steps = args.iters
 lr = args.lr
+nb_cnn = args.nb_cnn
 fc_layer = args.fc_layer
 bn = args.bn
 h =args.h
@@ -237,19 +239,18 @@ train_auc_list, val_auc_list, test_auc_list = [], [], []
 
 best_val_auc = -np.inf
 with tf.Session() as sess:
-	print_block(symbol = '-', nb_sybl = 50)
 	tf.global_variables_initializer().run(session=sess)
 	for iteration in range(nb_steps):
 		indices = np.random.randint(0, Xs_trn.shape[0]-1, batch_size)
 		# train the source
 		source_x = Xs_trn[indices,:]; source_y = ys_trn[indices,:]; sess.run(source_trn_ops, feed_dict={xs:source_x, ys: source_y})
 		if iteration%100 == 0:
-			train_loss = source_loss.eval(session=sess, feed_dict={xs:source_x, ys:source_y})
-			val_loss = val_loss.eval(session=sess, feed_dict={xs:Xs_val, ys:ys_val})
-			test_loss = val_loss.eval(session=sess, feed_dict={xs:Xs_tst, ys:ys_tst})
+			train_loss = src_clf_loss.eval(session=sess, feed_dict={xs:source_x, ys:source_y})
+			val_loss = src_clf_loss.eval(session=sess, feed_dict={xs:Xs_val, ys:ys_val})
+			test_loss = src_clf_loss.eval(session=sess, feed_dict={xs:Xs_tst, ys:ys_tst})
 			train_stat = source_logit.eval(session=sess, feed_dict={xs:source_x}); train_auc = roc_auc_score(source_y, train_stat)
 			val_stat = source_logit.eval(session=sess, feed_dict={xs:Xs_val}); val_auc = roc_auc_score(ys_val, val_stat)
-			test_stat = source_logit.eval(session=sess, feed_dict={xs:Xt_tst}); test_auc = roc_auc_score(yt_tst, test_stat)
+			test_stat = source_logit.eval(session=sess, feed_dict={xs:Xs_tst}); test_auc = roc_auc_score(ys_tst, test_stat)
 			train_loss_list, train_auc_list = np.append(train_loss_list, train_loss), np.append(train_auc_list, train_auc)
 			val_loss_list, val_auc_list = np.append(val_loss_list, val_loss), np.append(val_auc_list, val_auc)
 			test_loss_list, test_auc_list = np.append(test_loss_list, test_loss), np.append(test_auc_list, test_auc)
@@ -258,8 +259,11 @@ with tf.Session() as sess:
 			np.savetxt(model_folder+'/test_loss.txt', test_loss_list);np.savetxt(model_folder+'/test_auc.txt', test_auc_list)
 			plot_LOSS(model_folder+'/loss-{}.png'.format(model_name), train_loss_list, val_loss_list, test_loss_list)
 			plot_AUC(model_folder+'/auc-{}.png'.format(model_name), train_auc_list, val_auc_list, test_auc_list)
-			if best_val_auc < trg_val_auc:
-				best_val_auc = trg_val_auc
+			print_block(symbol = '-', nb_sybl = 70)
+			print_green('Loss: train {0:.4f} val {1:.4f} test {2:.4f}; AUC: train {3:.4f} val {4:.4f} test {5:.4f}; iter {6:}'.format(train_loss, val_loss, test_loss, train_auc, val_auc, test_auc, iteration))
+			print(model_name)
+			if best_val_auc < val_auc:
+				best_val_auc = val_auc
 				np.savetxt(model_folder+'/best_stat.txt', test_stat)
-				target_saver.save(sess, model_folder +'/best')
+				source_saver.save(sess, model_folder +'/best')
 				plot_hist(model_folder +'/hist-{}.png'.format(model_name), test_stat[:int(len(test_stat)/2)], test_stat[int(len(test_stat)/2):])
