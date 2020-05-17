@@ -16,7 +16,7 @@ from functools import partial
 from load_data import load_Lumpy 
 from models2 import conv_classifier, discriminator
 from helper_function import generate_folder, print_green, print_red, print_yellow, print_block
-from helper_function import plot_ADD_LOSS, plot_AUC, plot_ADD_loss, plot_auc, plot_hist
+from helper_function import plot_ADDA_LOSS, plot_AUC, plot_ADDA_loss, plot_auc, plot_hist
 
 def str2bool(value):
     return value.lower() == 'true'
