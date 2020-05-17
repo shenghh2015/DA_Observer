@@ -60,6 +60,7 @@ parser.add_argument("--nb_source", type = int, default = 100000)
 parser.add_argument("--nb_target", type = int, default = 100000)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
+parser.add_argument("--dis_cnn", type = int, default = 0)
 parser.add_argument("--dis_fc", type = int, default = 512)
 parser.add_argument("--dis_bn", type = str2bool, default = True)
 parser.add_argument("--s_h", type = float, default = 40)
@@ -90,6 +91,7 @@ nb_target = args.nb_target
 nb_trg_labels = args.nb_trg_labels
 source_scratch = args.scratch
 fc_layer = args.fc_layer
+dis_cnn = args.dis_cnn
 dis_fc = args.dis_fc
 dis_bn = args.dis_bn
 trg_clf_param = args.trg_clf_param
@@ -195,13 +197,13 @@ src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y
 source_loss = src_clf_param*src_clf_loss
 source_trn_ops = tf.train.AdamOptimizer(lr).minimize(source_loss, var_list = tf.trainable_variables('source'))
 
-dis_cnn = 0
+# dis_cnn = 0
 if dis_cnn > 0:
 	src_logits = discriminator(conv_net_src, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, bn_training = is_training)
 	trg_logits = discriminator(conv_net_trg, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, reuse = True, bn_training = is_training)
 else:
-	dis_bn = True
-	dis_fc = 1024
+# 	dis_bn = True
+# 	dis_fc = 1024
 	src_logits = discriminator(h_src, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, bn_training = is_training)
 	trg_logits = discriminator(h_trg, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, reuse = True, bn_training = is_training)
 
