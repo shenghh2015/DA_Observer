@@ -24,4 +24,4 @@ cd /home/sh38/DA_Observers/CLB_FDA
 # parser.add_argument("--dataset", type = str, default = 'total')
 # parser.add_argument("--noise", type = float)
 # parser.add_argument("--sig_rate", type = float)
-python train_source.py --gpu_num 1 --docker --nb_cnn 4 --bn False --lr 1e-5 --nb_train 400 --noise 2 --sig_rate 0.035 --bz 100 --nb_steps 200000 --optimizer Adam
+python train_source.py --gpu_num 1 --docker False --nb_cnn 4 --bn False --lr 1e-5 --nb_train 400 --noise 2 --sig_rate 0.035 --bz 100 --nb_steps 200000 --optimizer Adam
