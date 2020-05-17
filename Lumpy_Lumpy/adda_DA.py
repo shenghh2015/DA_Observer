@@ -14,9 +14,9 @@ from functools import partial
 
 # user-defined tools
 from load_data import load_Lumpy 
-from models2 import conv_classifier
-from helper_function import generate_folder
-from helper_function import plot_LOSS, plot_AUC, plot_loss, plot_auc, plot_hist
+from models2 import conv_classifier, discriminator
+from helper_function import generate_folder, print_green, print_red, print_yellow, print_block
+from helper_function import plot_ADD_LOSS, plot_AUC, plot_ADD_loss, plot_auc, plot_hist
 
 def str2bool(value):
     return value.lower() == 'true'
@@ -46,7 +46,7 @@ def maximum_mean_discrepancy(x, y, kernel=gaussian_kernel_matrix):
 parser = argparse.ArgumentParser()
 parser.add_argument("--gpu", type=int, default = 2)
 parser.add_argument("--docker", type = str2bool, default = True)
-parser.add_argument("--shared", type = str2bool, default = True)
+parser.add_argument("--shared", type = str2bool, default = False)
 parser.add_argument("--lr", type = float, default = 1e-5)
 parser.add_argument("--g_lr", type = float, default = 1e-4)
 parser.add_argument("--d_lr", type = float, default = 4e-4)
@@ -55,12 +55,13 @@ parser.add_argument("--bz", type = int, default = 300)
 parser.add_argument("--mmd_param", type = float, default = 1.0)
 parser.add_argument("--trg_clf_param", type = float, default = 1.0)
 parser.add_argument("--src_clf_param", type = float, default = 1.0)
-parser.add_argument("--scratch", type = str2bool, default = True)
+parser.add_argument("--scratch", type = str2bool, default = False)
 parser.add_argument("--nb_source", type = int, default = 100000)
 parser.add_argument("--nb_target", type = int, default = 100000)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
-parser.add_argument("--bn", type = str2bool, default = False)
+parser.add_argument("--dis_fc", type = int, default = 512)
+parser.add_argument("--dis_bn", type = str2bool, default = True)
 parser.add_argument("--s_h", type = float, default = 40)
 parser.add_argument("--s_blur", type = float, default = 0.5)
 parser.add_argument("--s_noise", type = float, default = 10)
@@ -89,7 +90,8 @@ nb_target = args.nb_target
 nb_trg_labels = args.nb_trg_labels
 source_scratch = args.scratch
 fc_layer = args.fc_layer
-bn = args.bn
+dis_fc = args.dis_fc
+dis_bn = args.dis_bn
 trg_clf_param = args.trg_clf_param
 src_clf_param = args.src_clf_param
 # clf_v = args.clf_v
@@ -132,8 +134,8 @@ yt_trn_l = np.concatenate([yt_trn[0:nb_trg_labels,:],yt_trn[nb_target:nb_target+
 # base_model_folder = os.path.join(DA, source_model_name)
 # generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'Lumpy-adda-{}-sclf{}-tclf-{}-lr-{}-bz-{}-scr-{}-shared-{}-bn-{}-labels-{}-val-{}-S-{}-{}-{}-T-{}-{}-{}-itrs-{}'\
-				.format(mmd_param,src_clf_param,trg_clf_param,lr,batch_size,source_scratch,shared,bn, nb_trg_labels, valid, s_h, s_blur, s_noise, t_h, t_blur, t_noise, nb_steps)
+DA_model_name = 'Lumpy-adda-{}-sclf{}-tclf-{}-lr-{}-{}-{}-bz-{}-scr-{}-shared-{}-dis_bn-{}-labels-{}-val-{}-S-{}-{}-{}-T-{}-{}-{}-itrs-{}-trn-{}-{}-dis_fc-{}'\
+				.format(mmd_param,src_clf_param,trg_clf_param,lr, d_lr, g_lr, batch_size,source_scratch,shared, dis_bn, nb_trg_labels, valid, s_h, s_blur, s_noise, t_h, t_blur, t_noise, nb_steps, nb_source, nb_target, dis_fc)
 DA_model_folder = os.path.join(DA_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -193,6 +195,7 @@ src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y
 source_loss = src_clf_param*src_clf_loss
 source_trn_ops = tf.train.AdamOptimizer(lr).minimize(source_loss, var_list = tf.trainable_variables('source'))
 
+dis_cnn = 0
 if dis_cnn > 0:
 	src_logits = discriminator(conv_net_src, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, bn_training = is_training)
 	trg_logits = discriminator(conv_net_trg, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, reuse = True, bn_training = is_training)
@@ -207,7 +210,7 @@ gen_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_log
 
 # d_lr = 4e-4
 # g_lr = 1e-4
-disc_trn_ops = tf.train.AdamOptimizer(d_lr).minimize(dis_loss, var_list = tf.trainable_variables('discriminator'))
+disc_trn_ops = tf.train.AdamOptimizer(d_lr).minimize(disc_loss, var_list = tf.trainable_variables('discriminator'))
 gen_trn_ops = tf.train.AdamOptimizer(g_lr).minimize(gen_loss, var_list = tf.trainable_variables(target_scope))
 # mmd loss
 # sigmas = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 5, 10, 15, 20, 25, 30, 35, 100, 1e3, 1e4, 1e5, 1e6]
@@ -221,13 +224,16 @@ if nb_trg_labels > 0:
 	target_loss = trg_clf_param*trg_clf_loss
 	target_trn_ops = tf.train.AdamOptimizer(lr).minimize(target_loss, var_list = tf.trainable_variables(target_scope))
 
-trg_loss_list, src_loss_list, d_loss_list, g_loss_list trg_trn_auc_list, src_tst_auc_list, trg_val_auc_list, trg_tst_auc_list =\
+trg_loss_list, src_loss_list, d_loss_list, g_loss_list, trg_trn_auc_list, src_tst_auc_list, trg_val_auc_list, trg_tst_auc_list =\
 	[], [], [], [], [], [], [], []
 best_val_auc = -np.inf
 with tf.Session() as sess:
 	tf.global_variables_initializer().run(session=sess)
-	if not src_scratch:
-		source_saver.restore()
+	if not scratch:
+		source_saver.restore(sess, source_model_file); target_saver.restore(sess, source_model_file)
+		src_stat = target_logit.eval(session=sess, feed_dict={xt:Xs_tst, is_training: False}); src_auc = roc_auc_score(ys_tst, src_stat)
+		trg_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_tst, is_training: False}); trg_auc = roc_auc_score(yt_tst, trg_stat)
+		print('AUC: S-S {0:.4f} S-T {1:.4f}'.format(src_auc, trg_auc))
 	for iteration in range(nb_steps):
 		indices = np.random.randint(0, Xs_trn.shape[0]-1, batch_size)
 		source_x = Xs_trn[indices,:];target_x = Xt_trn[indices,:]; source_y = ys_trn[indices,:]
@@ -267,9 +273,9 @@ with tf.Session() as sess:
 			print_green('LOSS: src-test {0:.4f} D {1:.4f} G {2:.4f}; AUC: T-val {3:.4f} T-test {4:.4f} S-train {5:.4f} S-test {6:.4f}-iter-{7:}'.format(src_loss, d_loss, g_loss, trg_val_auc, trg_auc, src_trn_auc, src_auc, iteration))
 			print(DA_model_name)
 			if nb_trg_labels > 0:
-				plot_ADDA_AUC(DA_model_folder + '/auc-full_{}.png'.format(DA_model_name), trg_trn_auc_list, trg_val_auc_list, trg_tst_auc_list)
+				plot_AUC(DA_model_folder + '/auc-full_{}.png'.format(DA_model_name), trg_trn_auc_list, trg_val_auc_list, trg_tst_auc_list)
 				plot_ADDA_LOSS(DA_model_folder + '/loss-full_{}.png'.format(DA_model_name), trg_loss_list, src_loss_list, d_loss_list, g_loss_list)			
-			plot_ADDA_auc(DA_model_folder + '/auc_{}.png'.format(DA_model_name), trg_val_auc_list, trg_tst_auc_list)
+			plot_auc(DA_model_folder + '/auc_{}.png'.format(DA_model_name), trg_val_auc_list, trg_tst_auc_list)
 			plot_ADDA_loss(DA_model_folder + '/loss_{}.png'.format(DA_model_name), src_loss_list, d_loss_list, g_loss_list)
 			if best_val_auc < trg_val_auc:
 				best_val_auc = trg_val_auc

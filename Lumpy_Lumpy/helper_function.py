@@ -34,6 +34,26 @@ def plot_LOSS(file_name, train_loss_list, val_loss_list, test_loss_list):
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
 
+def plot_ADDA_LOSS(file_name, train_loss_list, src_loss_list, d_loss_list, g_loss_list):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	ax = fig.add_subplot(111)
+	ax.plot(train_loss_list)
+	ax.plot(src_loss_list)
+	ax.plot(d_loss_list)
+	ax.plot(g_loss_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('Loss')
+	ax.legend(['target','source','D','G'])
+	ax.set_xlim([0,len(src_loss_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
 def plot_AUC(file_name, train_list, val_list, test_list):
 	import matplotlib.pyplot as plt
 	from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -76,6 +96,25 @@ def plot_loss(file_name, loss, val_loss):
 		ax.set_ylabel('Loss')
 		ax.set_xlabel('Iterations/100')
 		ax.legend(['source-loss', 'mmd-loss'], loc='upper left')  
+		canvas = FigureCanvasAgg(fig)
+		canvas.print_figure(f_out, dpi=80)
+
+def plot_ADDA_loss(file_name, src_loss, d_loss, g_loss):
+	f_out = file_name
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	start_idx = 0
+	if len(d_loss)>start_idx:
+		title = os.path.basename(os.path.dirname(file_name))
+		fig = Figure(figsize=(8,6))
+		ax = fig.add_subplot(1,1,1)
+		ax.plot(src_loss[start_idx:],'g-',linewidth=1.3)
+		ax.plot(d_loss[start_idx:],'b-',linewidth=1.3)
+		ax.plot(g_loss[start_idx:],'r-',linewidth=1.3)
+		ax.set_title(title)
+		ax.set_ylabel('Loss')
+		ax.set_xlabel('Iterations/100')
+		ax.legend(['source', 'D', 'G'], loc='upper left')  
 		canvas = FigureCanvasAgg(fig)
 		canvas.print_figure(f_out, dpi=80)
 
