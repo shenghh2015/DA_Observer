@@ -231,7 +231,7 @@ trg_loss_list, src_loss_list, d_loss_list, g_loss_list, trg_trn_auc_list, src_ts
 best_val_auc = -np.inf
 with tf.Session() as sess:
 	tf.global_variables_initializer().run(session=sess)
-	if not scratch:
+	if not source_scratch:
 		source_saver.restore(sess, source_model_file); target_saver.restore(sess, source_model_file)
 		src_stat = target_logit.eval(session=sess, feed_dict={xt:Xs_tst, is_training: False}); src_auc = roc_auc_score(ys_tst, src_stat)
 		trg_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_tst, is_training: False}); trg_auc = roc_auc_score(yt_tst, trg_stat)
