@@ -201,7 +201,7 @@ if dis_cnn > 0:
 	trg_logits = discriminator(conv_net_trg, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, reuse = True, bn_training = is_training)
 else:
 	dis_bn = True
-	dis_fc = 256
+	dis_fc = 1024
 	src_logits = discriminator(h_src, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, bn_training = is_training)
 	trg_logits = discriminator(h_trg, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, reuse = True, bn_training = is_training)
 
