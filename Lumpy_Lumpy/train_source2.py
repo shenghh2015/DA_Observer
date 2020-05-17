@@ -225,8 +225,8 @@ is_training = tf.placeholder_with_default(False, (), 'is_training')
 
 conv_net_src, h_src, source_logit = conv_classifier(xs, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = bn, scope_name = model_type, bn_training = is_training)
 
-source_vars_list = tf.trainable_variables(model_type)
-source_key_list = [v.name[:-2].replace(model_type, 'base') for v in tf.trainable_variables(model_type)]
+source_vars_list = tf.global_variables(model_type)
+source_key_list = [v.name[:-2].replace(model_type, 'base') for v in tf.global_variables(model_type)]
 source_key_direct = {}
 for key, var in zip(source_key_list, source_vars_list):
 	source_key_direct[key] = var
@@ -234,7 +234,7 @@ source_saver = tf.train.Saver(source_key_direct, max_to_keep=nb_steps)
 
 # source loss
 src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = ys, logits = source_logit))
-source_trn_ops = tf.train.AdamOptimizer(lr).minimize(src_clf_loss, var_list = source_vars_list)
+source_trn_ops = tf.train.AdamOptimizer(lr).minimize(src_clf_loss, var_list = tf.trainable_variables(model_type))
 
 train_loss_list, val_loss_list, test_loss_list = [], [], []
 train_auc_list, val_auc_list, test_auc_list = [], [], []

@@ -14,7 +14,7 @@ from functools import partial
 
 # user-defined tools
 from load_data import load_Lumpy 
-from model import conv_classifier
+from models2 import conv_classifier
 from helper_function import generate_folder
 from helper_function import plot_LOSS, plot_AUC, plot_loss, plot_auc, plot_hist
 
@@ -48,6 +48,8 @@ parser.add_argument("--gpu", type=int, default = 2)
 parser.add_argument("--docker", type = str2bool, default = True)
 parser.add_argument("--shared", type = str2bool, default = True)
 parser.add_argument("--lr", type = float, default = 1e-5)
+parser.add_argument("--g_lr", type = float, default = 1e-4)
+parser.add_argument("--d_lr", type = float, default = 4e-4)
 parser.add_argument("--iters", type = int, default = 10000)
 parser.add_argument("--bz", type = int, default = 300)
 parser.add_argument("--mmd_param", type = float, default = 1.0)
@@ -80,6 +82,10 @@ batch_size = args.bz
 nb_steps = args.iters
 mmd_param = args.mmd_param
 lr = args.lr
+d_lr = args.d_lr
+g_lr = args.g_lr
+nb_source = args.nb_source
+nb_target = args.nb_target
 nb_trg_labels = args.nb_trg_labels
 source_scratch = args.scratch
 fc_layer = args.fc_layer
@@ -106,12 +112,12 @@ else:
 print(output_folder)
 source_folder = os.path.join(output_folder,'Lumpy/source')
 target_folder = os.path.join(output_folder,'Lumpy/target')
-source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
-source_model_file = os.path.join(source_folder, source_model_name, 'source-best')
+source_model_name = 'Lumpy-source-cnn-4-fc-128-lr-0.0001-bz-300-bn-True-T_V_T-100k_100_200-40.0_0.5_10.0-itrs-200000-v2'
+source_model_file = os.path.join(source_folder, source_model_name, 'best')
 DA_folder = os.path.join(output_folder, 'Lumpy-Lumpy', source_model_name)
 # load source data
-nb_source = 100000
-nb_target = 100000
+# nb_source = 100000
+# nb_target = 100000
 Xs_trn, Xs_val, Xs_tst, ys_trn, ys_val, ys_tst = load_Lumpy(docker = docker, train = nb_source, valid = valid, test = test, height = s_h, blur= s_blur, noise = s_noise)
 Xs_trn, Xs_val, Xs_tst = np.expand_dims(Xs_trn, axis = 3), np.expand_dims(Xs_val, axis = 3), np.expand_dims(Xs_tst, axis = 3)
 ys_trn, ys_tst = ys_trn.reshape(-1,1), ys_tst.reshape(-1,1)
@@ -138,10 +144,10 @@ nb_cnn = 4
 for i in range(len(source_splits)):
 	if source_splits[i] == 'cnn':
 		nb_cnn = int(source_splits[i+1])
-# 	if source_splits[i] == 'bn':
-# 		bn = str2bool(source_splits[i])
+	if source_splits[i] == 'bn':
+		bn = str2bool(source_splits[i+1])
 
-nb_cnn = 4
+# nb_cnn = 4
 # bn = False
 img_size = 64
 xs = tf.placeholder("float", shape=[None, img_size, img_size, 1])
@@ -163,8 +169,8 @@ conv_net_src, h_src, source_logit = conv_classifier(xs, nb_cnn = nb_cnn, fc_laye
 conv_net_trg, h_trg, target_logit = conv_classifier(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = bn, scope_name = target_scope, reuse = target_reuse, bn_training = is_training)
 _, _, target_logit_l = conv_classifier(xt1, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = bn, scope_name = target_scope, reuse = True, bn_training = is_training)
 
-source_vars_list = tf.trainable_variables('source')
-source_key_list = [v.name[:-2].replace('source', 'base') for v in tf.trainable_variables('source')]
+source_vars_list = tf.global_variables('source')
+source_key_list = [v.name[:-2].replace('source', 'base') for v in tf.global_variables('source')]
 source_key_direct = {}
 for key, var in zip(source_key_list, source_vars_list):
 	source_key_direct[key] = var
@@ -174,8 +180,8 @@ for key, var in zip(source_key_list[:-2], source_vars_list[:-2]):
 source_saver = tf.train.Saver(source_key_direct, max_to_keep=nb_steps)
 pre_trained_saver = tf.train.Saver(source_key_direct_except_last_layer, max_to_keep = nb_steps)
 
-target_vars_list = tf.trainable_variables(target_scope)
-target_key_list = [v.name[:-2].replace(target_scope, 'base') for v in tf.trainable_variables(target_scope)]
+target_vars_list = tf.global_variables(target_scope)
+target_key_list = [v.name[:-2].replace(target_scope, 'base') for v in tf.global_variables(target_scope)]
 target_key_direct = {}
 for key, var in zip(target_key_list, target_vars_list):
 	target_key_direct[key] = var
@@ -220,6 +226,8 @@ trg_loss_list, src_loss_list, d_loss_list, g_loss_list trg_trn_auc_list, src_tst
 best_val_auc = -np.inf
 with tf.Session() as sess:
 	tf.global_variables_initializer().run(session=sess)
+	if not src_scratch:
+		source_saver.restore()
 	for iteration in range(nb_steps):
 		indices = np.random.randint(0, Xs_trn.shape[0]-1, batch_size)
 		source_x = Xs_trn[indices,:];target_x = Xt_trn[indices,:]; source_y = ys_trn[indices,:]
