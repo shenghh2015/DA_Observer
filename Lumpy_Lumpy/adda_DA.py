@@ -191,7 +191,7 @@ print(target_vars_list)
 # source loss
 src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = ys, logits = source_logit))
 source_loss = src_clf_param*src_clf_loss
-source_trn_ops = tf.train.AdamOptimizer(lr).minimize(source_loss, var_list = source_vars_list)
+source_trn_ops = tf.train.AdamOptimizer(lr).minimize(source_loss, var_list = tf.trainable_variables('source'))
 
 if dis_cnn > 0:
 	src_logits = discriminator(conv_net_src, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, bn_training = is_training)
@@ -205,10 +205,10 @@ else:
 disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)))
 gen_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.zeros_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.ones_like(trg_logits)))
 
-d_lr = 4e-4
-g_lr = 1e-4
-disc_trn_ops = tf.train.AdamOptimizer(d_lr).minimize(dis_loss, var_list = target_vars_list)
-gen_trn_ops = tf.train.AdamOptimizer(g_lr).minimize(gen_loss, var_list = tf.trainable_variables('discriminator'))
+# d_lr = 4e-4
+# g_lr = 1e-4
+disc_trn_ops = tf.train.AdamOptimizer(d_lr).minimize(dis_loss, var_list = tf.trainable_variables('discriminator'))
+gen_trn_ops = tf.train.AdamOptimizer(g_lr).minimize(gen_loss, var_list = tf.trainable_variables(target_scope))
 # mmd loss
 # sigmas = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 5, 10, 15, 20, 25, 30, 35, 100, 1e3, 1e4, 1e5, 1e6]
 # gaussian_kernel = partial(gaussian_kernel_matrix, sigmas=tf.constant(sigmas))
@@ -219,7 +219,7 @@ gen_trn_ops = tf.train.AdamOptimizer(g_lr).minimize(gen_loss, var_list = tf.trai
 if nb_trg_labels > 0:
 	trg_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = yt1, logits = target_logit_l))
 	target_loss = trg_clf_param*trg_clf_loss
-	target_trn_ops = tf.train.AdamOptimizer(lr).minimize(target_loss, var_list = target_vars_list)
+	target_trn_ops = tf.train.AdamOptimizer(lr).minimize(target_loss, var_list = tf.trainable_variables(target_scope))
 
 trg_loss_list, src_loss_list, d_loss_list, g_loss_list trg_trn_auc_list, src_tst_auc_list, trg_val_auc_list, trg_tst_auc_list =\
 	[], [], [], [], [], [], [], []
