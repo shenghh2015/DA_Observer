@@ -388,5 +388,5 @@ with tf.Session() as sess:
 				np.savetxt(os.path.join(DA_model_folder,'test_best_auc.txt'), [test_target_AUC])
 				print_red('Update best:'+DA_model_folder)
 				# plot the distribution of the features from the source and target domain
-				source_feat = h_src.eval(sess, feed_dict = {xs: Xt_tst, is_training: False}); target_feat = h_trg.eval(sess, feed_dict = {xt: Xt_tst, is_training: False})
-				plot_feature_dist(DA_model_folder+'/feat_{}.png'.format(DA_model_name), np.squeeze(source_feat), np.squeeze(target_feat), yt_test, y_test, ['source', 'target'])
+				source_feat = h_src.eval(session=sess, feed_dict = {xs: Xs_tst, is_training: False}); target_feat = h_trg.eval(session=sess, feed_dict = {xt: Xt_tst, is_training: False})
+				plot_feature_dist(DA_model_folder+'/feat_{}.png'.format(DA_model_name), np.squeeze(source_feat), np.squeeze(target_feat), ys_test, y_test, ['source', 'target'])
