@@ -106,7 +106,10 @@ else:
 print(output_folder)
 source_folder = os.path.join(output_folder,'Lumpy/source')
 target_folder = os.path.join(output_folder,'Lumpy/target')
-source_model_name = 'Lumpy-source-cnn-4-fc-128-lr-0.0001-bz-300-bn-True-T_V_T-100k_100_200-40.0_0.5_10.0-itrs-200000-v2'
+if bn:
+	source_model_name = 'Lumpy-source-cnn-4-fc-128-lr-0.0001-bz-300-bn-True-T_V_T-100k_100_200-40.0_0.5_10.0-itrs-200000-v2'
+else:
+	source_model_name = 'Lumpy-source-cnn-4-fc-128-lr-0.0001-bz-300-bn-False-T_V_T-100k_100_200-40.0_0.5_10.0-itrs-200000'
 source_model_file = os.path.join(source_folder, source_model_name, 'best')
 DA_folder = os.path.join(output_folder, 'Lumpy-Lumpy', source_model_name)
 # load source data
