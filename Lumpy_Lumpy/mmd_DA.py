@@ -164,8 +164,8 @@ conv_net_trg, h_trg, target_logit = conv_classifier(xt, nb_cnn = nb_cnn, fc_laye
 _, _, target_logit_l = conv_classifier(xt1, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = bn, scope_name = target_scope, reuse = True, bn_training = is_training)
 
 
-source_vars_list = tf.trainable_variables('source')
-source_key_list = [v.name[:-2].replace('source', 'base') for v in tf.trainable_variables('source')]
+source_vars_list = tf.global_variables('source')
+source_key_list = [v.name[:-2].replace('source', 'base') for v in tf.global_variables('source')]
 source_key_direct = {}
 for key, var in zip(source_key_list, source_vars_list):
 	source_key_direct[key] = var
@@ -175,8 +175,8 @@ for key, var in zip(source_key_list[:-2], source_vars_list[:-2]):
 source_saver = tf.train.Saver(source_key_direct, max_to_keep=nb_steps)
 pre_trained_saver = tf.train.Saver(source_key_direct_except_last_layer, max_to_keep = nb_steps)
 
-target_vars_list = tf.trainable_variables(target_scope)
-target_key_list = [v.name[:-2].replace(target_scope, 'base') for v in tf.trainable_variables(target_scope)]
+target_vars_list = tf.global_variables(target_scope)
+target_key_list = [v.name[:-2].replace(target_scope, 'base') for v in tf.global_variables(target_scope)]
 target_key_direct = {}
 for key, var in zip(target_key_list, target_vars_list):
 	target_key_direct[key] = var
@@ -186,19 +186,19 @@ print(target_vars_list)
 # source loss
 src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = ys, logits = source_logit))
 source_loss = src_clf_param*src_clf_loss
-source_trn_ops = tf.train.AdamOptimizer(lr).minimize(source_loss, var_list = target_vars_list)
+source_trn_ops = tf.train.AdamOptimizer(lr).minimize(source_loss, var_list = tf.trainable_variables(target_scope))
 
 # mmd loss
 sigmas = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 5, 10, 15, 20, 25, 30, 35, 100, 1e3, 1e4, 1e5, 1e6]
 gaussian_kernel = partial(gaussian_kernel_matrix, sigmas=tf.constant(sigmas))
 loss_value = maximum_mean_discrepancy(h_src, h_trg, kernel=gaussian_kernel)
 mmd_loss = mmd_param*loss_value
-mmd_trn_ops = tf.train.AdamOptimizer(lr).minimize(mmd_loss, var_list = target_vars_list)
+mmd_trn_ops = tf.train.AdamOptimizer(lr).minimize(mmd_loss, var_list = tf.trainable_variables(target_scope))
 
 if nb_trg_labels > 0:
 	trg_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = yt1, logits = target_logit_l))
 	target_loss = trg_clf_param*trg_clf_loss
-	target_trn_ops = tf.train.AdamOptimizer(lr).minimize(target_loss, var_list = target_vars_list)
+	target_trn_ops = tf.train.AdamOptimizer(lr).minimize(target_loss, var_list = tf.trainable_variables(target_scope))
 
 trg_loss_list, src_loss_lis, mmd_loss_list, trg_trn_auc_list, src_tst_auc_list, trg_val_auc_list, trg_tst_auc_list =\
 	[], [], [], [], [], [], []
