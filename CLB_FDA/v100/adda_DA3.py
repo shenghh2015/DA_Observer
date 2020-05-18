@@ -522,6 +522,10 @@ with tf.Session() as sess:
 # 		for _ in range(nd_steps):
 		_, D_loss = sess.run([disc_step, disc_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: True})
 # 		for _ in range(ng_steps):
+		test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst, is_training: False})
+		test_source_stat = np.exp(test_source_logit)
+		test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
+		src_test_list.append(test_source_AUC)
 # 		if nb_trg_labels > 0 and test_source_AUC>0.8:
 		if nb_trg_labels > 0:
 			indices_tl = np.random.randint(0, 2*nb_trg_labels-1, 100)
@@ -531,64 +535,75 @@ with tf.Session() as sess:
 			train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
 		else:
 			_, G_loss, sC_loss = sess.run([gen_step_no_labels, gen_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, is_training: True})
-		if iteration%20 == 0:
-			test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst, is_training: False})
-			test_source_stat = np.exp(test_source_logit)
-			test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
-			src_test_list.append(test_source_AUC)
-			train_source_logit = src_logits.eval(session=sess,feed_dict={xs:batch_s, is_training: False})
-			train_target_logit = trg_logits.eval(session=sess,feed_dict={xt:batch_t, is_training: False})
-			domain_preds = np.concatenate([train_source_logit, train_target_logit], axis = 0) > 0
-			domain_labels = np.concatenate([np.ones(train_source_logit.shape), np.zeros(train_target_logit.shape)])
-			domain_acc = np.sum(domain_preds == domain_labels)/domain_preds.shape[0]
-			dom_acc_list.append(domain_acc)
-			test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst, is_training: False})
-			test_target_stat = np.exp(test_target_logit)
-			test_target_AUC = roc_auc_score(yt_tst, test_target_stat)
-			val_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_val, is_training: False})
-			val_target_stat = np.exp(val_target_logit)
-			val_target_AUC = roc_auc_score(yt_val, val_target_stat)
-			test_auc_list.append(test_target_AUC)
-			val_auc_list.append(val_target_AUC)
-			G_loss_list.append(G_loss)
-			D_loss_list.append(D_loss)
-			sC_loss_list.append(sC_loss)
-			# save results
-			np.savetxt(os.path.join(DA_model_folder,'test_auc.txt'), test_auc_list)
-			np.savetxt(os.path.join(DA_model_folder,'val_auc.txt'), val_auc_list)
-			np.savetxt(os.path.join(DA_model_folder,'dom_acc.txt'), dom_acc_list)
-			np.savetxt(os.path.join(DA_model_folder,'D_loss.txt'),D_loss_list)
-			np.savetxt(os.path.join(DA_model_folder,'G_loss.txt'),G_loss_list)
-			np.savetxt(os.path.join(DA_model_folder,'src_clf_loss.txt'),sC_loss_list)
-			# print and plot results
-			print_block(symbol = '-', nb_sybl = 60)
-			print_yellow(os.path.basename(DA_model_folder))
-			if nb_trg_labels > 0:
-				train_auc_list.append(train_target_AUC)
-				tC_loss_list.append(tC_loss)
-				np.savetxt(os.path.join(DA_model_folder,'train_auc.txt'), train_auc_list)
-				np.savetxt(os.path.join(DA_model_folder,'trg_clf_loss.txt'),tC_loss_list)
-				print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, T-train {2:.4f}, S-test: {3:.4f}; ACC: dom {4:.4f}'.format(test_target_AUC, val_target_AUC, train_target_AUC, test_source_AUC, domain_acc))
-				print_yellow('Loss: D:{0:.4f}, G:{1:.4f}, S:{2:.4f}, T:{3:.4f}, Iter:{4:}'.format(D_loss, G_loss, sC_loss, tC_loss, iteration))
-				plot_LOSS(DA_model_folder+'/loss_{}.png'.format(DA_model_name), G_loss_list, sC_loss_list, tC_loss_list)
-				plot_loss(DA_model_folder, D_loss_list, G_loss_list, DA_model_folder+'/adver_{}.png'.format(DA_model_name))
-				plot_AUCs_DomACC(DA_model_folder+'/AUC_dom_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list, dom_acc_list)
-				plot_src_trg_AUCs(DA_model_folder+'/AUC_src_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list, src_test_list)
-				plot_AUCs(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list)
-			else:
-				print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, S-test: {2:.4f}; ACC: dom {3:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC, domain_acc))
-				print_yellow('Loss: D:{0:.4f}, G:{1:.4f}, S:{2:.4f}, Iter:{3:}'.format(D_loss, G_loss, sC_loss, iteration))
-				plot_loss(DA_model_folder, G_loss_list, sC_loss_list, DA_model_folder+'/loss_{}.png'.format(DA_model_name))
-				plot_loss(DA_model_folder, D_loss_list, G_loss_list, DA_model_folder+'/adver_{}.png'.format(DA_model_name))
-				plot_auc_dom_acc_iterations(test_auc_list, val_auc_list, dom_acc_list, DA_model_folder+'/AUC_dom_{}.png'.format(DA_model_name))
-				plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
-				plot_src_trg_auc_iterations(test_auc_list, val_auc_list, src_test_list, DA_model_folder+'/AUC_src_{}.png'.format(DA_model_name))
-			# save models
-			if iteration%100==0:
-				target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
-			if best_val_auc < val_target_AUC:
-				best_val_auc = val_target_AUC
-				target_saver.save(sess, DA_model_folder+'/target_best')
-				np.savetxt(os.path.join(DA_model_folder,'test_stat.txt'), test_target_stat)
-				np.savetxt(os.path.join(DA_model_folder,'test_best_auc.txt'), [test_target_AUC])
-				print_red('Update best:'+DA_model_folder)
+		#training
+		train_source_logit = src_logits.eval(session=sess,feed_dict={xs:batch_s, is_training: False})
+		train_target_logit = trg_logits.eval(session=sess,feed_dict={xt:batch_t, is_training: False})
+		domain_preds = np.concatenate([train_source_logit, train_target_logit], axis = 0) > 0
+		domain_labels = np.concatenate([np.ones(train_source_logit.shape), np.zeros(train_target_logit.shape)])
+		domain_acc = np.sum(domain_preds == domain_labels)/domain_preds.shape[0]
+		dom_acc_list.append(domain_acc)
+# 		if domain_acc > acc_up:
+# # 			nd_step_used = 1
+# 			ng_step_used = 10
+# 		elif domain_acc < acc_down:
+# 			nd_step_used = 10
+# 		else:
+# 			ng_step_used = 1
+# 			nd_step_used = 1
+# 		elif domain_acc > dAcc2:
+# 			nd_step_used = 0
+# 			ng_step_used = 10
+# 		else:
+# 			nd_step_used = nd_steps
+# 			ng_step_used = ng_steps
+		#testing
+		test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst, is_training: False})
+		test_target_stat = np.exp(test_target_logit)
+		test_target_AUC = roc_auc_score(yt_tst, test_target_stat)
+		val_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_val, is_training: False})
+		val_target_stat = np.exp(val_target_logit)
+		val_target_AUC = roc_auc_score(yt_val, val_target_stat)
+		test_auc_list.append(test_target_AUC)
+		val_auc_list.append(val_target_AUC)
+		G_loss_list.append(G_loss)
+		D_loss_list.append(D_loss)
+		sC_loss_list.append(sC_loss)
+		# save results
+		np.savetxt(os.path.join(DA_model_folder,'test_auc.txt'), test_auc_list)
+		np.savetxt(os.path.join(DA_model_folder,'val_auc.txt'), val_auc_list)
+		np.savetxt(os.path.join(DA_model_folder,'dom_acc.txt'), dom_acc_list)
+		np.savetxt(os.path.join(DA_model_folder,'D_loss.txt'),D_loss_list)
+		np.savetxt(os.path.join(DA_model_folder,'G_loss.txt'),G_loss_list)
+		np.savetxt(os.path.join(DA_model_folder,'src_clf_loss.txt'),sC_loss_list)
+		# print and plot results
+		print_block(symbol = '-', nb_sybl = 60)
+		print_yellow(os.path.basename(DA_model_folder))
+		if nb_trg_labels > 0:
+			train_auc_list.append(train_target_AUC)
+			tC_loss_list.append(tC_loss)
+			np.savetxt(os.path.join(DA_model_folder,'train_auc.txt'), train_auc_list)
+			np.savetxt(os.path.join(DA_model_folder,'trg_clf_loss.txt'),tC_loss_list)
+			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, T-train {2:.4f}, S-test: {3:.4f}; ACC: dom {4:.4f}'.format(test_target_AUC, val_target_AUC, train_target_AUC, test_source_AUC, domain_acc))
+			print_yellow('Loss: D:{0:.4f}, G:{1:.4f}, S:{2:.4f}, T:{3:.4f}, Iter:{4:}'.format(D_loss, G_loss, sC_loss, tC_loss, iteration))
+			plot_LOSS(DA_model_folder+'/loss_{}.png'.format(DA_model_name), G_loss_list, sC_loss_list, tC_loss_list)
+			plot_loss(DA_model_folder, D_loss_list, G_loss_list, DA_model_folder+'/adver_{}.png'.format(DA_model_name))
+			plot_AUCs_DomACC(DA_model_folder+'/AUC_dom_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list, dom_acc_list)
+			plot_src_trg_AUCs(DA_model_folder+'/AUC_src_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list, src_test_list)
+			plot_AUCs(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list)
+		else:
+			print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, S-test: {2:.4f}; ACC: dom {3:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC, domain_acc))
+			print_yellow('Loss: D:{0:.4f}, G:{1:.4f}, S:{2:.4f}, Iter:{3:}'.format(D_loss, G_loss, sC_loss, iteration))
+			plot_loss(DA_model_folder, G_loss_list, sC_loss_list, DA_model_folder+'/loss_{}.png'.format(DA_model_name))
+			plot_loss(DA_model_folder, D_loss_list, G_loss_list, DA_model_folder+'/adver_{}.png'.format(DA_model_name))
+			plot_auc_dom_acc_iterations(test_auc_list, val_auc_list, dom_acc_list, DA_model_folder+'/AUC_dom_{}.png'.format(DA_model_name))
+			plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
+			plot_src_trg_auc_iterations(test_auc_list, val_auc_list, src_test_list, DA_model_folder+'/AUC_src_{}.png'.format(DA_model_name))
+		# save models
+		if iteration%100==0:
+			target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
+		if best_val_auc < val_target_AUC:
+			best_val_auc = val_target_AUC
+			target_saver.save(sess, DA_model_folder+'/target_best')
+			np.savetxt(os.path.join(DA_model_folder,'test_stat.txt'), test_target_stat)
+			np.savetxt(os.path.join(DA_model_folder,'test_best_auc.txt'), [test_target_AUC])
+			print_red('Update best:'+DA_model_folder)
