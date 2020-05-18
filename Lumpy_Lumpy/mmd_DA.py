@@ -15,7 +15,7 @@ from functools import partial
 # user-defined tools
 from load_data import load_Lumpy 
 from models2 import conv_classifier
-from helper_function import generate_folder
+from helper_function import generate_folder, print_green, print_red, print_yellow, print_block
 from helper_function import plot_LOSS, plot_AUC, plot_loss, plot_auc, plot_hist
 
 def str2bool(value):
