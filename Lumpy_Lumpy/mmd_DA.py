@@ -208,28 +208,28 @@ with tf.Session() as sess:
 	for iteration in range(nb_steps):
 		indices = np.random.randint(0, Xs_trn.shape[0]-1, batch_size)
 		# train the source
-		source_x = Xs_trn[indices,:];source_y = ys_trn[indices,:];sess.run(source_trn_ops, feed_dict={xs:source_x, ys: source_y, is_training = True})
+		source_x = Xs_trn[indices,:];source_y = ys_trn[indices,:];sess.run(source_trn_ops, feed_dict={xs:source_x, ys: source_y, is_training: True})
 		# train the feature extractors
-		target_x = Xt_trn[indices,:];sess.run(mmd_trn_ops, feed_dict={xs:source_x, xt:target_x, is_training = True})
+		target_x = Xt_trn[indices,:];sess.run(mmd_trn_ops, feed_dict={xs:source_x, xt:target_x, is_training: True})
 		# train the target
 		if nb_trg_labels > 0:
 			l_indices = np.random.randint(0, Xt_trn_l.shape[0]-1, 50)
-			batch_x = Xt_trn_l[l_indices,:]; batch_y = yt_trn_l[l_indices,:]; sess.run(target_trn_ops, feed_dict={xt1:batch_x, yt1:batch_y, is_training = True})
+			batch_x = Xt_trn_l[l_indices,:]; batch_y = yt_trn_l[l_indices,:]; sess.run(target_trn_ops, feed_dict={xt1:batch_x, yt1:batch_y, is_training: True})
 		if iteration%100 == 0:
-			src_loss = source_loss.eval(session=sess, feed_dict={xs:source_x, ys: source_y, is_training = False})
-			MMD_loss = mmd_loss.eval(session=sess, feed_dict={xs:source_x, xt:target_x, is_training = False})
+			src_loss = source_loss.eval(session=sess, feed_dict={xs:source_x, ys: source_y, is_training: False})
+			MMD_loss = mmd_loss.eval(session=sess, feed_dict={xs:source_x, xt:target_x, is_training: False})
 			if nb_trg_labels > 0:
-				trg_loss = target_loss.eval(session=sess, feed_dict={xt1:batch_x, yt1:batch_y, is_training = False})
-				trg_trn_stat = target_logit_l.eval(session=sess, feed_dict={xt1:batch_x, is_training = False})
+				trg_loss = target_loss.eval(session=sess, feed_dict={xt1:batch_x, yt1:batch_y, is_training: False})
+				trg_trn_stat = target_logit_l.eval(session=sess, feed_dict={xt1:batch_x, is_training: False})
 				trg_trn_auc = roc_auc_score(batch_y, trg_trn_stat)
 				print_yellow('Train with target labels:loss {0:.4f} auc {1:.4f}'.format(trg_loss, trg_trn_auc))
 				trg_loss_list, trg_trn_auc_list = np.append(trg_loss_list, trg_loss), np.append(trg_trn_auc_list, trg_trn_auc)
 				np.savetxt(DA_model_folder+'/target_train_loss.txt',trg_loss_list)
 				np.savetxt(DA_model_folder+'/target_train_auc.txt',trg_trn_auc_list)
-			src_trn_stat = source_logit.eval(session=sess, feed_dict={xs:source_x, is_training = False}); src_trn_auc = roc_auc_score(source_y, src_trn_stat)
-			src_stat = source_logit.eval(session=sess, feed_dict={xs:Xs_tst, is_training = False}); src_auc = roc_auc_score(ys_tst, src_stat)
-			trg_val_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_val, is_training = False}); trg_val_auc = roc_auc_score(yt_val, trg_val_stat)
-			trg_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_tst, is_training = False}); trg_auc = roc_auc_score(yt_tst, trg_stat)
+			src_trn_stat = source_logit.eval(session=sess, feed_dict={xs:source_x, is_training:False}); src_trn_auc = roc_auc_score(source_y, src_trn_stat)
+			src_stat = source_logit.eval(session=sess, feed_dict={xs:Xs_tst, is_training:False}); src_auc = roc_auc_score(ys_tst, src_stat)
+			trg_val_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_val, is_training: False}); trg_val_auc = roc_auc_score(yt_val, trg_val_stat)
+			trg_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_tst, is_training: False}); trg_auc = roc_auc_score(yt_tst, trg_stat)
 			src_loss_list, src_tst_auc_list = np.append(src_loss_lis, src_loss), np.append(src_tst_auc_list, src_auc)
 			mmd_loss_list, trg_val_auc_list, trg_tst_auc_list = np.append(mmd_loss_list, MMD_loss), np.append(trg_val_auc_list, trg_val_auc), np.append(trg_tst_auc_list, trg_auc)
 			np.savetxt(DA_model_folder+'/source_train_loss.txt', src_loss_list);np.savetxt(DA_model_folder+'/source_test_auc.txt', src_tst_auc_list)
