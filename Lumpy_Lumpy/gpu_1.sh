@@ -45,4 +45,4 @@
 # parser.add_argument("--trg_clf_param", type = float, default = 1.0)
 # parser.add_argument("--src_clf_param", type = float, default = 1.0)
 # parser.add_argument("--scratch", type = str2bool, default = True)
-python mmd_DA.py --gpu 1 --shared True --lr 1e-4 --iters 10000 --bz 300 --scratch False
+python mmd_DA.py --gpu 1 --shared True --lr 1e-4 --iters 10000 --bz 300 --scratch False --bn True
