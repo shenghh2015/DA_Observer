@@ -166,9 +166,9 @@ sns.scatterplot(TO_embedded[:,0], TO_embedded[:,1], hue=y_TO_list, legend='full'
 plt.savefig(figure_folder+'/TO.png')
 
 from helper_function import plot_feature_dist, plot_feature_pair_dist
-plot_feature_dist(figure_folder+'/SO.png', SO_features[:400,:], SO_features[400:800,:])
-plot_feature_dist(figure_folder+'/DA.png', DA_features[:400,:], DA_features[400:800,:])
-plot_feature_dist(figure_folder+'/TO.png', target_features[:400,:], TO_features[400:800,:])
+plot_feature_dist(figure_folder+'/SO.png', SO_features, yt_test, 'SO')
+plot_feature_dist(figure_folder+'/DA.png', DA_features, yt_test, 'DA')
+plot_feature_dist(figure_folder+'/TO.png', target_features, yt_test, 'TO')
 
 plot_feature_pair_dist(figure_folder+'/DA_TO.png', DA_features, target_features, yt_test, yt_test, label = ['DA', 'TO'])
 
