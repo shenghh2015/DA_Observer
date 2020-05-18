@@ -17,7 +17,7 @@ from models2 import *
 from helper_function import print_red, print_green, print_yellow, print_block, generate_folder
 from helper_function import plot_src_trg_auc_iterations, plot_auc_dom_acc_iterations, plot_auc_iterations
 from helper_function import maximum_mean_discrepancy, gaussian_kernel_matrix, compute_pairwise_distances
-from helper_function import plot_loss, plot_AUCs_DomACC, plot_src_trg_AUCs, plot_AUCs, plot_LOSS, plot_feature_dist
+from helper_function import plot_loss, plot_AUCs_DomACC, plot_src_trg_AUCs, plot_AUCs, plot_LOSS, plot_feature_dist, plot_feature_pair_dist
 
 from functools import partial
 
