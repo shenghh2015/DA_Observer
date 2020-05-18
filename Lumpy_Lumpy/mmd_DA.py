@@ -14,7 +14,7 @@ from functools import partial
 
 # user-defined tools
 from load_data import load_Lumpy 
-from model import conv_classifier
+from models2 import conv_classifier
 from helper_function import generate_folder
 from helper_function import plot_LOSS, plot_AUC, plot_loss, plot_auc, plot_hist
 
@@ -106,7 +106,7 @@ else:
 print(output_folder)
 source_folder = os.path.join(output_folder,'Lumpy/source')
 target_folder = os.path.join(output_folder,'Lumpy/target')
-source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
+source_model_name = 'Lumpy-source-cnn-4-fc-128-lr-0.0001-bz-300-bn-True-T_V_T-100k_100_200-40.0_0.5_10.0-itrs-200000-v2'
 source_model_file = os.path.join(source_folder, source_model_name, 'source-best')
 DA_folder = os.path.join(output_folder, 'Lumpy-Lumpy', source_model_name)
 # load source data
@@ -126,7 +126,7 @@ yt_trn_l = np.concatenate([yt_trn[0:nb_trg_labels,:],yt_trn[nb_target:nb_target+
 # base_model_folder = os.path.join(DA, source_model_name)
 # generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'Lumpy-mmd-{}-sclf{}-tclf-{}-lr-{}-bz-{}-scr-{}-shared-{}-bn-{}-labels-{}-val-{}-S-{}-{}-{}-T-{}-{}-{}-itrs-{}'\
+DA_model_name = 'Lumpy-mmd-{}-sclf{}-tclf-{}-lr-{}-bz-{}-scr-{}-shared-{}-bn-{}-labels-{}-val-{}-S-{}-{}-{}-T-{}-{}-{}-itrs-{}-v2'\
 				.format(mmd_param,src_clf_param,trg_clf_param,lr,batch_size,source_scratch,shared,bn, nb_trg_labels, valid, s_h, s_blur, s_noise, t_h, t_blur, t_noise, nb_steps)
 DA_model_folder = os.path.join(DA_folder, DA_model_name)
 generate_folder(DA_model_folder)
@@ -150,6 +150,7 @@ xt = tf.placeholder("float", shape=[None, img_size, img_size, 1])
 yt = tf.placeholder("float", shape=[None, 1])
 xt1 = tf.placeholder("float", shape=[None, img_size, img_size, 1])   # input target image with labels
 yt1 = tf.placeholder("float", shape=[None, 1])			  # input target image labels
+is_training = tf.placeholder_with_default(False, (), 'is_training')
 
 if shared:
 	target_scope = 'source'
@@ -158,9 +159,9 @@ else:
 	target_scope = 'target'
 	target_reuse = False
 
-conv_net_src, h_src, source_logit = conv_classifier(xs, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = bn, scope_name = 'source')
-conv_net_trg, h_trg, target_logit = conv_classifier(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = bn, scope_name = target_scope, reuse = target_reuse)
-_, _, target_logit_l = conv_classifier(xt1, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = bn, scope_name = target_scope, reuse = True)
+conv_net_src, h_src, source_logit = conv_classifier(xs, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = bn, scope_name = 'source', bn_training = is_training)
+conv_net_trg, h_trg, target_logit = conv_classifier(xt, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = bn, scope_name = target_scope, reuse = target_reuse, bn_training = is_training)
+_, _, target_logit_l = conv_classifier(xt1, nb_cnn = nb_cnn, fc_layers = [fc_layer,1],  bn = bn, scope_name = target_scope, reuse = True, bn_training = is_training)
 
 
 source_vars_list = tf.trainable_variables('source')
@@ -207,28 +208,28 @@ with tf.Session() as sess:
 	for iteration in range(nb_steps):
 		indices = np.random.randint(0, Xs_trn.shape[0]-1, batch_size)
 		# train the source
-		source_x = Xs_trn[indices,:];source_y = ys_trn[indices,:];sess.run(source_trn_ops, feed_dict={xs:source_x, ys: source_y})
+		source_x = Xs_trn[indices,:];source_y = ys_trn[indices,:];sess.run(source_trn_ops, feed_dict={xs:source_x, ys: source_y, bn_training = True})
 		# train the feature extractors
-		target_x = Xt_trn[indices,:];sess.run(mmd_trn_ops, feed_dict={xs:source_x, xt:target_x})
+		target_x = Xt_trn[indices,:];sess.run(mmd_trn_ops, feed_dict={xs:source_x, xt:target_x, bn_training = True})
 		# train the target
 		if nb_trg_labels > 0:
 			l_indices = np.random.randint(0, Xt_trn_l.shape[0]-1, 50)
-			batch_x = Xt_trn_l[l_indices,:]; batch_y = yt_trn_l[l_indices,:]; sess.run(target_trn_ops, feed_dict={xt1:batch_x, yt1:batch_y})
+			batch_x = Xt_trn_l[l_indices,:]; batch_y = yt_trn_l[l_indices,:]; sess.run(target_trn_ops, feed_dict={xt1:batch_x, yt1:batch_y, bn_training = True})
 		if iteration%100 == 0:
-			src_loss = source_loss.eval(session=sess, feed_dict={xs:source_x, ys: source_y})
-			MMD_loss = mmd_loss.eval(session=sess, feed_dict={xs:source_x, xt:target_x})
+			src_loss = source_loss.eval(session=sess, feed_dict={xs:source_x, ys: source_y, bn_training = False})
+			MMD_loss = mmd_loss.eval(session=sess, feed_dict={xs:source_x, xt:target_x, bn_training = False})
 			if nb_trg_labels > 0:
-				trg_loss = target_loss.eval(session=sess, feed_dict={xt1:batch_x, yt1:batch_y})
-				trg_trn_stat = target_logit_l.eval(session=sess, feed_dict={xt1:batch_x})
+				trg_loss = target_loss.eval(session=sess, feed_dict={xt1:batch_x, yt1:batch_y, bn_training = False})
+				trg_trn_stat = target_logit_l.eval(session=sess, feed_dict={xt1:batch_x, bn_training = False})
 				trg_trn_auc = roc_auc_score(batch_y, trg_trn_stat)
 				print_yellow('Train with target labels:loss {0:.4f} auc {1:.4f}'.format(trg_loss, trg_trn_auc))
 				trg_loss_list, trg_trn_auc_list = np.append(trg_loss_list, trg_loss), np.append(trg_trn_auc_list, trg_trn_auc)
 				np.savetxt(DA_model_folder+'/target_train_loss.txt',trg_loss_list)
 				np.savetxt(DA_model_folder+'/target_train_auc.txt',trg_trn_auc_list)
-			src_trn_stat = source_logit.eval(session=sess, feed_dict={xs:source_x}); src_trn_auc = roc_auc_score(source_y, src_trn_stat)
-			src_stat = source_logit.eval(session=sess, feed_dict={xs:Xs_tst}); src_auc = roc_auc_score(ys_tst, src_stat)
-			trg_val_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_val}); trg_val_auc = roc_auc_score(yt_val, trg_val_stat)
-			trg_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_tst}); trg_auc = roc_auc_score(yt_tst, trg_stat)
+			src_trn_stat = source_logit.eval(session=sess, feed_dict={xs:source_x, bn_training = False}); src_trn_auc = roc_auc_score(source_y, src_trn_stat)
+			src_stat = source_logit.eval(session=sess, feed_dict={xs:Xs_tst, bn_training = False}); src_auc = roc_auc_score(ys_tst, src_stat)
+			trg_val_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_val, bn_training = False}); trg_val_auc = roc_auc_score(yt_val, trg_val_stat)
+			trg_stat = target_logit.eval(session=sess, feed_dict={xt:Xt_tst, bn_training = False}); trg_auc = roc_auc_score(yt_tst, trg_stat)
 			src_loss_list, src_tst_auc_list = np.append(src_loss_lis, src_loss), np.append(src_tst_auc_list, src_auc)
 			mmd_loss_list, trg_val_auc_list, trg_tst_auc_list = np.append(mmd_loss_list, MMD_loss), np.append(trg_val_auc_list, trg_val_auc), np.append(trg_tst_auc_list, trg_auc)
 			np.savetxt(DA_model_folder+'/source_train_loss.txt', src_loss_list);np.savetxt(DA_model_folder+'/source_test_auc.txt', src_tst_auc_list)
