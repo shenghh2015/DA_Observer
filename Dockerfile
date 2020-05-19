@@ -4,7 +4,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-
 
 RUN ln -s /usr/bin/python2.7 /usr/bin/python2
 
-RUN pip install scipy sklearn matplotlib natsort ipython
+RUN pip install scipy sklearn matplotlib natsort ipython seaborn
 
 WORKDIR /data
 
