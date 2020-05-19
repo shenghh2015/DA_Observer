@@ -177,10 +177,6 @@ if shared:
 else:
 	target_scope = 'target'
 	target_reuse = False
-				if iteration%1000 == 0:
-				# plot the distribution of the features from the source and target domain
-				source_feat = h_src.eval(session=sess, feed_dict = {xs: Xs_tst, is_training: False, dis_training: False}); target_feat = h_trg.eval(session=sess, feed_dict = {xt: Xt_tst, is_training: False, dis_training: False})
-				plot_feature_pair_dist(DA_model_folder+'/feat_{}-{}.png'.format(DA_model_name, iteration), np.squeeze(source_feat), np.squeeze(target_feat), ys_tst, yt_tst, ['source', 'target'])
 
 conv_net_src, h_src, source_logit = conv_classifier(xs, nb_cnn = g_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = 'source', bn_training = is_training)
 # flat1 = tf.layers.flatten(conv_net_src)
