@@ -51,6 +51,7 @@ parser.add_argument("--fc_layer", type = int, default = 128)
 parser.add_argument("--den_bn", type = str2bool, default = False)
 parser.add_argument("--clf_v", type = int, default = 1)
 parser.add_argument("--dataset", type = str, default = 'dense')
+parser.add_argument("--drop", type = float, default = 0)
 
 args = parser.parse_args()
 print(args)
@@ -81,6 +82,7 @@ dataset = args.dataset
 g_lr = args.g_lr
 d_lr = args.d_lr
 lsmooth = args.lsmooth
+drop = args.drop
 
 g_cnn = args.g_cnn
 
@@ -149,7 +151,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'ADDA3-{0:}-glr-{1:}-dlr-{2:}-bz-{3:}-iter-{4:}-scr-{5:}-shar-{6:}-dis_fc-{7:}-bn-{8:}-tclf-{9:}-sclf-{10:}-tlabels-{11:}-{12:}-cnn-{13:}-dis_bn-{14:}-gcnn-{15:}-smooth-{16:}-v3'.format(dis_param, g_lr,  d_lr, batch_size, nb_steps, source_scratch, shared, dis_fc, den_bn, trg_clf_param, src_clf_param, nb_trg_labels, dataset, dis_cnn, dis_bn, g_cnn, lsmooth)
+DA_model_name = 'ADDA3-{0:}-glr-{1:}-dlr-{2:}-bz-{3:}-iter-{4:}-scr-{5:}-shar-{6:}-dis_fc-{7:}-bn-{8:}-tclf-{9:}-sclf-{10:}-tlabels-{11:}-{12:}-cnn-{13:}-dis_bn-{14:}-gcnn-{15:}-smooth-{16:}-drop-{17:}-v3'.format(dis_param, g_lr,  d_lr, batch_size, nb_steps, source_scratch, shared, dis_fc, den_bn, trg_clf_param, src_clf_param, nb_trg_labels, dataset, dis_cnn, dis_bn, g_cnn, lsmooth, drop)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -175,6 +177,10 @@ if shared:
 else:
 	target_scope = 'target'
 	target_reuse = False
+				if iteration%1000 == 0:
+				# plot the distribution of the features from the source and target domain
+				source_feat = h_src.eval(session=sess, feed_dict = {xs: Xs_tst, is_training: False, dis_training: False}); target_feat = h_trg.eval(session=sess, feed_dict = {xt: Xt_tst, is_training: False, dis_training: False})
+				plot_feature_pair_dist(DA_model_folder+'/feat_{}-{}.png'.format(DA_model_name, iteration), np.squeeze(source_feat), np.squeeze(target_feat), ys_tst, yt_tst, ['source', 'target'])
 
 conv_net_src, h_src, source_logit = conv_classifier(xs, nb_cnn = g_cnn, fc_layers = [fc_layer,1],  bn = den_bn, scope_name = 'source', bn_training = is_training)
 # flat1 = tf.layers.flatten(conv_net_src)
@@ -214,17 +220,18 @@ src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y
 # 	mmd_loss = dis_param*loss_value
 #     mmd_loss = dis_param*tf.maximum(1e-2, loss_value)
 if dis_cnn > 0:
-	src_logits = discriminator(conv_net_src, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, bn_training = dis_training)
-	trg_logits = discriminator(conv_net_trg, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, reuse = True, bn_training = dis_training)
+	src_logits = discriminator(conv_net_src, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn,  drop = drop, bn_training = dis_training)
+	trg_logits = discriminator(conv_net_trg, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, reuse = True, drop = drop, bn_training = dis_training)
 else:
-	src_logits = discriminator(h_src, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, bn_training = dis_training)
-	trg_logits = discriminator(h_trg, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, reuse = True, bn_training = dis_training)
+	src_logits = discriminator(h_src, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, drop = drop, bn_training = dis_training)
+	trg_logits = discriminator(h_trg, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, reuse = True, drop = drop, bn_training = dis_training)
 
 if lsmooth:
 	disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)-0.1) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)+0.1))
 else:
 	disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)))
 gen_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.zeros_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.ones_like(trg_logits)))
+true_gen_loss = tr.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)))
 total_loss_no_labels = dis_param* gen_loss + src_clf_param*src_clf_loss
 total_loss = total_loss_no_labels
 discr_vars_list = tf.trainable_variables('discriminator')
@@ -323,12 +330,12 @@ with tf.Session() as sess:
 		if nb_trg_labels > 0:
 			indices_tl = np.random.randint(0, 2*nb_trg_labels-1, 100)
 			batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
-			_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, gen_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l, is_training: True, dis_training: False})
+			_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, true_gen_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l, is_training: True, dis_training: False})
 			train_target_stat = np.exp(trg_digit)
 			train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
 		else:
 			_, G_loss, sC_loss = sess.run([gen_step_no_labels, gen_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, is_training: True, dis_training: False})
-		if iteration%20 == 0:
+		if iteration%40 == 0:
 			test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst, is_training: False, dis_training: False})
 			test_source_stat = np.exp(test_source_logit)
 			test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
@@ -389,6 +396,7 @@ with tf.Session() as sess:
 				np.savetxt(os.path.join(DA_model_folder,'test_stat.txt'), test_target_stat)
 				np.savetxt(os.path.join(DA_model_folder,'test_best_auc.txt'), [test_target_AUC])
 				print_red('Update best:'+DA_model_folder)
+			if iteration%10000 == 0:
 				# plot the distribution of the features from the source and target domain
 				source_feat = h_src.eval(session=sess, feed_dict = {xs: Xs_tst, is_training: False, dis_training: False}); target_feat = h_trg.eval(session=sess, feed_dict = {xt: Xt_tst, is_training: False, dis_training: False})
-				plot_feature_pair_dist(DA_model_folder+'/feat_{}-{}.png'.format(DA_model_name, iteration), np.squeeze(source_feat), np.squeeze(target_feat), ys_tst, yt_tst, ['source', 'target'])
+				plot_feature_pair_dist(DA_model_folder+'/feat_{}.png'.format(DA_model_name), np.squeeze(source_feat), np.squeeze(target_feat), ys_tst, yt_tst, ['source', 'target'])
