@@ -167,6 +167,7 @@ yt = tf.placeholder("float", shape=[None, 1])
 xt1 = tf.placeholder("float", shape=[None, 109,109, 1])   # input target image with labels
 yt1 = tf.placeholder("float", shape=[None, 1])			  # input target image labels
 is_training = tf.placeholder_with_default(False, (), 'is_training')
+dis_training = tf.placeholder_with_default(False, (), 'dis_training')
 
 if shared:
 	target_scope = 'source'
@@ -213,11 +214,11 @@ src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y
 # 	mmd_loss = dis_param*loss_value
 #     mmd_loss = dis_param*tf.maximum(1e-2, loss_value)
 if dis_cnn > 0:
-	src_logits = discriminator(conv_net_src, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, bn_training = is_training)
-	trg_logits = discriminator(conv_net_trg, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, reuse = True, bn_training = is_training)
+	src_logits = discriminator(conv_net_src, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, bn_training = dis_training)
+	trg_logits = discriminator(conv_net_trg, nb_cnn = dis_cnn, fc_layers = [128, 1], bn = dis_bn, reuse = True, bn_training = dis_training)
 else:
-	src_logits = discriminator(h_src, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, bn_training = is_training)
-	trg_logits = discriminator(h_trg, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, reuse = True, bn_training = is_training)
+	src_logits = discriminator(h_src, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, bn_training = dis_training)
+	trg_logits = discriminator(h_trg, nb_cnn = 0, fc_layers = [dis_fc, 1], bn = dis_bn, reuse = True, bn_training = dis_training)
 
 if lsmooth:
 	disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)-0.1) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)+0.1))
@@ -316,32 +317,32 @@ with tf.Session() as sess:
 		indices_t = np.random.randint(0, Xt_trn.shape[0]-1, batch_size)
 		batch_t = Xt_trn[indices_t,:]
 # 		for _ in range(nd_steps):
-		_, D_loss = sess.run([disc_step, disc_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: True})
+		_, D_loss = sess.run([disc_step, disc_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
 # 		for _ in range(ng_steps):
 # 		if nb_trg_labels > 0 and test_source_AUC>0.8:
 		if nb_trg_labels > 0:
 			indices_tl = np.random.randint(0, 2*nb_trg_labels-1, 100)
 			batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
-			_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, gen_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l, is_training: True})
+			_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, gen_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l, is_training: True, dis_training: False})
 			train_target_stat = np.exp(trg_digit)
 			train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
 		else:
-			_, G_loss, sC_loss = sess.run([gen_step_no_labels, gen_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, is_training: True})
+			_, G_loss, sC_loss = sess.run([gen_step_no_labels, gen_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, is_training: True, dis_training: False})
 		if iteration%20 == 0:
-			test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst, is_training: False})
+			test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst, is_training: False, dis_training: False})
 			test_source_stat = np.exp(test_source_logit)
 			test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
 			src_test_list.append(test_source_AUC)
-			train_source_logit = src_logits.eval(session=sess,feed_dict={xs:batch_s, is_training: False})
-			train_target_logit = trg_logits.eval(session=sess,feed_dict={xt:batch_t, is_training: False})
+			train_source_logit = src_logits.eval(session=sess,feed_dict={xs:batch_s, is_training: False, dis_training: False})
+			train_target_logit = trg_logits.eval(session=sess,feed_dict={xt:batch_t, is_training: False, dis_training: False})
 			domain_preds = np.concatenate([train_source_logit, train_target_logit], axis = 0) > 0
 			domain_labels = np.concatenate([np.ones(train_source_logit.shape), np.zeros(train_target_logit.shape)])
 			domain_acc = np.sum(domain_preds == domain_labels)/domain_preds.shape[0]
 			dom_acc_list.append(domain_acc)
-			test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst, is_training: False})
+			test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst, is_training: False, dis_training: False})
 			test_target_stat = np.exp(test_target_logit)
 			test_target_AUC = roc_auc_score(yt_tst, test_target_stat)
-			val_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_val, is_training: False})
+			val_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_val, is_training: False, dis_training: False})
 			val_target_stat = np.exp(val_target_logit)
 			val_target_AUC = roc_auc_score(yt_val, val_target_stat)
 			test_auc_list.append(test_target_AUC)
@@ -389,5 +390,5 @@ with tf.Session() as sess:
 				np.savetxt(os.path.join(DA_model_folder,'test_best_auc.txt'), [test_target_AUC])
 				print_red('Update best:'+DA_model_folder)
 				# plot the distribution of the features from the source and target domain
-				source_feat = h_src.eval(session=sess, feed_dict = {xs: Xs_tst, is_training: False}); target_feat = h_trg.eval(session=sess, feed_dict = {xt: Xt_tst, is_training: False})
+				source_feat = h_src.eval(session=sess, feed_dict = {xs: Xs_tst, is_training: False, dis_training: False}); target_feat = h_trg.eval(session=sess, feed_dict = {xt: Xt_tst, is_training: False, dis_training: False})
 				plot_feature_pair_dist(DA_model_folder+'/feat_{}-{}.png'.format(DA_model_name, iteration), np.squeeze(source_feat), np.squeeze(target_feat), ys_tst, yt_tst, ['source', 'target'])
