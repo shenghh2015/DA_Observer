@@ -227,7 +227,7 @@ if lsmooth:
 else:
 	disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)))
 gen_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.zeros_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.ones_like(trg_logits)))
-true_gen_loss = tr.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)))
+
 total_loss_no_labels = dis_param* gen_loss + src_clf_param*src_clf_loss
 total_loss = total_loss_no_labels
 discr_vars_list = tf.trainable_variables('discriminator')
@@ -326,7 +326,7 @@ with tf.Session() as sess:
 		if nb_trg_labels > 0:
 			indices_tl = np.random.randint(0, 2*nb_trg_labels-1, 100)
 			batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
-			_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, true_gen_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l, is_training: True, dis_training: False})
+			_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, disc_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l, is_training: True, dis_training: False})
 			train_target_stat = np.exp(trg_digit)
 			train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
 		else:
