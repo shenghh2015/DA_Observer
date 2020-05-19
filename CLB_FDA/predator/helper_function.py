@@ -227,7 +227,8 @@ def plot_feature_dist(file_name, feat, y, method_label):
 	palette = sns.color_palette("bright", 2)
 	sns.scatterplot(embedded[:,0], embedded[:,1], hue=y_list, legend='full', palette=palette)
 	plt.savefig(file_name, dpi=100)
-	
+	plt.close('all')
+
 def plot_feature_pair_dist(file_name, source_feat, target_feat, source_y, target_y, label = ['source', 'target']):
 	import matplotlib.pyplot as plt
 	fig_size = (8,6)
@@ -253,7 +254,7 @@ def plot_feature_pair_dist(file_name, source_feat, target_feat, source_y, target
 	palette = sns.color_palette("dark", 2)
 	sns.scatterplot(target_embedded[:,0], target_embedded[:,1], hue=target_y_list, legend='brief', palette=palette, marker = 'X')
 	plt.savefig(file_name, dpi=100)
-	
+	plt.close('all')
 	
 	
 	
