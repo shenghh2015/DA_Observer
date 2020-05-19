@@ -15,7 +15,7 @@ from load_data import *
 # from model import *
 from models2 import *
 from helper_function import print_red, print_green, print_yellow, print_block, generate_folder
-from helper_function import plot_src_trg_auc_iterations, plot_auc_dom_acc_iterations, plot_auc_iterations
+from helper_function import plot_src_trg_auc_iterations, plot_auc_dom_acc_iterations, plot_auc_iterations, plot_gradients
 from helper_function import maximum_mean_discrepancy, gaussian_kernel_matrix, compute_pairwise_distances
 from helper_function import plot_loss, plot_AUCs_DomACC, plot_src_trg_AUCs, plot_AUCs, plot_LOSS, plot_feature_dist, plot_feature_pair_dist
 
@@ -151,7 +151,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'ADDA3-{0:}-glr-{1:}-dlr-{2:}-bz-{3:}-iter-{4:}-scr-{5:}-shar-{6:}-dis_fc-{7:}-bn-{8:}-tclf-{9:}-sclf-{10:}-tlabels-{11:}-{12:}-cnn-{13:}-dis_bn-{14:}-gcnn-{15:}-smooth-{16:}-drop-{17:}-v3'.format(dis_param, g_lr,  d_lr, batch_size, nb_steps, source_scratch, shared, dis_fc, den_bn, trg_clf_param, src_clf_param, nb_trg_labels, dataset, dis_cnn, dis_bn, g_cnn, lsmooth, drop)
+DA_model_name = 'ADDA3-{0:}-glr-{1:}-dlr-{2:}-bz-{3:}-iter-{4:}-scr-{5:}-shar-{6:}-dis_fc-{7:}-bn-{8:}-tclf-{9:}-sclf-{10:}-tlabels-{11:}-{12:}-cnn-{13:}-dis_bn-{14:}-gcnn-{15:}-smooth-{16:}-drop-{17:}-v4'.format(dis_param, g_lr,  d_lr, batch_size, nb_steps, source_scratch, shared, dis_fc, den_bn, trg_clf_param, src_clf_param, nb_trg_labels, dataset, dis_cnn, dis_bn, g_cnn, lsmooth, drop)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -237,10 +237,15 @@ discr_vars_list = tf.trainable_variables('discriminator')
 if nb_trg_labels > 0:
 	trg_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = yt1, logits = target_logit_l))
 	total_loss = total_loss + trg_clf_param*trg_clf_loss
-
+	trg_clf_step = tf.train.AdamOptimizer(lr).minimize(trg_clf_loss, var_list=tf.trainable_variables(target_scope))
 disc_step = tf.train.AdamOptimizer(d_lr).minimize(disc_loss, var_list=discr_vars_list)
-gen_step = tf.train.AdamOptimizer(g_lr).minimize(total_loss, var_list=tf.trainable_variables(target_scope))
+gen_step = tf.train.AdamOptimizer(g_lr).minimize(gen_loss, var_list=tf.trainable_variables(target_scope))
+src_clf_step = tf.train.AdamOptimizer(lr).minimize(src_clf_loss, var_list=tf.trainable_variables('source'))
 gen_step_no_labels = tf.train.AdamOptimizer(g_lr).minimize(total_loss_no_labels, var_list=tf.trainable_variables(target_scope))
+
+## compute the gradients
+dis_gradients = tf.gradients(disc_loss, discr_vars_list)
+gen_gradients = tf.gradients(gen_loss, tf.trainable_variables(target_scope)[:-2])
 
 # if not shared:
 # 	# weight loss
@@ -279,6 +284,9 @@ src_test_list =[]
 best_val_auc = 0
 train_target_AUC = 0.5
 tC_loss = 1.4
+
+# gradients
+D_grad_list1, D_grad_list2, G_grad_list1, G_grad_list2 = [], [], [], []
 
 ## model loading verification
 # with tf.Session() as sess:
@@ -320,18 +328,22 @@ with tf.Session() as sess:
 		indices_t = np.random.randint(0, Xt_trn.shape[0]-1, batch_size)
 		batch_t = Xt_trn[indices_t,:]
 # 		for _ in range(nd_steps):
-		_, D_loss = sess.run([disc_step, disc_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
+		_, D_loss, D_grads = sess.run([disc_step, disc_loss, dis_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
+		_, G_loss, G_grads = sess.run([gen_step, gen_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
+		_, sC_loss = sess.run([src_clf_step, src_clf_loss], feed_dict={xs: batch_s, ys: batch_ys, is_training: True, dis_training: False})
+# 		print('loss: G {0:.4f} D {1:.4f} S {2:.4f}'.format(G_loss, D_loss, sC_loss))
 # 		for _ in range(ng_steps):
 # 		if nb_trg_labels > 0 and test_source_AUC>0.8:
 		if nb_trg_labels > 0:
 			indices_tl = np.random.randint(0, 2*nb_trg_labels-1, 100)
 			batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
-			_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, disc_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l, is_training: True, dis_training: False})
+# 			_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, gen_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l, is_training: True, dis_training: False})
+			_, tC_loss, trg_digit = sess.run([trg_clf_step, trg_clf_loss, target_logit_l], feed_dict={xt1:batch_xt_l, yt1:batch_yt_l, is_training: True, dis_training: False})
 			train_target_stat = np.exp(trg_digit)
 			train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
-		else:
-			_, G_loss, sC_loss = sess.run([gen_step_no_labels, gen_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, is_training: True, dis_training: False})
-		if iteration%40 == 0:
+	#	else:
+	#		_, G_loss, sC_loss = sess.run([gen_step_no_labels, gen_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, is_training: True, dis_training: False})
+		if iteration%4 == 0:
 			test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst, is_training: False, dis_training: False})
 			test_source_stat = np.exp(test_source_logit)
 			test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
@@ -383,6 +395,10 @@ with tf.Session() as sess:
 				plot_auc_dom_acc_iterations(test_auc_list, val_auc_list, dom_acc_list, DA_model_folder+'/AUC_dom_{}.png'.format(DA_model_name))
 				plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
 				plot_src_trg_auc_iterations(test_auc_list, val_auc_list, src_test_list, DA_model_folder+'/AUC_src_{}.png'.format(DA_model_name))
+			D_grad_list1.append(np.mean(np.square(D_grads[-1]))); D_grad_list2.append(np.mean(np.square(D_grads[0])))
+			G_grad_list1.append(np.mean(np.square(G_grads[-1]))); G_grad_list2.append(np.mean(np.square(G_grads[0])))
+			print_yellow('grad: G_1 {0:.7f} G_2 {1:.7f} D_1 {2:.7f} D_2 {3:.7f}'.format(np.mean(np.square(D_grads[-1])), np.mean(np.square(D_grads[0])), np.mean(np.square(G_grads[-1])), np.mean(np.square(G_grads[0]))))
+			plot_gradients(DA_model_folder + '/grad-{}.png'.format(DA_model_name), D_grad_list1, D_grad_list2, G_grad_list1, G_grad_list2)
 			# save models
 			if iteration%100==0:
 				target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)

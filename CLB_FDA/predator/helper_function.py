@@ -154,6 +154,29 @@ def plot_auc_iterations(target_auc_list, val_auc_list, target_file_name):
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
 
+def plot_gradients(file_name, dis_grad_list1, dis_grad_list2, gen_grad_list1, gen_grad_list2):
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (10,9)
+	fig = Figure(figsize=fig_size)
+	file_name = target_file_name
+	ax = fig.add_subplot(441)
+	ax.plot(dis_grad_list1)
+	ax = fig.add_subplot(442)
+	ax.plot(dis_grad_list2)
+	ax = fig.add_subplot(443)
+	ax.plot(gen_grad_list1)
+	ax = fig.add_subplot(444)
+	ax.plot(gen_grad_list2)
+# 	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('AUC')
+	ax.legend(['Test','Val'])
+	ax.set_xlim([0,len(target_auc_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
 def plot_auc_dom_acc_iterations(target_auc_list, val_auc_list, dom_acc_list, target_file_name):
 	import matplotlib.pyplot as plt
 	from matplotlib.backends.backend_agg import FigureCanvasAgg
