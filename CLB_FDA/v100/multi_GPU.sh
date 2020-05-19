@@ -374,7 +374,11 @@
 # python TF.py --gpu 1 --docker False --lr 1e-6 --iters 100000 --bz 100 --nb_trg_labels 1000 --clf_v 1 --dataset total --valid 100
 
 ## May 19, 2020
-JOB: python adda_DA3.py --gpu 0 --docker True --dis_cnn 0 --g_cnn 6 --g_lr 1e-5 --d_lr 4e-5 --lsmooth False --dis_bn True --den_bn True --iters 400000 --bz 200 --dis_param 1.0 --trg_clf_param 0 --src_clf_param 1.0 --nb_trg_labels 0 --dataset total
+JOB: python adda_DA3.py --gpu 0 --docker True --dis_cnn 0 --g_cnn 6 --g_lr 1e-5 --d_lr 2e-5 --lr 1e-5 --lsmooth False --dis_bn True --den_bn True --iters 400000 --bz 200 --dis_param 1.0 --trg_clf_param 0 --src_clf_param 1.0 --nb_trg_labels 0 --dataset total
+JOB: python adda_DA3.py --gpu 1 --docker True --dis_cnn 0 --g_cnn 6 --g_lr 1e-5 --d_lr 2e-5 --lr 1e-5 --lsmooth False --dis_bn True --den_bn True --iters 400000 --bz 200 --dis_param 1.0 --trg_clf_param 0 --src_clf_param 1.0 --nb_trg_labels 0 --dataset total
+JOB: python adda_DA3.py --gpu 2 --docker True --dis_cnn 0 --g_cnn 6 --g_lr 1e-5 --d_lr 2e-5 --lr 1e-5 --lsmooth False --dis_bn True --den_bn True --iters 400000 --bz 200 --dis_param 1.0 --trg_clf_param 0 --src_clf_param 1.0 --nb_trg_labels 0 --dataset total
+JOB: python adda_DA3.py --gpu 3 --docker True --dis_cnn 0 --g_cnn 6 --g_lr 1e-5 --d_lr 2e-5 --lr 1e-5 --lsmooth False --dis_bn True --den_bn True --iters 400000 --bz 200 --dis_param 1.0 --trg_clf_param 0 --src_clf_param 1.0 --nb_trg_labels 0 --dataset total
+
 
 
 

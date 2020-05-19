@@ -29,4 +29,4 @@
 
 # python adda_DA2.py --gpu 2 --docker True --dis_cnn 2 --g_cnn 6 --g_lr 1e-5 --d_lr 4e-5 --lsmooth True --dis_bn False --iters 100000 --bz 300 --dis_param 1.0 --trg_clf_param 0 --src_clf_param 5.0 --nb_trg_labels 0 --dataset total
 
-python adda_DA3.py --gpu 2 --docker True --dis_cnn 0 --dis_fc 256 --g_cnn 6 --g_lr 1e-5 --d_lr 4e-5 --lsmooth False --dis_bn True --den_bn True --iters 100000 --bz 200 --dis_param 1.0 --trg_clf_param 0 --src_clf_param 1.0 --nb_trg_labels 0 --dataset total
+python adda_DA3.py --gpu 2 --docker True --dis_cnn 0 --dis_fc 256 --g_cnn 6 --g_lr 1e-5 --d_lr 4e-5 --lsmooth False --dis_bn True --den_bn True --iters 400000 --bz 200 --dis_param 1.0 --trg_clf_param 0 --src_clf_param 1.0 --nb_trg_labels 0 --dataset total
