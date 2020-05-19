@@ -392,6 +392,6 @@ with tf.Session() as sess:
 				np.savetxt(os.path.join(DA_model_folder,'test_stat.txt'), test_target_stat)
 				np.savetxt(os.path.join(DA_model_folder,'test_best_auc.txt'), [test_target_AUC])
 				print_red('Update best:'+DA_model_folder)
-			if iteration%10000 == 9999:
+			if iteration%10000 == 0:
 				source_feat = h_src.eval(session=sess, feed_dict = {xs: Xs_tst, is_training: False, dis_training: False}); target_feat = h_trg.eval(session=sess, feed_dict = {xt: Xt_tst, is_training: False, dis_training: False})
 				plot_feature_pair_dist(DA_model_folder+'/feat_{}.png'.format(DA_model_name), np.squeeze(source_feat), np.squeeze(target_feat), ys_tst, yt_tst, ['source', 'target'])
