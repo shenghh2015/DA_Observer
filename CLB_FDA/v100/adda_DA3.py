@@ -151,7 +151,7 @@ generate_folder(DA)
 base_model_folder = os.path.join(DA, source_model_name)
 generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'ADDA3-{0:}-glr-{1:}-dlr-{2:}-bz-{3:}-iter-{4:}-scr-{5:}-shar-{6:}-dis_fc-{7:}-bn-{8:}-tclf-{9:}-sclf-{10:}-tlabels-{11:}-{12:}-cnn-{13:}-dis_bn-{14:}-gcnn-{15:}-smooth-{16:}-drop-{17:}-v4'.format(dis_param, g_lr,  d_lr, batch_size, nb_steps, source_scratch, shared, dis_fc, den_bn, trg_clf_param, src_clf_param, nb_trg_labels, dataset, dis_cnn, dis_bn, g_cnn, lsmooth, drop)
+DA_model_name = 'ADDA3-{0:}-glr-{1:}-dlr-{2:}-bz-{3:}-iter-{4:}-scr-{5:}-shar-{6:}-dis_fc-{7:}-bn-{8:}-tclf-{9:}-sclf-{10:}-tlabels-{11:}-{12:}-cnn-{13:}-dis_bn-{14:}-gcnn-{15:}-smooth-{16:}-drop-{17:}-v5'.format(dis_param, g_lr,  d_lr, batch_size, nb_steps, source_scratch, shared, dis_fc, den_bn, trg_clf_param, src_clf_param, nb_trg_labels, dataset, dis_cnn, dis_bn, g_cnn, lsmooth, drop)
 DA_model_folder = os.path.join(base_model_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
@@ -331,7 +331,7 @@ with tf.Session() as sess:
 		batch_t = Xt_trn[indices_t,:]
 # 		for _ in range(nd_steps):
 		_, D_loss, D_grads = sess.run([disc_step, disc_loss, dis_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
-		_, G_loss, G_grads = sess.run([gen_step, gen_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
+		_, G_loss, G_grads = sess.run([gen_step, disc_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		_, sC_loss = sess.run([src_clf_step, src_clf_loss], feed_dict={xs: batch_s, ys: batch_ys, is_training: True, dis_training: False})
 # 		print('loss: G {0:.4f} D {1:.4f} S {2:.4f}'.format(G_loss, D_loss, sC_loss))
 # 		for _ in range(ng_steps):
@@ -400,7 +400,7 @@ with tf.Session() as sess:
 			D_grad_list1.append(np.mean(np.square(D_grads[-1]))); D_grad_list2.append(np.mean(np.square(D_grads[0])))
 			G_grad_list1.append(np.mean(np.square(G_grads[-1]))); G_grad_list2.append(np.mean(np.square(G_grads[0])))
 			print_yellow('grad: G_1 {0:.7f} G_2 {1:.7f} D_1 {2:.7f} D_2 {3:.7f}'.format(np.mean(np.square(D_grads[-1])), np.mean(np.square(D_grads[0])), np.mean(np.square(G_grads[-1])), np.mean(np.square(G_grads[0]))))
-			plot_gradients(DA_model_folder + '/grad-{}.png'.format(DA_model_name), D_grad_list1, D_grad_list2, G_grad_list1, G_grad_list2)
+			plot_gradients(DA_model_folder + '/grad-{}.png'.format(DA_model_name), D_grad_list1, D_grad_list2, G_grad_list1, G_grad_list2, fig_size = (10,10))
 			# save models
 			if iteration%100==0:
 				target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
