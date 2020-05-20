@@ -243,10 +243,12 @@ gen_step = tf.train.AdamOptimizer(g_lr).minimize(gen_loss, var_list=tf.trainable
 src_clf_step = tf.train.AdamOptimizer(lr).minimize(src_clf_loss, var_list=tf.trainable_variables('source'))
 gen_step_no_labels = tf.train.AdamOptimizer(g_lr).minimize(total_loss_no_labels, var_list=tf.trainable_variables(target_scope))
 
+# tf.keras.backend.clear_session()
 ## compute the gradients
 dis_gradients = tf.gradients(disc_loss, discr_vars_list)
+dis_gradients = list(filter(None.__ne__, dis_gradients))
 gen_gradients = tf.gradients(gen_loss, tf.trainable_variables(target_scope)[:-2])
-
+gen_gradients = list(filter(None.__ne__, gen_gradients))
 # if not shared:
 # 	# weight loss
 # 	a_list = []
@@ -343,7 +345,7 @@ with tf.Session() as sess:
 			train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
 	#	else:
 	#		_, G_loss, sC_loss = sess.run([gen_step_no_labels, gen_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, is_training: True, dis_training: False})
-		if iteration%4 == 0:
+		if iteration%40 == 0:
 			test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst, is_training: False, dis_training: False})
 			test_source_stat = np.exp(test_source_logit)
 			test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
