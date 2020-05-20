@@ -154,10 +154,10 @@ def plot_auc_iterations(target_auc_list, val_auc_list, target_file_name):
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
 
-def plot_gradients(file_name, dis_grad_list1, dis_grad_list2, gen_grad_list1, gen_grad_list2):
+def plot_gradients(file_name, dis_grad_list1, dis_grad_list2, gen_grad_list1, gen_grad_list2, fig_size):
 	from matplotlib.backends.backend_agg import FigureCanvasAgg
 	from matplotlib.figure import Figure
-	fig_size = (10,9)
+# 	fig_size = (10,9)
 	fig = Figure(figsize=fig_size)
 	ax = fig.add_subplot(221)
 	ax.plot(dis_grad_list1)
