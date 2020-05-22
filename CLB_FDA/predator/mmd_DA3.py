@@ -87,14 +87,14 @@ trg_clf_param = args.trg_clf_param
 src_clf_param = args.src_clf_param
 # clf_v = args.clf_v
 # dataset = args.dataset
-s_h =args.s_h
-s_blur = args.s_blur
-s_noise = args.s_noise
-t_h = args.t_h
-t_blur = args.t_blur
-t_noise = args.t_noise
+# s_h =args.s_h
+# s_blur = args.s_blur
+# s_noise = args.s_noise
+# t_h = args.t_h
+# t_blur = args.t_blur
+# t_noise = args.t_noise
 valid = args.valid
-test = args.test
+# test = args.test
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
 
