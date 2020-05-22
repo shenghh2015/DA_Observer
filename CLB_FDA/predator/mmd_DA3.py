@@ -59,16 +59,24 @@ parser.add_argument("--nb_target", type = int, default = 100000)
 parser.add_argument("--nb_trg_labels", type = int, default = 0)
 parser.add_argument("--fc_layer", type = int, default = 128)
 parser.add_argument("--bn", type = str2bool, default = False)
-parser.add_argument("--s_h", type = float, default = 40)
-parser.add_argument("--s_blur", type = float, default = 0.5)
-parser.add_argument("--s_noise", type = float, default = 10)
-parser.add_argument("--t_h", type = float, default = 50)
-parser.add_argument("--t_blur", type = float, default = 4.0)
-parser.add_argument("--t_noise", type = float, default = 10)
-# parser.add_argument("--clf_v", type = int, default = 1)
-# parser.add_argument("--dataset", type = str, default = 'total')
+# parser.add_argument("--s_h", type = float, default = 40)
+# parser.add_argument("--s_blur", type = float, default = 0.5)
+# parser.add_argument("--s_noise", type = float, default = 10)
+# parser.add_argument("--t_h", type = float, default = 50)
+# parser.add_argument("--t_blur", type = float, default = 4.0)
+# parser.add_argument("--t_noise", type = float, default = 10)
+parser.add_argument("--clf_v", type = int, default = 1)
+parser.add_argument("--dataset", type = str, default = 'total')
 parser.add_argument("--valid", type = int, default = 100)
 parser.add_argument("--test", type = int, default = 200)
+
+parser.add_argument("--source_scratch", type = str2bool, default = True)
+parser.add_argument("--nb_trg_labels", type = int, default = 0)
+parser.add_argument("--fc_layer", type = int, default = 128)
+parser.add_argument("--den_bn", type = str2bool, default = False)
+parser.add_argument("--clf_v", type = int, default = 1)
+parser.add_argument("--dataset", type = str, default = 'total')
+parser.add_argument("--valid", type = int, default = 400)
 
 args = parser.parse_args()
 print(args)
@@ -107,12 +115,12 @@ print(output_folder)
 source_folder = os.path.join(output_folder,'CLB')
 target_folder = os.path.join(output_folder,'FDA')
 if bn:
-	source_model_name = 'Lumpy-source-cnn-4-fc-128-lr-0.0001-bz-300-bn-True-T_V_T-100k_100_200-40.0_0.5_10.0-itrs-200000-v2'
+	source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-300-lr-1e-05-Adam-stp-100.0k-clf_v1'
 else:
-	source_model_name = 'Lumpy-source-cnn-4-fc-128-lr-0.0001-bz-300-bn-False-T_V_T-100k_100_200-40.0_0.5_10.0-itrs-200000'
+	source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-300-lr-1e-05-Adam-stp-100.0k-clf_v1'
 
-source_model_file = os.path.join(source_folder, source_model_name, 'best')
-DA_folder = os.path.join(output_folder, 'Lumpy-Lumpy', source_model_name)
+source_model_file = os.path.join(source_folder, source_model_name, 'source-best')
+DA_folder = os.path.join(output_folder, 'CLB-FDA', source_model_name)
 # load source data
 nb_source = 100000
 nb_target = 100000
@@ -154,7 +162,7 @@ yt_trn_l = np.concatenate([yt_trn[0:nb_trg_labels,:],yt_trn[nb_target:nb_target+
 # base_model_folder = os.path.join(DA, source_model_name)
 # generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'Lumpy-mmd-{}-sclf{}-tclf-{}-lr-{}-bz-{}-scr-{}-shared-{}-bn-{}-labels-{}-val-{}-S-{}-{}-{}-T-{}-{}-{}-itrs-{}-v3'\
+DA_model_name = 'CLB-mmd-{}-sclf{}-tclf-{}-lr-{}-bz-{}-scr-{}-shared-{}-bn-{}-labels-{}-val-{}-S-{}-{}-{}-T-{}-{}-{}-itrs-{}-v3'\
 				.format(mmd_param,src_clf_param,trg_clf_param,lr,batch_size,source_scratch,shared,bn, nb_trg_labels, valid, s_h, s_blur, s_noise, t_h, t_blur, t_noise, nb_steps)
 DA_model_folder = os.path.join(DA_folder, DA_model_name)
 generate_folder(DA_model_folder)
@@ -169,7 +177,7 @@ for i in range(len(source_splits)):
 # 	if source_splits[i] == 'bn':
 # 		bn = str2bool(source_splits[i])
 
-nb_cnn = 4
+# nb_cnn = 4
 # bn = False
 img_size = 109
 xs = tf.placeholder("float", shape=[None, img_size, img_size, 1])
@@ -280,3 +288,6 @@ with tf.Session() as sess:
 				np.savetxt(DA_model_folder+'/best_stat.txt', trg_stat)
 				target_saver.save(sess, DA_model_folder +'/best')
 				plot_hist(DA_model_folder + '/hist_{}.png'.format(DA_model_name), trg_stat[:int(len(trg_stat)/2)], trg_stat[int(len(trg_stat)/2):])
+			if iteration%10000 == 0:
+				source_feat = h_src.eval(session=sess, feed_dict = {xs: Xs_tst, is_training: False}); target_feat = h_trg.eval(session=sess, feed_dict = {xt: Xt_tst, is_training: False})
+				plot_feature_pair_dist(DA_model_folder+'/feat_{}.png'.format(DA_model_name), np.squeeze(source_feat), np.squeeze(target_feat), ys_tst, yt_tst, ['source', 'target'])
