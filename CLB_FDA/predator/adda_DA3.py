@@ -112,7 +112,12 @@ noise = 2.0
 sig_rate = 0.035
 # source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-4.0k'
 # source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
-source_model_name = 'cnn-6-bn-True-noise-2.0-trn-100000-sig-0.035-bz-300-lr-1e-05-Adam-stp-100.0k-clf_v1'
+# source_model_name = 'cnn-6-bn-True-noise-2.0-trn-100000-sig-0.035-bz-300-lr-1e-05-Adam-stp-100.0k-clf_v1'
+# source_model_name = 'cnn-6-bn-True-noise-2.0-trn-100000-sig-0.035-bz-300-lr-1e-05-Adam-stp-100.0k-clf_v1'
+if bn:
+	source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-300-lr-1e-05-Adam-stp-100.0k-clf_v1'
+else:
+	source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-300-lr-1e-05-Adam-stp-100.0k-clf_v1'
 # load source data
 # source = '/data/results/CLB'
 # target = '/data/results/FDA'
@@ -329,7 +334,7 @@ with tf.Session() as sess:
 		batch_ys = ys_trn[indices_s,:]
 		indices_t = np.random.randint(0, Xt_trn.shape[0]-1, batch_size)
 		batch_t = Xt_trn[indices_t,:]
-# 		for _ in range(nd_steps):
+ 		for _ in range(nd_steps):
 		_, D_loss, D_grads = sess.run([disc_step, disc_loss, dis_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
 		_, G_loss, G_grads = sess.run([gen_step, disc_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		_, sC_loss = sess.run([src_clf_step, src_clf_loss], feed_dict={xs: batch_s, ys: batch_ys, is_training: True, dis_training: False})
