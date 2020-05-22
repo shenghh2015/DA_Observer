@@ -68,5 +68,31 @@
 
 # python adda_DA3.py --gpu 0 --docker True --dis_cnn 2 --g_cnn 6 --g_lr 1e-5 --d_lr 4e-5 --lsmooth True --dis_bn False --iters 100000 --bz 300 --dis_param 1.0 --trg_clf_param 0 --src_clf_param 3.0 --nb_trg_labels 0 --dataset total
 
-python adda_DA3.py --gpu 0 --docker True --dis_cnn 2 --g_cnn 4 --g_lr 1e-5 --d_lr 6e-5 --lsmooth False --dis_bn True --den_bn True --iters 400000 --bz 200 --dis_param 1.0 --trg_clf_param 0 --src_clf_param 1.0 --nb_trg_labels 0 --dataset total
+#python adda_DA3.py --gpu 0 --docker True --dis_cnn 2 --g_cnn 4 --g_lr 1e-5 --d_lr 6e-5 --lsmooth False --dis_bn True --den_bn True --iters 400000 --bz 200 --dis_param 1.0 --trg_clf_param 0 --src_clf_param 1.0 --nb_trg_labels 0 --dataset total
+# parser.add_argument("--gpu", type=int, default = 2)
+# parser.add_argument("--docker", type = str2bool, default = True)
+# parser.add_argument("--shared", type = str2bool, default = True)
+# parser.add_argument("--lr", type = float, default = 1e-5)
+# parser.add_argument("--iters", type = int, default = 10000)
+# parser.add_argument("--bz", type = int, default = 300)
+# parser.add_argument("--mmd_param", type = float, default = 1.0)
+# parser.add_argument("--trg_clf_param", type = float, default = 1.0)
+# parser.add_argument("--src_clf_param", type = float, default = 1.0)
+# parser.add_argument("--scratch", type = str2bool, default = True)
+# parser.add_argument("--nb_source", type = int, default = 100000)
+# parser.add_argument("--nb_target", type = int, default = 100000)
+# parser.add_argument("--nb_trg_labels", type = int, default = 0)
+# parser.add_argument("--fc_layer", type = int, default = 128)
+# parser.add_argument("--bn", type = str2bool, default = False)
+# parser.add_argument("--s_h", type = float, default = 40)
+# parser.add_argument("--s_blur", type = float, default = 0.5)
+# parser.add_argument("--s_noise", type = float, default = 10)
+# parser.add_argument("--t_h", type = float, default = 50)
+# parser.add_argument("--t_blur", type = float, default = 4.0)
+# parser.add_argument("--t_noise", type = float, default = 10)
+# # parser.add_argument("--clf_v", type = int, default = 1)
+# # parser.add_argument("--dataset", type = str, default = 'total')
+# parser.add_argument("--valid", type = int, default = 100)
+# parser.add_argument("--test", type = int, default = 200)
 
+python mmd_DA3.py --gpu 0 --docker True --lr 1e-5 --iters 200000 --bz 300 --mmd_param 1.0 --trg_param 1.0 --src_clf_param 1.0 --scratch True --nb_source 100000 --nb_target 85000 

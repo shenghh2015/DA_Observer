@@ -68,15 +68,6 @@ parser.add_argument("--bn", type = str2bool, default = False)
 parser.add_argument("--clf_v", type = int, default = 1)
 parser.add_argument("--dataset", type = str, default = 'total')
 parser.add_argument("--valid", type = int, default = 100)
-parser.add_argument("--test", type = int, default = 200)
-
-parser.add_argument("--source_scratch", type = str2bool, default = True)
-parser.add_argument("--nb_trg_labels", type = int, default = 0)
-parser.add_argument("--fc_layer", type = int, default = 128)
-parser.add_argument("--den_bn", type = str2bool, default = False)
-parser.add_argument("--clf_v", type = int, default = 1)
-parser.add_argument("--dataset", type = str, default = 'total')
-parser.add_argument("--valid", type = int, default = 400)
 
 args = parser.parse_args()
 print(args)
@@ -124,7 +115,8 @@ DA_folder = os.path.join(output_folder, 'CLB-FDA', source_model_name)
 # load source data
 nb_source = 100000
 nb_target = 100000
-
+noise = 2.0
+sig_rate = 0.035
 Xs_trn, Xs_val, Xs_tst, ys_trn, ys_val, ys_tst = load_source(train = nb_source, sig_rate = sig_rate)
 Xs_trn, Xs_val, Xs_tst = np.random.RandomState(2).normal(Xs_trn, noise), np.random.RandomState(0).normal(Xs_val, noise), np.random.RandomState(1).normal(Xs_tst, noise)
 Xs_trn, Xs_val, Xs_tst = (Xs_trn-np.min(Xs_trn))/(np.max(Xs_trn)-np.min(Xs_trn)), (Xs_val-np.min(Xs_val))/(np.max(Xs_val)-np.min(Xs_val)), (Xs_tst-np.min(Xs_tst))/(np.max(Xs_tst)-np.min(Xs_tst))
