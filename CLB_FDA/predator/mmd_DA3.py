@@ -240,10 +240,11 @@ with tf.Session() as sess:
 		print('AUC: S-S {0:.4f} S-T {1:.4f}'.format(src_auc, trg_auc))
 	for iteration in range(nb_steps):
 		indices = np.random.randint(0, Xs_trn.shape[0]-1, batch_size)
+		indices_t = np.random.randint(0, Xt_trn.shape[0]-1, batch_size)
 		# train the source
 		source_x = Xs_trn[indices,:];source_y = ys_trn[indices,:];sess.run(source_trn_ops, feed_dict={xs:source_x, ys: source_y, is_training: True})
 		# train the feature extractors
-		target_x = Xt_trn[indices,:];sess.run(mmd_trn_ops, feed_dict={xs:source_x, xt:target_x, is_training: True})
+		target_x = Xt_trn[indices_t,:];sess.run(mmd_trn_ops, feed_dict={xs:source_x, xt:target_x, is_training: True})
 		# train the target
 		if nb_trg_labels > 0:
 			l_indices = np.random.randint(0, Xt_trn_l.shape[0]-1, 50)
