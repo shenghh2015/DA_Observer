@@ -16,7 +16,7 @@ from functools import partial
 from load_data import load_source, load_target 
 from models2 import conv_classifier
 from helper_function import generate_folder, print_green, print_red, print_yellow, print_block
-from helper_function import plot_LOSS_mmd, plot_AUC, plot_loss, plot_auc, plot_hist
+from helper_function import plot_LOSS_mmd, plot_AUC, plot_loss_mmd, plot_auc, plot_hist
 
 def str2bool(value):
     return value.lower() == 'true'
@@ -272,9 +272,9 @@ with tf.Session() as sess:
 			print(DA_model_name)
 			if nb_trg_labels > 0:
 				plot_AUC(DA_model_folder + '/auc-full_{}.png'.format(DA_model_name), trg_trn_auc_list, trg_val_auc_list, trg_tst_auc_list)
-				plot_LOSS(DA_model_folder + '/loss-full_{}.png'.format(DA_model_name), trg_loss_list, src_loss_list, mmd_loss_list)			
+				plot_LOSS_mmd(DA_model_folder + '/loss-full_{}.png'.format(DA_model_name), trg_loss_list, src_loss_list, mmd_loss_list)			
 			plot_auc(DA_model_folder + '/auc_{}.png'.format(DA_model_name), trg_val_auc_list, trg_tst_auc_list)
-			plot_loss(DA_model_folder + '/loss_{}.png'.format(DA_model_name), src_loss_list, mmd_loss_list)
+			plot_loss_mmd(DA_model_folder + '/loss_{}.png'.format(DA_model_name), src_loss_list, mmd_loss_list)
 			if best_val_auc < trg_val_auc:
 				best_val_auc = trg_val_auc
 				np.savetxt(DA_model_folder+'/best_stat.txt', trg_stat)

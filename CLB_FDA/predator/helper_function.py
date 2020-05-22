@@ -290,7 +290,7 @@ def plot_AUC(file_name, train_list, val_list, test_list):
 	canvas.print_figure(file_name, dpi=100)
 
 # plot and save the file
-def plot_loss(file_name, loss, val_loss):
+def plot_loss_mmd(file_name, loss, val_loss):
 	f_out = file_name
 	from matplotlib.backends.backend_agg import FigureCanvasAgg
 	from matplotlib.figure import Figure
