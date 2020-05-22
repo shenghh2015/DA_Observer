@@ -16,7 +16,7 @@ from functools import partial
 from load_data import load_source, load_target 
 from models2 import conv_classifier
 from helper_function import generate_folder, print_green, print_red, print_yellow, print_block
-from helper_function import plot_LOSS_mmd, plot_AUC, plot_loss_mmd, plot_auc, plot_hist
+from helper_function import plot_LOSS_mmd, plot_AUC, plot_loss_mmd, plot_auc, plot_hist, plot_feature_pair_dist
 
 def str2bool(value):
     return value.lower() == 'true'
