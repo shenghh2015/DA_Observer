@@ -206,7 +206,7 @@ target_saver = tf.train.Saver(target_key_direct, max_to_keep=nb_steps)
 print(target_vars_list)
 
 # source loss
-src_clf_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = ys, logits = source_logit))
+src_clf_loss = src_clf_param*tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = ys, logits = source_logit))
 
 # mmd loss
 # with tf.variable_scope('mmd'):
