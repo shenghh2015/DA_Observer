@@ -347,6 +347,25 @@ def plot_hist(file_name, x, y):
 	canvas = FigureCanvasAgg(fig)
 	canvas.print_figure(file_name, dpi=100)
 
+def plot_LOSS(file_name, train_loss_list, val_loss_list, test_loss_list):
+	import matplotlib.pyplot as plt
+	from matplotlib.backends.backend_agg import FigureCanvasAgg
+	from matplotlib.figure import Figure
+	fig_size = (8,6)
+	fig = Figure(figsize=fig_size)
+	ax = fig.add_subplot(111)
+	ax.plot(train_loss_list)
+	ax.plot(val_loss_list)
+	ax.plot(test_loss_list)
+	title = os.path.basename(os.path.dirname(file_name))
+	ax.set_title(title)
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('Loss')
+	ax.legend(['D','S','T'])
+	ax.set_xlim([0,len(train_loss_list)])
+	canvas = FigureCanvasAgg(fig)
+	canvas.print_figure(file_name, dpi=100)
+
 def plot_LOSS_mmd(file_name, train_loss_list, val_loss_list, test_loss_list):
 	import matplotlib.pyplot as plt
 	from matplotlib.backends.backend_agg import FigureCanvasAgg
