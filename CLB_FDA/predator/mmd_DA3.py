@@ -154,8 +154,8 @@ yt_trn_l = np.concatenate([yt_trn[0:nb_trg_labels,:],yt_trn[nb_target:nb_target+
 # base_model_folder = os.path.join(DA, source_model_name)
 # generate_folder(base_model_folder)
 # copy the source weight file to the DA_model_folder
-DA_model_name = 'CLB-mmd-{}-sclf{}-tclf-{}-lr-{}-bz-{}-scr-{}-shared-{}-bn-{}-labels-{}-val-{}-S-{}-{}-{}-T-{}-{}-{}-itrs-{}-v3'\
-				.format(mmd_param,src_clf_param,trg_clf_param,lr,batch_size,source_scratch,shared,bn, nb_trg_labels, valid, s_h, s_blur, s_noise, t_h, t_blur, t_noise, nb_steps)
+DA_model_name = 'CLB-mmd-{}-sclf{}-tclf-{}-lr-{}-bz-{}-scr-{}-shared-{}-bn-{}-labels-{}-val-{}-T-{}-itrs-{}-v3'\
+				.format(mmd_param,src_clf_param,trg_clf_param,lr,batch_size,source_scratch,shared,bn, nb_trg_labels, valid, datset, nb_steps)
 DA_model_folder = os.path.join(DA_folder, DA_model_name)
 generate_folder(DA_model_folder)
 os.system('cp -f {} {}'.format(source_model_file+'*', DA_model_folder))
