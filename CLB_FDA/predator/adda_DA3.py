@@ -114,7 +114,7 @@ sig_rate = 0.035
 # source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-400-lr-5e-05-Adam-100.0k'
 # source_model_name = 'cnn-6-bn-True-noise-2.0-trn-100000-sig-0.035-bz-300-lr-1e-05-Adam-stp-100.0k-clf_v1'
 # source_model_name = 'cnn-6-bn-True-noise-2.0-trn-100000-sig-0.035-bz-300-lr-1e-05-Adam-stp-100.0k-clf_v1'
-if bn:
+if den_bn:
 	source_model_name = 'cnn-4-bn-True-noise-2.0-trn-100000-sig-0.035-bz-300-lr-1e-05-Adam-stp-100.0k-clf_v1'
 else:
 	source_model_name = 'cnn-4-bn-False-noise-2.0-trn-100000-sig-0.035-bz-300-lr-1e-05-Adam-stp-100.0k-clf_v1'
