@@ -65,6 +65,7 @@ parser.add_argument("--lr", type = float, default = 1e-5)
 parser.add_argument("--iters", type = int, default = 1000)
 parser.add_argument("--bz", type = int, default = 400)
 parser.add_argument("--dis_param", type = float, default = 1.0)
+parser.add_argument("--mmd_param", type = float, default = 1.0)
 parser.add_argument("--trg_clf_param", type = float, default = 1.0)
 parser.add_argument("--src_clf_param", type = float, default = 1.0)
 parser.add_argument("--source_scratch", type = str2bool, default = True)
@@ -84,6 +85,7 @@ shared = args.shared
 batch_size = args.bz
 nb_steps = args.iters
 dis_param = args.dis_param
+mmd_param = args.mmd_param
 dis_cnn = args.dis_cnn
 dis_fc = args.dis_fc
 dis_bn = args.dis_bn
