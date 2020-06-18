@@ -352,7 +352,7 @@ with tf.Session() as sess:
 		batch_t = Xt_trn[indices_t,:]
 		_, M_loss = sess.run([mmd_trn_ops, mmd_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		_, D_loss, D_grads = sess.run([disc_step, disc_loss, dis_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
-		_, G_loss, G_grads = sess.run([gen_step, g_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
+		_, G_loss, G_grads = sess.run([gen_step, gen_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		_, sC_loss = sess.run([src_clf_step, src_clf_loss], feed_dict={xs: batch_s, ys: batch_ys, is_training: True, dis_training: False})
 # 		print('loss: G {0:.4f} D {1:.4f} S {2:.4f}'.format(G_loss, D_loss, sC_loss))
 # 		for _ in range(ng_steps):
