@@ -367,6 +367,7 @@ with tf.Session() as sess:
 	#	else:
 	#		_, G_loss, sC_loss = sess.run([gen_step_no_labels, gen_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, is_training: True, dis_training: False})
 		if iteration%40 == 0:
+			print(D_loss); print(G_loss); print(M_loss)
 			test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst, is_training: False, dis_training: False})
 			test_source_stat = np.exp(test_source_logit)
 			test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
