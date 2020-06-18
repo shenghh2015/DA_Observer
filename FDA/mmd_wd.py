@@ -258,7 +258,7 @@ else:
 
 # WD GAN loss
 gen_loss = tf.reduce_mean(src_logits) - tf.reduce_mean(trg_logits)
-disc_loss = D_wgangp_acgan(discriminator, conv_net_src, fakes = conv_net_trg, minibatch_size = batch_size, dis_training = dis_training, dis_cnn = dis_cnn, fc_layers = [dis_fc, 1], dis_bn = dis_bn)
+disc_loss = D_wgangp_acgan(conv_net_src, fakes = conv_net_trg, minibatch_size = batch_size, dis_training = dis_training, dis_cnn = dis_cnn, fc_layers = [dis_fc, 1], dis_bn = dis_bn)
 
 disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)))
 gen_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.zeros_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.ones_like(trg_logits)))

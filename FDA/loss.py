@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from models2 import *
 
 def fp32(*values):
     if len(values) == 1 and isinstance(values[0], tuple):
@@ -31,7 +32,7 @@ def lerp_clip(a, b, t):
 #         loss += label_penalty_fakes * cond_weight
 #     return loss
 
-def D_wgangp_acgan(discriminator, reals, fakes, minibatch_size, dis_training, dis_cnn = 4, fc_layers = [128, 1], dis_bn = True,
+def D_wgangp_acgan(reals, fakes, minibatch_size, dis_training, dis_cnn = 4, fc_layers = [128, 1], dis_bn = True,
 	wgan_lambda     = 10.0,     # Weight for the gradient penalty term.
 	wgan_epsilon    = 0.001,    # Weight for the epsilon term, \epsilon_{drift}.
 	wgan_target     = 1.0):      # Target value for gradient magnitudes.
