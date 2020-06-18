@@ -36,7 +36,7 @@ def D_wgangp_acgan(reals, fakes, minibatch_size, dis_training, dis_cnn = 4, fc_l
 	wgan_lambda     = 10.0,     # Weight for the gradient penalty term.
 	wgan_epsilon    = 0.001,    # Weight for the epsilon term, \epsilon_{drift}.
 	wgan_target     = 1.0):      # Target value for gradient magnitudes.
-	
+	from models2 import discriminator
 	fake_scores_out = discriminator(fakes, nb_cnn = dis_cnn, fc_layers = fc_layers, bn = dis_bn, reuse = True, drop = 0, bn_training = dis_training)
 	real_scores_out = discriminator(reals, nb_cnn = dis_cnn, fc_layers = fc_layers, bn = dis_bn, reuse = True, drop = 0, bn_training = dis_training)
 	loss = tf.reduce_mean(fake_scores_out) - tf.reduce_mean(real_scores_out)
