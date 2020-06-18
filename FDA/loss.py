@@ -23,27 +23,26 @@ def fp32(*values):
 #     return loss
 
 def D_wgangp_acgan(discriminator, reals, fakes, minibatch_size, dis_cnn = 4, fc_layers = [128, 1], dis_bn = True, dis_training,
-    wgan_lambda     = 10.0,     # Weight for the gradient penalty term.
-    wgan_epsilon    = 0.001,    # Weight for the epsilon term, \epsilon_{drift}.
-    wgan_target     = 1.0):      # Target value for gradient magnitudes.
-
+	wgan_lambda     = 10.0,     # Weight for the gradient penalty term.
+	wgan_epsilon    = 0.001,    # Weight for the epsilon term, \epsilon_{drift}.
+	wgan_target     = 1.0):      # Target value for gradient magnitudes.
+	
 	fake_scores_out = discriminator(fakes, nb_cnn = dis_cnn, fc_layers = fc_layers, bn = dis_bn, reuse = True, drop = 0, bn_training = dis_training)
 	real_scores_out = discriminator(reals, nb_cnn = dis_cnn, fc_layers = fc_layers, bn = dis_bn, reuse = True, drop = 0, bn_training = dis_training)
+	loss = tf.reduce_mean(fake_scores_out) - tf.reduce_mean(real_scores_out)
+	
+	with tf.name_scope('GradientPenalty'):
+		mixing_factors = tf.random_uniform([minibatch_size, 1, 1, 1], 0.0, 1.0, dtype=fake_images_out.dtype)
+		mixed_input = tfutil.lerp(tf.cast(reals, fakes.dtype), fakes, mixing_factors)
+		mixed_scores = fp32(discriminator(mixed_input))
+		mixed_loss = tf.reduce_sum(mixed_scores)
+		mixed_grads = fp32(tf.gradients(mixed_loss, [mixed_input])[0])
+		mixed_norms = tf.sqrt(tf.reduce_sum(tf.square(mixed_grads), axis=[1,2,3]))
+		gradient_penalty = tf.square(mixed_norms - wgan_target)
+	loss += gradient_penalty * (wgan_lambda / (wgan_target**2))
 
-    loss = tf.reduce_mean(fake_scores_out) - tf.reduce_mean(real_scores_out)
+	with tf.name_scope('EpsilonPenalty'):
+		epsilon_penalty = tf.square(real_scores_out)
+	loss += epsilon_penalty * wgan_epsilon
 
-    with tf.name_scope('GradientPenalty'):
-        mixing_factors = tf.random_uniform([minibatch_size, 1, 1, 1], 0.0, 1.0, dtype=fake_images_out.dtype)
-        mixed_input = tfutil.lerp(tf.cast(reals, fakes.dtype), fakes, mixing_factors)
-        mixed_scores = fp32(discriminator(mixed_input))
-        mixed_loss = tf.reduce_sum(mixed_scores)
-        mixed_grads = fp32(tf.gradients(mixed_loss, [mixed_input])[0])
-        mixed_norms = tf.sqrt(tf.reduce_sum(tf.square(mixed_grads), axis=[1,2,3]))
-        gradient_penalty = tf.square(mixed_norms - wgan_target)
-    loss += gradient_penalty * (wgan_lambda / (wgan_target**2))
-    
-    with tf.name_scope('EpsilonPenalty'):
-        epsilon_penalty = tf.square(real_scores_out)
-    loss += epsilon_penalty * wgan_epsilon
-
-    return loss
+	return loss
