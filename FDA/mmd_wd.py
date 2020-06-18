@@ -284,7 +284,7 @@ mixed_input = lerp(tf.cast(reals, fakes.dtype), fakes, mixing_factors)
 mixed_scores = fp32(discriminator(mixed_input, nb_cnn = dis_cnn, fc_layers = [dis_fc, 1], bn = dis_bn, reuse = True, drop = drop, bn_training = dis_training))
 mixed_loss = tf.reduce_sum(mixed_scores)
 mixed_grads = fp32(tf.gradients(mixed_loss, [mixed_input])[0])
-mixed_norms = tf.sqrt(tf.reduce_mean(tf.square(mixed_grads), axis=[1,2,3]))
+mixed_norms = tf.reduce_mean(tf.sqrt(tf.reduce_sum(tf.square(mixed_grads), axis=[1,2,3])))
 gradient_penalty = tf.square(mixed_norms - wgan_target)
 disc_loss += gradient_penalty * (wgan_lambda / (wgan_target**2))
 
