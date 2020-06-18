@@ -115,7 +115,7 @@ def conv_block(x, nb_cnn = 4, bn = False, scope_name = 'base', bn_training = Tru
 # x = tf.placeholder("float", shape=[None, 109,109, 1])
 # h = conv_block(x, nb_cnn = 4, bn = True, scope_name = 'base')
 
-def dense_block(x, fc_layers = [128, 1], bn = False, scope_name = 'base', drop = 0.5, bn_training = True):
+def dense_block(x, fc_layers = [128, 1], bn = False, scope_name = 'base', bn_training = True):
 # 	shape = x.shape.as_list()[1:]
 	with tf.variable_scope(scope_name):
 		flat = tf.layers.flatten(x)
@@ -124,8 +124,6 @@ def dense_block(x, fc_layers = [128, 1], bn = False, scope_name = 'base', drop =
 # 			h1 = tf.layers.batch_normalization(h1, training = True)
 			h1 = bn_layer_top(h1, scope = 'dense', is_training = bn_training, epsilon=0.001, decay=0.99)
 		h1 = tf.nn.leaky_relu(h1)
-		if drop >0:
-			h1 = tf.nn.dropout(h1, rate = drop)
 		h2 = tf.layers.dense(h1, fc_layers[1], kernel_regularizer = l2_regularizer)
 	return h1, h2
 
@@ -133,7 +131,7 @@ def dense_block(x, fc_layers = [128, 1], bn = False, scope_name = 'base', drop =
 def conv_classifier(x, nb_cnn = 4, fc_layers = [128,1],  bn = False, scope_name = 'base', reuse = False, bn_training = True):
 	with tf.variable_scope(scope_name, reuse = reuse):
 		conv_net = conv_block(x, nb_cnn = nb_cnn, bn = bn, scope_name = 'conv', bn_training = bn_training)
-		h, pred_logit = dense_block(conv_net, fc_layers = fc_layers, bn = bn, scope_name = 'classifier', drop = 0, bn_training = bn_training)
+		h, pred_logit = dense_block(conv_net, fc_layers = fc_layers, bn = bn, scope_name = 'classifier', bn_training = bn_training)
 
 	return conv_net, h, pred_logit
 
@@ -144,11 +142,11 @@ def conv_classifier(x, nb_cnn = 4, fc_layers = [128,1],  bn = False, scope_name 
 # 
 # 	return conv_net, h, pred_logit
 
-def discriminator(x, nb_cnn = 2, fc_layers = [128, 1], bn = True, reuse = False, drop = 0, bn_training = True):
+def discriminator(x, nb_cnn = 2, fc_layers = [128, 1], bn = True, reuse = False, bn_training = True):
 	with tf.variable_scope('discriminator', reuse = reuse):
 		if nb_cnn > 0:
 			h = conv_block(x, nb_cnn = nb_cnn, bn = bn, scope_name = 'cov', bn_training = bn_training)
 			_, pred_logit = dense_block(h, fc_layers = fc_layers, bn = bn, scope_name = 'fc', bn_training = bn_training)
 		else:
-			_, pred_logit = dense_block(x, fc_layers = fc_layers, bn = bn, scope_name = 'fc', drop = drop, bn_training = bn_training)
+			_, pred_logit = dense_block(x, fc_layers = fc_layers, bn = bn, scope_name = 'fc', bn_training = bn_training)
 	return pred_logit
