@@ -350,24 +350,17 @@ with tf.Session() as sess:
 		batch_ys = ys_trn[indices_s,:]
 		indices_t = np.random.randint(0, Xt_trn.shape[0]-1, batch_size)
 		batch_t = Xt_trn[indices_t,:]
-		_, M_loss = sess.run([mmd_trn_ops, mmd_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		_, D_loss, D_grads = sess.run([disc_step, disc_loss, dis_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
-		_, G_loss, G_grads = sess.run([gen_step, gen_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
+		_, G_loss, G_grads = sess.run([gen_step, -gen_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		_, sC_loss = sess.run([src_clf_step, src_clf_loss], feed_dict={xs: batch_s, ys: batch_ys, is_training: True, dis_training: False})
-# 		print('loss: G {0:.4f} D {1:.4f} S {2:.4f}'.format(G_loss, D_loss, sC_loss))
-# 		for _ in range(ng_steps):
-# 		if nb_trg_labels > 0 and test_source_AUC>0.8:
+		_, M_loss = sess.run([mmd_trn_ops, mmd_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		if nb_trg_labels > 0:
 			indices_tl = np.random.randint(0, 2*nb_trg_labels-1, 100)
-			batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]
-# 			_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, gen_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l, is_training: True, dis_training: False})
+			batch_xt_l, batch_yt_l = Xt_trn_l[indices_tl, :], yt_trn_l[indices_tl, :]# 			_, G_loss, sC_loss, tC_loss, trg_digit = sess.run([gen_step, gen_loss, src_clf_loss, trg_clf_loss, target_logit_l], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, xt1:batch_xt_l, yt1:batch_yt_l, is_training: True, dis_training: False})
 			_, tC_loss, trg_digit = sess.run([trg_clf_step, trg_clf_loss, target_logit_l], feed_dict={xt1:batch_xt_l, yt1:batch_yt_l, is_training: True, dis_training: False})
 			train_target_stat = np.exp(trg_digit)
 			train_target_AUC = roc_auc_score(batch_yt_l, train_target_stat)
-	#	else:
-	#		_, G_loss, sC_loss = sess.run([gen_step_no_labels, gen_loss, src_clf_loss], feed_dict={xs: batch_s, xt: batch_t, ys: batch_ys, is_training: True, dis_training: False})
 		if iteration%40 == 0:
-			print(D_loss); print(G_loss); print(M_loss)
 			test_source_logit = source_logit.eval(session=sess,feed_dict={xs:Xs_tst, is_training: False, dis_training: False})
 			test_source_stat = np.exp(test_source_logit)
 			test_source_AUC = roc_auc_score(ys_tst, test_source_stat)
