@@ -148,7 +148,7 @@ def discriminator(x, nb_cnn = 2, fc_layers = [128, 1], bn = True, reuse = False,
 	with tf.variable_scope('discriminator', reuse = reuse):
 		if nb_cnn > 0:
 			h = conv_block(x, nb_cnn = nb_cnn, bn = bn, scope_name = 'cov', bn_training = bn_training)
-			_, pred_logit = dense_block(h, fc_layers = fc_layers, bn = bn, scope_name = 'fc', bn_training = bn_training)
+			_, pred_logit = dense_block(h, fc_layers = fc_layers, bn = bn, scope_name = 'fc', drop = drop, bn_training = bn_training)
 		else:
 			_, pred_logit = dense_block(x, fc_layers = fc_layers, bn = bn, scope_name = 'fc', drop = drop, bn_training = bn_training)
 	return pred_logit
