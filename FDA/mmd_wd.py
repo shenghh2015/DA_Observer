@@ -244,7 +244,7 @@ gaussian_kernel = partial(gaussian_kernel_matrix, sigmas=tf.constant(sigmas))
 loss_value = maximum_mean_discrepancy(h_src, h_trg, kernel=gaussian_kernel)
 mmd_loss = mmd_param*loss_value
 mmd_trn_ops = tf.train.AdamOptimizer(lr).minimize(mmd_loss, var_list = tf.trainable_variables(target_scope))
-
+dis_cnn = 4
 if dis_cnn > 0:
 	src_logits = discriminator(conv_net_src, nb_cnn = dis_cnn, fc_layers = [dis_fc, 1], bn = dis_bn,  drop = drop, bn_training = dis_training)
 	trg_logits = discriminator(conv_net_trg, nb_cnn = dis_cnn, fc_layers = [dis_fc, 1], bn = dis_bn, reuse = True, drop = drop, bn_training = dis_training)
@@ -258,7 +258,7 @@ else:
 
 # WD GAN loss
 gen_loss = tf.reduce_mean(src_logits) - tf.reduce_mean(trg_logits)
-
+disc_loss = D_wgangp_acgan(discriminator, conv_net_src, fakes = conv_net_trg, minibatch_size = batch_size, dis_training = dis_training, dis_cnn = dis_cnn, fc_layers = [dis_fc, 1], dis_bn = dis_bn)
 
 disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)))
 gen_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.zeros_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.ones_like(trg_logits)))

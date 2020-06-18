@@ -7,6 +7,15 @@ def fp32(*values):
     values = tuple(tf.cast(v, tf.float32) for v in values)
     return values if len(values) >= 2 else values[0]
 
+def lerp(a, b, t):
+    with tf.name_scope('Lerp'):
+        return a + (b - a) * t
+
+def lerp_clip(a, b, t):
+    with tf.name_scope('LerpClip'):
+        return a + (b - a) * tf.clip_by_value(t, 0.0, 1.0)
+
+
 # def G_wgan_acgan(G, D, opt, training_set, minibatch_size,
 #     cond_weight = 1.0): # Weight of the conditioning term.
 # 
@@ -31,18 +40,16 @@ def D_wgangp_acgan(discriminator, reals, fakes, minibatch_size, dis_training, di
 	real_scores_out = discriminator(reals, nb_cnn = dis_cnn, fc_layers = fc_layers, bn = dis_bn, reuse = True, drop = 0, bn_training = dis_training)
 	loss = tf.reduce_mean(fake_scores_out) - tf.reduce_mean(real_scores_out)
 	
-	with tf.name_scope('GradientPenalty'):
-		mixing_factors = tf.random_uniform([minibatch_size, 1, 1, 1], 0.0, 1.0, dtype=fake_images_out.dtype)
-		mixed_input = tfutil.lerp(tf.cast(reals, fakes.dtype), fakes, mixing_factors)
-		mixed_scores = fp32(discriminator(mixed_input))
-		mixed_loss = tf.reduce_sum(mixed_scores)
-		mixed_grads = fp32(tf.gradients(mixed_loss, [mixed_input])[0])
-		mixed_norms = tf.sqrt(tf.reduce_sum(tf.square(mixed_grads), axis=[1,2,3]))
-		gradient_penalty = tf.square(mixed_norms - wgan_target)
+	mixing_factors = tf.random_uniform([minibatch_size, 1, 1, 1], 0.0, 1.0, dtype=fakes.dtype)
+	mixed_input = lerp(tf.cast(reals, fakes.dtype), fakes, mixing_factors)
+	mixed_scores = fp32(discriminator(mixed_input))
+	mixed_loss = tf.reduce_sum(mixed_scores)
+	mixed_grads = fp32(tf.gradients(mixed_loss, [mixed_input])[0])
+	mixed_norms = tf.sqrt(tf.reduce_sum(tf.square(mixed_grads), axis=[1,2,3]))
+	gradient_penalty = tf.square(mixed_norms - wgan_target)
 	loss += gradient_penalty * (wgan_lambda / (wgan_target**2))
 
-	with tf.name_scope('EpsilonPenalty'):
-		epsilon_penalty = tf.square(real_scores_out)
+	epsilon_penalty = tf.square(real_scores_out)
 	loss += epsilon_penalty * wgan_epsilon
 
 	return loss
