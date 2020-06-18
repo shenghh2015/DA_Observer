@@ -275,8 +275,8 @@ wgan_lambda     = 10.0     # Weight for the gradient penalty term.
 wgan_epsilon    = 0.001    # Weight for the epsilon term, \epsilon_{drift}.
 wgan_target     = 1.0      # Target value for gradient magnitudes.
 fakes, reals = conv_net_trg, conv_net_src; minibatch_size = batch_size
-fake_scores_out = src_logits
-real_scores_out = trg_logits
+fake_scores_out = trg_logits 
+real_scores_out = src_logits
 disc_loss = tf.reduce_mean(fake_scores_out) - tf.reduce_mean(real_scores_out)
 
 mixing_factors = tf.random_uniform([minibatch_size, 1, 1, 1], 0.0, 1.0, dtype=fakes.dtype)
@@ -352,7 +352,7 @@ with tf.Session() as sess:
 		batch_t = Xt_trn[indices_t,:]
 		_, M_loss = sess.run([mmd_trn_ops, mmd_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		_, D_loss, D_grads = sess.run([disc_step, disc_loss, dis_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
-		_, G_loss, G_grads = sess.run([gen_step, disc_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
+		_, G_loss, G_grads = sess.run([gen_step, g_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		_, sC_loss = sess.run([src_clf_step, src_clf_loss], feed_dict={xs: batch_s, ys: batch_ys, is_training: True, dis_training: False})
 # 		print('loss: G {0:.4f} D {1:.4f} S {2:.4f}'.format(G_loss, D_loss, sC_loss))
 # 		for _ in range(ng_steps):
