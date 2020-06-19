@@ -312,10 +312,10 @@ gen_step_no_labels = tf.train.AdamOptimizer(g_lr).minimize(total_loss_no_labels,
 
 # tf.keras.backend.clear_session()
 ## compute the gradients
-dis_gradients = tf.gradients(disc_loss, discr_vars_list)
-dis_gradients = list(filter(None.__ne__, dis_gradients))
-gen_gradients = tf.gradients(gen_loss, tf.trainable_variables(target_scope)[:-2])
-gen_gradients = list(filter(None.__ne__, gen_gradients))
+# dis_gradients = tf.gradients(disc_loss, discr_vars_list)
+# dis_gradients = list(filter(None.__ne__, dis_gradients))
+# gen_gradients = tf.gradients(gen_loss, tf.trainable_variables(target_scope)[:-2])
+# gen_gradients = list(filter(None.__ne__, gen_gradients))
 
 D_loss_list = []
 G_loss_list = []
@@ -350,8 +350,8 @@ with tf.Session() as sess:
 		batch_ys = ys_trn[indices_s,:]
 		indices_t = np.random.randint(0, Xt_trn.shape[0]-1, batch_size)
 		batch_t = Xt_trn[indices_t,:]
-		_, D_loss, D_grads = sess.run([disc_step, -disc_loss, dis_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
-		_, G_loss, G_grads = sess.run([gen_step, gen_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
+		_, D_loss = sess.run([disc_step, -disc_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
+		_, G_loss = sess.run([gen_step, gen_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		_, sC_loss = sess.run([src_clf_step, src_clf_loss], feed_dict={xs: batch_s, ys: batch_ys, is_training: True, dis_training: False})
 		_, M_loss = sess.run([mmd_trn_ops, mmd_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		if nb_trg_labels > 0:
