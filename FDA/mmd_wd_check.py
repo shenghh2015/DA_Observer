@@ -268,6 +268,20 @@ def lerp(a, b, t):
 def lerp_clip(a, b, t):
     with tf.name_scope('LerpClip'):
         return a + (b - a) * tf.clip_by_value(t, 0.0, 1.0)
+
+# Apply dynamic loss scaling for the given expression.
+def apply_loss_scaling(self, value):
+	assert is_tf_expression(value)
+	if not self.use_loss_scaling:
+		return value
+	return value * exp2(self.get_loss_scaling_var(value.device))
+
+# Undo the effect of dynamic loss scaling for the given expression.
+def undo_loss_scaling(self, value):
+	assert is_tf_expression(value)
+	if not self.use_loss_scaling:
+		return value
+	return value * exp2(-self.get_loss_scaling_var(value.device))
 # WD GAN loss
 gen_loss = tf.reduce_mean(src_logits) - tf.reduce_mean(trg_logits)
 
