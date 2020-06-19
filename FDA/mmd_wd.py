@@ -255,45 +255,45 @@ else:
 # if lsmooth:
 # 	disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)-0.1) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)+0.1))
 # else:
-def fp32(*values):
-    if len(values) == 1 and isinstance(values[0], tuple):
-        values = values[0]
-    values = tuple(tf.cast(v, tf.float32) for v in values)
-    return values if len(values) >= 2 else values[0]
-
-def lerp(a, b, t):
-    with tf.name_scope('Lerp'):
-        return a + (b - a) * t
-
-def lerp_clip(a, b, t):
-    with tf.name_scope('LerpClip'):
-        return a + (b - a) * tf.clip_by_value(t, 0.0, 1.0)
-# WD GAN loss
-gen_loss = tf.reduce_mean(src_logits) - tf.reduce_mean(trg_logits)
-
-wgan_lambda     = 10.0     # Weight for the gradient penalty term.
-wgan_epsilon    = 0.001    # Weight for the epsilon term, \epsilon_{drift}.
-wgan_target     = 1.0      # Target value for gradient magnitudes.
-fakes, reals = conv_net_trg, conv_net_src; minibatch_size = batch_size
-fake_scores_out = trg_logits 
-real_scores_out = src_logits
-disc_loss = tf.reduce_mean(fake_scores_out) - tf.reduce_mean(real_scores_out)
-
-mixing_factors = tf.random_uniform([minibatch_size, 1, 1, 1], 0.0, 1.0, dtype=fakes.dtype)
-mixed_input = lerp(reals, fakes, mixing_factors)
-mixed_scores = discriminator(mixed_input, nb_cnn = dis_cnn, fc_layers = [dis_fc, 1], bn = dis_bn, reuse = True, drop = drop, bn_training = dis_training)
-mixed_loss = tf.reduce_sum(mixed_scores)
-mixed_grads = tf.gradients(mixed_loss, [mixed_input])[0]
-mixed_norms = tf.sqrt(tf.reduce_sum(tf.square(mixed_grads), axis=[1,2,3]))
-gradient_penalty = tf.reduce_mean(tf.square(mixed_norms - wgan_target))
-disc_loss += gradient_penalty * (wgan_lambda / (wgan_target**2))
-
-epsilon_penalty = tf.reduce_mean(tf.square(real_scores_out))
-disc_loss += epsilon_penalty * wgan_epsilon
+# def fp32(*values):
+#     if len(values) == 1 and isinstance(values[0], tuple):
+#         values = values[0]
+#     values = tuple(tf.cast(v, tf.float32) for v in values)
+#     return values if len(values) >= 2 else values[0]
+# 
+# def lerp(a, b, t):
+#     with tf.name_scope('Lerp'):
+#         return a + (b - a) * t
+# 
+# def lerp_clip(a, b, t):
+#     with tf.name_scope('LerpClip'):
+#         return a + (b - a) * tf.clip_by_value(t, 0.0, 1.0)
+# # WD GAN loss
+# gen_loss = tf.reduce_mean(src_logits) - tf.reduce_mean(trg_logits)
+# 
+# wgan_lambda     = 10.0     # Weight for the gradient penalty term.
+# wgan_epsilon    = 0.001    # Weight for the epsilon term, \epsilon_{drift}.
+# wgan_target     = 1.0      # Target value for gradient magnitudes.
+# fakes, reals = conv_net_trg, conv_net_src; minibatch_size = batch_size
+# fake_scores_out = trg_logits 
+# real_scores_out = src_logits
+# disc_loss = tf.reduce_mean(fake_scores_out) - tf.reduce_mean(real_scores_out)
+# 
+# mixing_factors = tf.random_uniform([minibatch_size, 1, 1, 1], 0.0, 1.0, dtype=fakes.dtype)
+# mixed_input = lerp(reals, fakes, mixing_factors)
+# mixed_scores = discriminator(mixed_input, nb_cnn = dis_cnn, fc_layers = [dis_fc, 1], bn = dis_bn, reuse = True, drop = drop, bn_training = dis_training)
+# mixed_loss = tf.reduce_sum(mixed_scores)
+# mixed_grads = tf.gradients(mixed_loss, [mixed_input])[0]
+# mixed_norms = tf.sqrt(tf.reduce_sum(tf.square(mixed_grads), axis=[1,2,3]))
+# gradient_penalty = tf.reduce_mean(tf.square(mixed_norms - wgan_target))
+# disc_loss += gradient_penalty * (wgan_lambda / (wgan_target**2))
+# 
+# epsilon_penalty = tf.reduce_mean(tf.square(real_scores_out))
+# disc_loss += epsilon_penalty * wgan_epsilon
 #disc_loss = D_wgangp_acgan(reals = conv_net_src, fakes = conv_net_trg, minibatch_size = batch_size, dis_training = dis_training, dis_cnn = dis_cnn, fc_layers = [dis_fc, 1], dis_bn = dis_bn)
 
-# disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)))
-# gen_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.zeros_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.ones_like(trg_logits)))
+disc_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.ones_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.zeros_like(trg_logits)))
+gen_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=src_logits,labels=tf.zeros_like(src_logits)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=trg_logits, labels=tf.ones_like(trg_logits)))
 
 total_loss_no_labels = dis_param* gen_loss + src_clf_param*src_clf_loss
 total_loss = total_loss_no_labels
