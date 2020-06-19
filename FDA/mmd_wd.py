@@ -75,7 +75,7 @@ parser.add_argument("--fc_layer", type = int, default = 128)
 parser.add_argument("--den_bn", type = str2bool, default = False)
 parser.add_argument("--clf_v", type = int, default = 1)
 parser.add_argument("--dataset", type = str, default = 'dense')
-parser.add_argument("--drop", type = float, default = 0.5)
+parser.add_argument("--drop", type = float, default = 0)
 
 args = parser.parse_args()
 print(args)
@@ -277,16 +277,16 @@ wgan_target     = 1.0      # Target value for gradient magnitudes.
 fakes, reals = conv_net_trg, conv_net_src; minibatch_size = batch_size
 fake_scores_out = trg_logits 
 real_scores_out = src_logits
-disc_loss = tf.reduce_mean(fake_scores_out) - tf.reduce_mean(real_scores_out)
+wd_loss = tf.reduce_mean(fake_scores_out) - tf.reduce_mean(real_scores_out)
 
 mixing_factors = tf.random_uniform([minibatch_size, 1, 1, 1], 0.0, 1.0, dtype=fakes.dtype)
 mixed_input = lerp(tf.cast(reals, fakes.dtype), fakes, mixing_factors)
 mixed_scores = fp32(discriminator(mixed_input, nb_cnn = dis_cnn, fc_layers = [dis_fc, 1], bn = dis_bn, reuse = True, drop = drop, bn_training = dis_training))
-mixed_loss = tf.reduce_sum(mixed_scores)
+mixed_loss = tf.reduce_mean(mixed_scores)
 mixed_grads = fp32(tf.gradients(mixed_loss, [mixed_input])[0])
 mixed_norms = tf.reduce_mean(tf.sqrt(tf.reduce_sum(tf.square(mixed_grads), axis=[1,2,3])))
 gradient_penalty = tf.square(mixed_norms - wgan_target)
-disc_loss += gradient_penalty * (wgan_lambda / (wgan_target**2))
+disc_loss = wd_loss+ gradient_penalty * (wgan_lambda / (wgan_target**2))
 
 epsilon_penalty = tf.reduce_mean(tf.square(real_scores_out))
 disc_loss += epsilon_penalty * wgan_epsilon
@@ -350,8 +350,8 @@ with tf.Session() as sess:
 		batch_ys = ys_trn[indices_s,:]
 		indices_t = np.random.randint(0, Xt_trn.shape[0]-1, batch_size)
 		batch_t = Xt_trn[indices_t,:]
-		_, D_loss, D_grads = sess.run([disc_step, disc_loss, dis_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
-		_, G_loss, G_grads = sess.run([gen_step, -gen_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
+		_, D_loss, D_grads = sess.run([disc_step, -disc_loss, dis_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: False, dis_training: True})
+		_, G_loss, G_grads = sess.run([gen_step, gen_loss, gen_gradients], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		_, sC_loss = sess.run([src_clf_step, src_clf_loss], feed_dict={xs: batch_s, ys: batch_ys, is_training: True, dis_training: False})
 		_, M_loss = sess.run([mmd_trn_ops, mmd_loss], feed_dict={xs: batch_s, xt: batch_t, is_training: True, dis_training: False})
 		if nb_trg_labels > 0:
@@ -367,10 +367,10 @@ with tf.Session() as sess:
 			src_test_list.append(test_source_AUC)
 			train_source_logit = src_logits.eval(session=sess,feed_dict={xs:batch_s, is_training: False, dis_training: False})
 			train_target_logit = trg_logits.eval(session=sess,feed_dict={xt:batch_t, is_training: False, dis_training: False})
-			domain_preds = np.concatenate([train_source_logit, train_target_logit], axis = 0) > 0
-			domain_labels = np.concatenate([np.ones(train_source_logit.shape), np.zeros(train_target_logit.shape)])
-			domain_acc = np.sum(domain_preds == domain_labels)/domain_preds.shape[0]
-			dom_acc_list.append(domain_acc)
+# 			domain_preds = np.concatenate([train_source_logit, train_target_logit], axis = 0) > 0
+# 			domain_labels = np.concatenate([np.ones(train_source_logit.shape), np.zeros(train_target_logit.shape)])
+# 			domain_acc = np.sum(domain_preds == domain_labels)/domain_preds.shape[0]
+# 			dom_acc_list.append(domain_acc)
 			test_target_logit = target_logit.eval(session=sess,feed_dict={xt:Xt_tst, is_training: False, dis_training: False})
 			test_target_stat = np.exp(test_target_logit)
 			test_target_AUC = roc_auc_score(yt_tst, test_target_stat)
@@ -385,7 +385,7 @@ with tf.Session() as sess:
 			# save results
 			np.savetxt(os.path.join(DA_model_folder,'test_auc.txt'), test_auc_list)
 			np.savetxt(os.path.join(DA_model_folder,'val_auc.txt'), val_auc_list)
-			np.savetxt(os.path.join(DA_model_folder,'dom_acc.txt'), dom_acc_list)
+# 			np.savetxt(os.path.join(DA_model_folder,'dom_acc.txt'), dom_acc_list)
 			np.savetxt(os.path.join(DA_model_folder,'D_loss.txt'),D_loss_list)
 			np.savetxt(os.path.join(DA_model_folder,'G_loss.txt'),G_loss_list)
 			np.savetxt(os.path.join(DA_model_folder,'MMD_loss.txt'),mmd_loss_list)
@@ -398,34 +398,34 @@ with tf.Session() as sess:
 				tC_loss_list.append(tC_loss)
 				np.savetxt(os.path.join(DA_model_folder,'train_auc.txt'), train_auc_list)
 				np.savetxt(os.path.join(DA_model_folder,'trg_clf_loss.txt'),tC_loss_list)
-				print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, T-train {2:.4f}, S-test: {3:.4f}; ACC: dom {4:.4f}'.format(test_target_AUC, val_target_AUC, train_target_AUC, test_source_AUC, domain_acc))
+				print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, T-train {2:.4f}, S-test: {3:.4f}'.format(test_target_AUC, val_target_AUC, train_target_AUC, test_source_AUC))
 				print_yellow('Loss: D:{0:.4f}, G:{1:.4f}, MMD:{2:.4f} S:{3:.4f}, T:{4:.4f}, Iter:{5:}'.format(D_loss, G_loss, M_loss, sC_loss, tC_loss, iteration))
 				plot_LOSS(DA_model_folder+'/loss_{}.png'.format(DA_model_name), mmd_loss_list, sC_loss_list, tC_loss_list)
 				plot_loss(DA_model_folder, D_loss_list, G_loss_list, DA_model_folder+'/adver_{}.png'.format(DA_model_name))
-				plot_AUCs_DomACC(DA_model_folder+'/AUC_dom_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list, dom_acc_list)
+# 				plot_AUCs_DomACC(DA_model_folder+'/AUC_dom_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list, dom_acc_list)
 				plot_src_trg_AUCs(DA_model_folder+'/AUC_src_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list, src_test_list)
 				plot_AUCs(DA_model_folder+'/AUC_{}.png'.format(DA_model_name), train_auc_list, val_auc_list, test_auc_list)
 			else:
-				print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, S-test: {2:.4f}; ACC: dom {3:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC, domain_acc))
+				print_green('AUC: T-test {0:.4f}, T-valid {1:.4f}, S-test: {2:.4f}'.format(test_target_AUC, val_target_AUC, test_source_AUC))
 				print_yellow('Loss: D:{0:.4f}, G:{1:.4f}, MMD:{2:.4f} S:{3:.4f}, Iter:{4:}'.format(D_loss, G_loss, M_loss, sC_loss, iteration))
 				plot_loss(DA_model_folder, mmd_loss_list, sC_loss_list, DA_model_folder+'/loss_{}.png'.format(DA_model_name))
 				plot_loss(DA_model_folder, D_loss_list, G_loss_list, DA_model_folder+'/adver_{}.png'.format(DA_model_name))
-				plot_auc_dom_acc_iterations(test_auc_list, val_auc_list, dom_acc_list, DA_model_folder+'/AUC_dom_{}.png'.format(DA_model_name))
+# 				plot_auc_dom_acc_iterations(test_auc_list, val_auc_list, dom_acc_list, DA_model_folder+'/AUC_dom_{}.png'.format(DA_model_name))
 				plot_auc_iterations(test_auc_list, val_auc_list, DA_model_folder+'/AUC_{}.png'.format(DA_model_name))
 				plot_src_trg_auc_iterations(test_auc_list, val_auc_list, src_test_list, DA_model_folder+'/AUC_src_{}.png'.format(DA_model_name))
-			D_grad_list1.append(np.mean(np.square(D_grads[-1]))); D_grad_list2.append(np.mean(np.square(D_grads[0])))
-			G_grad_list1.append(np.mean(np.square(G_grads[-1]))); G_grad_list2.append(np.mean(np.square(G_grads[0])))
-			print_yellow('grad: G_1 {0:.7f} G_2 {1:.7f} D_1 {2:.7f} D_2 {3:.7f}'.format(np.mean(np.square(D_grads[-1])), np.mean(np.square(D_grads[0])), np.mean(np.square(G_grads[-1])), np.mean(np.square(G_grads[0]))))
-			plot_gradients(DA_model_folder + '/grad-{}.png'.format(DA_model_name), D_grad_list1, D_grad_list2, G_grad_list1, G_grad_list2, fig_size = (10,10))
+# 			D_grad_list1.append(np.mean(np.square(D_grads[-1]))); D_grad_list2.append(np.mean(np.square(D_grads[0])))
+# 			G_grad_list1.append(np.mean(np.square(G_grads[-1]))); G_grad_list2.append(np.mean(np.square(G_grads[0])))
+# 			print_yellow('grad: G_1 {0:.7f} G_2 {1:.7f} D_1 {2:.7f} D_2 {3:.7f}'.format(np.mean(np.square(D_grads[-1])), np.mean(np.square(D_grads[0])), np.mean(np.square(G_grads[-1])), np.mean(np.square(G_grads[0]))))
+# 			plot_gradients(DA_model_folder + '/grad-{}.png'.format(DA_model_name), D_grad_list1, D_grad_list2, G_grad_list1, G_grad_list2, fig_size = (10,10))
 			# save models
-			if iteration%100==0:
-				target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
+# 			if iteration%100==0:
+# 				target_saver.save(sess, DA_model_folder +'/target', global_step= iteration)
 			if best_val_auc < val_target_AUC:
 				best_val_auc = val_target_AUC
 				target_saver.save(sess, DA_model_folder+'/target_best')
 				np.savetxt(os.path.join(DA_model_folder,'test_stat.txt'), test_target_stat)
 				np.savetxt(os.path.join(DA_model_folder,'test_best_auc.txt'), [test_target_AUC])
 				print_red('Update best:'+DA_model_folder)
-			if iteration%10000 == 0:
+			if iteration%1000 == 0:
 				source_feat = h_src.eval(session=sess, feed_dict = {xs: Xs_tst, is_training: False, dis_training: False}); target_feat = h_trg.eval(session=sess, feed_dict = {xt: Xt_tst, is_training: False, dis_training: False})
 				plot_feature_pair_dist(DA_model_folder+'/feat_{}.png'.format(DA_model_name), np.squeeze(source_feat), np.squeeze(target_feat), ys_tst, yt_tst, ['source', 'target'])
