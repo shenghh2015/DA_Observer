@@ -115,7 +115,7 @@ def conv_block(x, nb_cnn = 4, bn = False, scope_name = 'base', bn_training = Tru
 # x = tf.placeholder("float", shape=[None, 109,109, 1])
 # h = conv_block(x, nb_cnn = 4, bn = True, scope_name = 'base')
 
-def dense_block(x, fc_layers = [128, 1], bn = False, scope_name = 'base', drop = 0.5, bn_training = True):
+def dense_block(x, fc_layers = [128, 1], bn = False, scope_name = 'base', drop = 0, bn_training = True):
 # 	shape = x.shape.as_list()[1:]
 	with tf.variable_scope(scope_name):
 		flat = tf.layers.flatten(x)
@@ -130,19 +130,12 @@ def dense_block(x, fc_layers = [128, 1], bn = False, scope_name = 'base', drop =
 	return h1, h2
 
 ### create network
-def conv_classifier(x, nb_cnn = 4, fc_layers = [128,1],  bn = False, scope_name = 'base', reuse = False, bn_training = True):
+def conv_classifier(x, nb_cnn = 4, fc_layers = [128,1], bn = False, scope_name = 'base', reuse = False, bn_training = True):
 	with tf.variable_scope(scope_name, reuse = reuse):
 		conv_net = conv_block(x, nb_cnn = nb_cnn, bn = bn, scope_name = 'conv', bn_training = bn_training)
 		h, pred_logit = dense_block(conv_net, fc_layers = fc_layers, bn = bn, scope_name = 'classifier', drop = 0, bn_training = bn_training)
 
 	return conv_net, h, pred_logit
-
-# def conv_classifier2(x, nb_cnn = 4, fc_layers = [128,1],  bn = False, scope_name = 'base', reuse = False):
-# 	with tf.variable_scope(scope_name, reuse = reuse):
-# 		conv_net = conv_block(x, nb_cnn = nb_cnn, bn = bn, scope_name = 'conv')
-# 		h, pred_logit = dense_block(conv_net, fc_layers = fc_layers, bn = True, scope_name = 'classifier')
-# 
-# 	return conv_net, h, pred_logit
 
 def discriminator(x, nb_cnn = 2, fc_layers = [128, 1], bn = True, reuse = False, drop = 0, bn_training = True):
 	with tf.variable_scope('discriminator', reuse = reuse):

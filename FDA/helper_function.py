@@ -88,9 +88,8 @@ def plot_AUCs_DomACC(file_name, train_list, val_list, test_list, dom_acc_list):
 
 # generate the folder
 def generate_folder(folder):
-    import os
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+	if not os.path.exists(folder):
+		os.system('mkdir -p {}'.format(folder))
 
 def compute_pairwise_distances(x, y):
     if not len(x.get_shape()) == len(y.get_shape()) == 2:
