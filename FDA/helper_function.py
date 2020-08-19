@@ -91,29 +91,6 @@ def generate_folder(folder):
 	if not os.path.exists(folder):
 		os.system('mkdir -p {}'.format(folder))
 
-def compute_pairwise_distances(x, y):
-    if not len(x.get_shape()) == len(y.get_shape()) == 2:
-        raise ValueError('Both inputs should be matrices.')
-    if x.get_shape().as_list()[1] != y.get_shape().as_list()[1]:
-        raise ValueError('The number of features should be the same.')
-
-    norm = lambda x: tf.reduce_sum(tf.square(x), 1)
-    return tf.transpose(norm(tf.expand_dims(x, 2) - tf.transpose(y)))
-
-def gaussian_kernel_matrix(x, y, sigmas):
-    beta = 1. / (2. * (tf.expand_dims(sigmas, 1)))
-    dist = compute_pairwise_distances(x, y)
-    s = tf.matmul(beta, tf.reshape(dist, (1, -1)))
-    return tf.reshape(tf.reduce_sum(tf.exp(-s), 0), tf.shape(dist))
-
-
-def maximum_mean_discrepancy(x, y, kernel=gaussian_kernel_matrix):
-    cost = tf.reduce_mean(kernel(x, x))
-    cost += tf.reduce_mean(kernel(y, y))
-    cost -= 2 * tf.reduce_mean(kernel(x, y))
-    cost = tf.where(cost > 0, cost, 0, name='value')
-    return cost
-
 # plot and save the file
 def plot_loss(model_name, loss, val_loss, file_name):
 	generate_folder(model_name)
